@@ -55,6 +55,20 @@ body {
 .tab:hover { color: var(--text); border-color: var(--line); }
 .tab.active { color: var(--accent); border-color: var(--accent); background: rgba(124,194,255,.08); }
 .tab-customize { font-size: .82rem; opacity: .7; }
+.lang-toggle {
+  margin-left: auto;
+  font-size: .82rem;
+  font-weight: 600;
+  padding: .3rem .7rem;
+  border-radius: 6px;
+  border: 1.5px solid var(--accent, #3b82f6);
+  background: transparent;
+  color: var(--accent, #3b82f6);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background .15s, color .15s;
+}
+.lang-toggle:hover { background: var(--accent, #3b82f6); color: #fff; }
 
 /* ── main / panels ── */
 #mainContent {

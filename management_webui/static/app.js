@@ -1,3 +1,295 @@
+// ══════════════════════════════════════════════
+//  i18n — English / Japanese language switching
+// ══════════════════════════════════════════════
+
+const LANG_KEY = 'preflight-lang';
+let currentLang = localStorage.getItem(LANG_KEY) || (navigator.language.startsWith('ja') ? 'ja' : 'en');
+
+const i18n = {
+  ja: {
+    // Static HTML text keys (for restoring from English)
+    'site.title': 'フォルダの中身チェック — 無料の安全確認ツール',
+    'site.eyebrow': 'ダウンロードしたプロジェクトを、実行する前にチェック　🆓 完全無料・オープンソース',
+    'site.h1': 'フォルダの中身チェック',
+    'tab.try': '🔍 試す', 'tab.docs': '📖 読む', 'tab.glossary': '📚 用語辞典',
+    'tab.beginner': '🌱 初心者支援', 'tab.customize': '🔧 カスタマイズ',
+    'try.h2': 'ダウンロードしたフォルダの README やテキストファイルをチェック',
+    'try.desc': 'README、.md、.txt、.py などの<strong>テキストファイル</strong>を読み取って、「インストールするとPC全体に影響しそう」「秘密情報が書いてあるかも」といった<strong>心配な部分を日本語で説明</strong>します。<br>画像や動画、zip などは対象外です。フォルダを入れると中のテキストファイルだけを見ます。',
+    'try.placeholder': '例: /mnt/c/Users/.../Downloads/tool （フォルダかテキストファイルのパス）',
+    'try.submit': 'このフォルダを確認する',
+    'try.pickBtn': 'フォルダ/ファイルを選ぶ...',
+    'try.pickStatus': 'Windowsの見慣れた「開く」ダイアログが開きます',
+    'try.dropTitle': 'ここにテキストファイルをドラッグ＆ドロップ',
+    'try.dropDesc': 'README、.txt、.md を 1 つだけ投げると中身をチェックします (1MB まで)',
+    'try.emptyMsg': 'まだ実行していません。ダウンロードしたフォルダのパスを入れるか、README などのテキストファイルをドラッグ＆ドロップしてください。',
+    'try.copyBtn': '診断結果をコピー',
+    'try.copyHint': 'ChatGPT などに貼って相談できます',
+    'try.copyWarn': '⚠️ 貼る前に、実際のパスワードやトークンが含まれていないか自分の目で確認してください。見つかった場合は <strong>その部分を消してから</strong>貼ってください。<br>（<strong>[REDACTED]</strong> と表示されている部分はツールが自動でマスク済みです）',
+    'docs.eyebrow': 'ドキュメント', 'docs.loading': '読み込み中...',
+    'docs.copyBtn': 'この文書をコピー',
+    'glossary.eyebrow': '分からない言葉をやさしく解説',
+    'glossary.h2': '用語辞典',
+    'glossary.desc': 'ソフトやプログラミングの用語を、<strong>やさしい言葉で</strong>検索・一覧できます。<br>下の検索欄に入れたり、スクロールして気になる言葉を探してください。',
+    'glossary.placeholder': '🔍 調べたい言葉を入力（例: sudo, CLI, コミット...）',
+    'glossary.loading': '読み込み中...',
+    'beginner.eyebrow': 'バイブコーディングを楽しむための補助輪',
+    'beginner.h2': '🌱 バイブコーディング初心者支援機能',
+    'beginner.desc': 'AIエージェントやバイブコーディングを始める人が、つまずきにくくなるための機能をまとめています。<br>下から使いたい機能を選んでください。',
+    'port.title': '🔢 今どのポート使ってる？ — ポート取り合いチェッカー',
+    'port.introBold': '今このPCで、どのポートがどのプロセスに使われているかを一覧します。',
+    'port.introDesc': '開発サーバーやMCP、VOICEVOX、ローカルLLMなどがポートを占有していて、<br>新しいツールが起動できないことがあります。「今誰が使ってんの？」を確認できます。<br>よく使われるポートには「VOICEVOX」「ComfyUI」など用途候補も表示します。',
+    'port.safeNote': '📖 <strong>見るだけ</strong>です。ポートを塞いだり、プロセスを停止したり、設定を書き換えたりはしません。',
+    'port.scanBtn': '🔍 今使われているポートを一覧',
+    'port.nextTitle': 'このあとどうすればいい？',
+    'tools.title': '🧰 基本道具チェック — AIエージェントの作業前確認',
+    'tools.introBold': 'Python、Node.js、npm、Git、GitHub CLI、PowerShell、WSL、Docker が使えるかを確認します。',
+    'tools.introDesc': 'Windows側にあるか、WSL/エージェント側にあるかがズレると、AIエージェントが「入っているはずなのに使えない」で止まることがあります。',
+    'tools.safeNote': '📖 <strong>見るだけ</strong>です。インストール、更新、ログイン、Docker起動、設定変更はしません。',
+    'tools.checkBtn': '🔍 基本道具をチェック',
+    'tools.nextTitle': 'エージェントが見た時の導線チェック',
+    'review.eyebrow': 'UIや機能の調整をリクエスト',
+    'review.h2': 'カスタマイズリクエスト',
+    'review.refreshBtn': '更新',
+    'review.desc': '表示や機能について「ここをこうしてほしい」というリクエストをためられます。<br><strong>ここではリクエストを書くだけ</strong>で、画面は自動では変わりません。<br>直し方は：<br>① 下の「リクエストをコピー」で内容をコピー<br>② このプロジェクトのフォルダを <strong>Cursor や Claude Code などのバイブコーディングツールで開く</strong><br>③ コピーしたリクエストを貼り付けて「これ直して」と依頼する',
+    'review.sectionLabel': '対象セクション',
+    'review.sectionPlaceholder': '例: README冒頭 / decision名 / WebUI',
+    'review.priorityLabel': '優先度',
+    'review.reactionLabel': 'どんなふうに変えてほしい？',
+    'review.reactionPlaceholder': '例: もっと簡単な言葉で / ボタンを大きく / 順番を変えて',
+    'review.textLabel': 'リクエスト内容',
+    'review.textPlaceholder': '例: confirm_before_running は『実行前に確認』と表示してほしい',
+    'review.submitBtn': 'リクエストを追加',
+    // Dynamic-rendering keys only
+    'yes': 'あり', 'no': 'なし',
+    'checking': 'チェック中...', 'error.prefix': 'エラー: ',
+    'fetching.ports': 'ポート情報を取得しています...',
+    'fetching.tools': '基本道具を確認しています...',
+    'scan.checking': '確認中...', 'scan.error': '確認できませんでした',
+    'scan.items': '件の確認項目', 'scan.decision': '判定',
+    'scan.maxPriority': '最大優先度', 'scan.confirmItems': '確認項目',
+    'scan.rerun': '🔄 別のフォルダでやり直す', 'scan.expandAll': '全部ひらく',
+    'scan.collapseAll': '全部たたむ', 'scan.clear': '✕ 結果をしまう',
+    'port.listenLabel': 'ポートがLISTEN中', 'port.knownTitle': '🟢 用途がわかっているポート',
+    'port.unknownTitle': '⚠️ 見慣れないポート（外から見える可能性）',
+    'port.collapsedTitle': '🔒 見慣れないポート（自分だけ）',
+    'port.headers': ['ポート','プロセス','PID','説明','相談'],
+    'port.selfBadge': 'このツール', 'port.unknownBadge': '見慣れない',
+    'port.aiTitle': '🤖 AI/MCP候補まとめ',
+    'port.aiDesc': 'ポート一覧の中から、AIエージェント・MCP・ローカルLLM・VOICEVOX・ComfyUI・ブラウザ操作に関係しそうなものだけを先にまとめました。',
+    'port.aiEmptyTitle': '🤖 AI/MCP候補まとめ',
+    'port.aiEmptyDesc': 'よく知られたAI・MCP・ローカルLLM系ポートは見つかりませんでした。これは「何も使えない」という意味ではなく、今このPCで待ち受けているものからは候補を拾えなかった、という意味です。',
+    'port.aiCopy': '📋 AIに聞く文をコピー',
+    'port.aiNote': '📖 見つかった候補は「使えるかもしれない入口」です。MCPとして本当に使えるか、安全に接続できるかは、そのツールの設定と説明を確認してください。',
+    'port.consultUnknown': '見慣れない待ち受け — 何のソフトか確認してみてください',
+    'tools.confirmed': '個の基本道具を確認', 'tools.copyMemo': '📋 AIに渡す確認メモをコピー',
+    'tools.agentRoute': '🤖 AIエージェント向け導線',
+    'tools.agentDesc': 'エージェントは「自分が動いている側」にある道具しかそのまま使えません。Windows側だけにある道具をWSL側エージェントが使う作業では失敗することがあります。',
+    'tools.agentMissing': 'エージェント側で見つからない道具',
+    'tools.windowsOnly': 'Windows側だけで見つかった道具',
+    'tools.noAutoInstall': '不足があっても、勝手にインストールせず、まずユーザーに確認してください。',
+    'tools.headers': ['道具','状態','バージョン','実行コマンド','Windows側','エージェント側','説明 / 注意'],
+    'tools.statusBoth': 'Windows側にもWSL/エージェント側にもあります',
+    'tools.statusAgentOnly': 'エージェントが使う側にはあります',
+    'tools.statusWindowsOnly': 'Windows側にはありますが、エージェント側では見つかりません',
+    'tools.statusMissing': '見つかりません',
+    'comments.empty': 'この状態のリクエストはまだ無い。',
+    'comments.copy': 'このリクエストをコピー', 'comments.reaction': '反応:',
+    'comments.workNote': '作業メモ:',
+    'scan.introTitle': '📋 このツールがやること（毎回確認）',
+    'scan.legendTitle': '🔍 このスキャンで検出された話題',
+    'scan.legendHint': '下に続く各カードに付いている絵文字の意味です。専門用語にカーソルを合わせると解説が出ます。',
+    'scan.nextTitle': '👉 このあとどうすればいい？',
+    'scan.freeNote': '🆓 このツールは完全無料・オープンソースです。お金は一切かかりません。',
+    'glossary.noMatch': 'に一致する用語は見つかりませんでした。別の言葉で試してください。',
+    'help.destructive_delete': ['削除・リセット系のコマンドが書かれています。', '違うフォルダで実行すると、作業ファイルや設定を消す可能性があります。', 'まだ実行しないでください。何を消すのか、バックアップやdry-runがあるか確認してください。'],
+    'help.global_install': ['グローバルインストール、またはダウンロードしたスクリプトをそのまま実行する手順が書かれています。', 'プロジェクトフォルダの外までPC環境を変える可能性があります。', 'まずローカルインストール、仮想環境、使い捨てフォルダで試せるか確認してください。sudo、-g、curl | sh は人に確認してから。'],
+    'help.secrets_or_auth': ['トークン、パスワード、APIキー、OAuth、.env などの秘密情報について書かれています。', '秘密情報はログ、履歴、スクリーンショット、コミット、AIエージェントの文脈に漏れることがあります。', '最初はダミー値を使ってください。本物の秘密情報を貼る前に、どこへ保存されるか確認してください。'],
+    'help.paid_or_billing': ['課金、有料プラン、クレジットカード、quota、credits について書かれています。', '設定後にお金がかかったり、有料API枠を消費する可能性があります。', '支払い情報はエージェント経由で入れず、料金の発生条件を自分で確認してください。'],
+    'help.daemon_or_cron': ['daemon、service、cron、バックグラウンド常駐について書かれています。', 'ターミナルを閉じても動き続け、初心者には止め方が分かりにくいことがあります。', '起動する前に、停止・無効化・アンインストール方法を確認してください。'],
+    'help.config_mutation': ['Agent、MCP、Claude、Hermes、アプリ設定ファイルを変更する手順かもしれません。', '今後のエージェント実行や別プロジェクトにも影響する可能性があります。', '変更前に設定ファイルをバックアップし、どのファイルが変わるか確認してください。'],
+    'help.remote_code_execution': ['eval、exec、subprocess、shell実行など、コードやコマンドを実行する仕組みが見えます。', '内容次第でPC上のコマンドを実行できます。', '周辺コードを読み、何を実行するのか分かるまで動かさないでください。'],
+    'help.external_network': ['外部Web/API/ネットワークアクセスについて書かれています。', 'データが外へ送られたり、外部サービスに依存する可能性があります。', '何を送るのか、オフライン/ローカルモードがあるか確認してください。'],
+    'help.filesystem_write': ['ファイルの作成、コピー、移動、書き込みについて書かれています。', '意図しない場所のファイルを上書きする可能性があります。', '書き込み先パスを確認し、最初は使い捨てフォルダで試してください。'],
+    'help.container_or_vm': ['Docker、Kubernetes、Vagrantなどのコンテナ/VMについて書かれています。', '隔離っぽく見えても、ローカルフォルダのマウント、ポート、ディスク使用、常駐が起こります。', 'volume、port、cleanup手順を確認してから起動してください。'],
+    'help.ports': ['ローカルポートを使うWebアプリやエージェントについて書かれています。', '他のローカルツールと競合したり、意図せずサービスが見える場合があります。', 'そのポートが使用中か、localhostだけにbindするか確認してください。'],
+    'help.browser_control': ['ブラウザ自動操作やリモートブラウザ制御について書かれています。', 'ログイン済みブラウザや個人データに触れる可能性があります。', '専用ブラウザプロファイルを使い、最初は個人アカウントのページを避けてください。'],
+    'help.local_read': ['ローカルファイルやDBを読む処理について書かれています。', '読み取り自体は低影響でも、内容がログやレポートに出ることがあります。', '最初は個人情報のないフォルダで試してください。'],
+    'help.dry_run_hint': ['dry-run、preview、read-only など、変更しない試用モードのヒントがあります。', '学習中の最初の一歩として使いやすいモードです。', '変更するコマンドの前に、まずdry-run/previewを試してください。'],
+    'cat.destructive_delete': '削除・リセット系', 'cat.global_install': 'インストール操作',
+    'cat.secrets_or_auth': '秘密情報', 'cat.paid_or_billing': '課金・クレジット',
+    'cat.daemon_or_cron': '常駐サービス', 'cat.config_mutation': '設定ファイル書き換え',
+    'cat.remote_code_execution': 'コード/コマンド実行', 'cat.external_network': '外部ネットワーク通信',
+    'cat.filesystem_write': 'ファイル書き込み', 'cat.container_or_vm': 'コンテナ/VM',
+    'cat.ports': 'ローカルポート使用', 'cat.browser_control': 'ブラウザ自動操作',
+    'cat.local_read': 'ローカル読み取り', 'cat.dry_run_hint': '試用モードのヒント',
+  },
+  en: {
+    // Static HTML text (applied via data-i18n)
+    'site.title': 'Folder Contents Check — Free Safety Review Tool',
+    'site.eyebrow': 'Check downloaded projects before running them 🆓 Free & Open Source',
+    'site.h1': 'Folder Contents Check',
+    'tab.try': '🔍 Try', 'tab.docs': '📖 Read', 'tab.glossary': '📚 Glossary',
+    'tab.beginner': '🌱 Beginner Help', 'tab.customize': '🔧 Customize',
+    'try.h2': 'Check README and text files in downloaded folders',
+    'try.desc': 'Reads <strong>text files</strong> like README, .md, .txt, .py and explains <strong>risky parts in plain language</strong> — such as "this may affect your whole PC" or "this may contain secrets".<br>Images, videos, zip files are not scanned. Dropping a folder only reads text files inside.',
+    'try.placeholder': 'e.g. /mnt/c/Users/.../Downloads/tool (folder or text file path)',
+    'try.submit': 'Check this folder',
+    'try.pickBtn': 'Choose folder/file...',
+    'try.pickStatus': 'Opens a familiar Windows "Open" dialog',
+    'try.dropTitle': 'Drag & drop a text file here',
+    'try.dropDesc': 'Drop one README, .txt, or .md file to check its contents (up to 1MB)',
+    'try.emptyMsg': 'Not yet run. Enter a path to a downloaded folder, or drag & drop a README or text file.',
+    'try.copyBtn': 'Copy scan results',
+    'try.copyHint': 'Paste into ChatGPT or ask someone for help',
+    'try.copyWarn': '⚠️ Before pasting, check that no real passwords or tokens are included. If found, <strong>remove them first</strong>.<br>(Parts shown as <strong>[REDACTED]</strong> are automatically masked by the tool.)',
+    'docs.eyebrow': 'Documentation', 'docs.loading': 'Loading...',
+    'docs.copyBtn': 'Copy this document',
+    'glossary.eyebrow': 'Simple explanations for unfamiliar terms',
+    'glossary.h2': 'Glossary',
+    'glossary.desc': 'Search and browse <strong>software and programming terms</strong> in simple language.<br>Type in the search box below or scroll to explore.',
+    'glossary.placeholder': '🔍 Search terms (e.g. sudo, CLI, commit...)',
+    'glossary.loading': 'Loading...',
+    'beginner.eyebrow': 'Training wheels for vibe coding',
+    'beginner.h2': '🌱 Vibe Coding Beginner Support',
+    'beginner.desc': 'Features to help beginners and AI agent users get started with fewer obstacles.<br>Choose a feature below.',
+    'port.title': '🔢 Who\'s using my ports? — Port conflict checker',
+    'port.introBold': 'Lists which ports are in use by which processes on this PC.',
+    'port.introDesc': 'Dev servers, MCP tools, VOICEVOX, local LLMs and others may hold ports,<br>preventing new tools from starting. Find out "who\'s using it?"<br>Common ports show usage hints like "VOICEVOX" or "ComfyUI".',
+    'port.safeNote': '📖 <strong>Read-only.</strong> It won\'t block ports, stop processes, or change settings.',
+    'port.scanBtn': '🔍 List listening ports',
+    'port.nextTitle': 'What to do next',
+    'tools.title': '🧰 Tool Check — Pre-work check for AI agents',
+    'tools.introBold': 'Checks whether Python, Node.js, npm, Git, GitHub CLI, PowerShell, WSL, and Docker are available.',
+    'tools.introDesc': 'If tools are missing on the agent side (WSL) but present on Windows, AI agents may stop with "command not found".',
+    'tools.safeNote': '📖 <strong>Read-only.</strong> No install, update, login, Docker start, or settings change.',
+    'tools.checkBtn': '🔍 Check basic tools',
+    'tools.nextTitle': 'Agent workflow check',
+    'review.eyebrow': 'Request UI or feature changes',
+    'review.h2': 'Customization Requests',
+    'review.refreshBtn': 'Refresh',
+    'review.desc': 'You can collect requests like "change this part of the UI".<br><strong>This only records requests</strong> — the screen won\'t change automatically.<br>How to apply:<br>① Copy the request with "Copy request" below<br>② Open this project folder in <strong>Cursor, Claude Code or another vibe coding tool</strong><br>③ Paste the request and ask "fix this"',
+    'review.sectionLabel': 'Target section',
+    'review.sectionPlaceholder': 'e.g. README header / decision name / WebUI',
+    'review.priorityLabel': 'Priority',
+    'review.reactionLabel': 'How should it change?',
+    'review.reactionPlaceholder': 'e.g. Use simpler words / Make button bigger / Change order',
+    'review.textLabel': 'Request details',
+    'review.textPlaceholder': 'e.g. I want confirm_before_running to show as "Confirm before running"',
+    'review.submitBtn': 'Add request',
+    // Dynamic-rendering keys
+    'yes': 'Yes', 'no': 'No',
+    'checking': 'Checking...', 'error.prefix': 'Error: ',
+    'fetching.ports': 'Fetching port info...',
+    'fetching.tools': 'Checking basic tools...',
+    'scan.checking': 'Checking...', 'scan.error': 'Could not check',
+    'scan.items': 'review items', 'scan.decision': 'Decision',
+    'scan.maxPriority': 'Max priority', 'scan.confirmItems': 'Review items',
+    'scan.rerun': '🔄 Try another folder', 'scan.expandAll': 'Expand all',
+    'scan.collapseAll': 'Collapse all', 'scan.clear': '✕ Hide results',
+    'port.listenLabel': 'ports listening', 'port.knownTitle': '🟢 Known ports',
+    'port.unknownTitle': '⚠️ Unfamiliar ports (may be externally visible)',
+    'port.collapsedTitle': '🔒 Unfamiliar ports (local only)',
+    'port.headers': ['Port','Process','PID','Description','Ask AI'],
+    'port.selfBadge': 'This tool', 'port.unknownBadge': 'Unfamiliar',
+    'port.aiTitle': '🤖 AI/MCP Tool Candidates',
+    'port.aiDesc': 'From the port list, we highlighted ports related to AI agents, MCP, local LLM, VOICEVOX, ComfyUI, and browser automation.',
+    'port.aiEmptyTitle': '🤖 AI/MCP Tool Candidates',
+    'port.aiEmptyDesc': 'No well-known AI/MCP/local LLM ports were found. This doesn\'t mean nothing works — it just means nothing was detected among currently listening ports.',
+    'port.aiCopy': '📋 Copy text to ask AI',
+    'port.aiNote': '📖 Found candidates are "possible entry points." Whether they\'re actually usable as MCP, and whether you can connect safely, depends on each tool\'s configuration.',
+    'port.consultUnknown': 'Unfamiliar listener — try checking what software this is',
+    'tools.confirmed': 'basic tools checked', 'tools.copyMemo': '📋 Copy check memo for AI',
+    'tools.agentRoute': '🤖 AI Agent Workflow',
+    'tools.agentDesc': 'Agents can only use tools available on the side they\'re running on. If a tool exists only on Windows, a WSL agent may fail when trying to use it.',
+    'tools.agentMissing': 'Tools not found on agent side',
+    'tools.windowsOnly': 'Tools found only on Windows side',
+    'tools.noAutoInstall': 'Even if tools are missing, don\'t install automatically — ask the user first.',
+    'tools.headers': ['Tool','Status','Version','Command','Windows','Agent','Notes'],
+    'tools.statusBoth': 'Available on both Windows and WSL/agent side',
+    'tools.statusAgentOnly': 'Available on agent side',
+    'tools.statusWindowsOnly': 'On Windows side but not found on agent side',
+    'tools.statusMissing': 'Not found',
+    'comments.empty': 'No requests with this status yet.',
+    'comments.copy': 'Copy this request', 'comments.reaction': 'Reaction:',
+    'comments.workNote': 'Work note:',
+    'scan.introTitle': '📋 What this tool does (check each time)',
+    'scan.legendTitle': '🔍 Topics detected in this scan',
+    'scan.legendHint': 'These are the emoji labels on the cards below. Hover over technical terms for explanations.',
+    'scan.nextTitle': '👉 What to do next',
+    'scan.freeNote': '🆓 This tool is completely free and open source. No cost at all.',
+    'glossary.noMatch': '"$1" — no matching terms found. Try a different word.',
+    'help.destructive_delete': ['The text includes a delete or reset command.', 'Running it in the wrong folder could remove your work files or settings.', 'Do not run yet. Check what gets deleted, and whether a backup or dry-run option exists.'],
+    'help.global_install': ['The setup may install software globally or run a downloaded script.', 'It may affect your PC environment beyond the project folder.', 'Try local install, virtual environment, or a disposable folder first. Confirm with someone before using sudo, -g, or curl | sh.'],
+    'help.secrets_or_auth': ['The text mentions tokens, passwords, API keys, OAuth, or .env files.', 'Secrets can leak into logs, shell history, screenshots, commits, or agent context.', 'Use placeholder values while reading. Do not paste real secrets until you know where they are stored.'],
+    'help.paid_or_billing': ['The text mentions billing, paid plans, credit cards, quotas, or credits.', 'You may be charged or consume paid API credits after setup.', 'Do not enter payment info through an agent. Check pricing conditions yourself.'],
+    'help.daemon_or_cron': ['The text mentions daemons, services, cron, or background processes.', 'They keep running after you close the terminal, which can be hard for beginners to stop.', 'Before starting, check how to stop, disable, or uninstall the service.'],
+    'help.config_mutation': ['The text may change agent, MCP, Claude, Hermes, or application config files.', 'This can affect future agent runs or other projects.', 'Back up config files first and check which files will change.'],
+    'help.remote_code_execution': ['The text uses code execution patterns like eval, exec, subprocess, or shell execution.', 'Depending on the content, it could run arbitrary commands on your PC.', 'Read the surrounding code. Do not run until you understand what it executes.'],
+    'help.external_network': ['The text mentions network calls or external web/API access.', 'Data may be sent externally or depend on external services.', 'Check what data is sent and whether an offline/local mode exists.'],
+    'help.filesystem_write': ['The text mentions writing, copying, moving, or creating files.', 'It could overwrite files in unintended locations.', 'Check the write path. Try with a disposable folder first.'],
+    'help.container_or_vm': ['The text mentions Docker, Kubernetes, Vagrant, or similar isolated runtimes.', 'Even if it looks isolated, folder mounts, ports, disk usage, and background processes may occur.', 'Check volume, port, and cleanup instructions before starting.'],
+    'help.ports': ['The text mentions local ports used by web apps, agents, or browser-control tools.', 'It may conflict with other local tools or expose services unintentionally.', 'Check whether the port is in use and whether it binds to localhost only.'],
+    'help.browser_control': ['The text mentions browser automation or remote browser control.', 'It may interact with logged-in browsers or personal data.', 'Use a dedicated browser profile and avoid personal account pages at first.'],
+    'help.local_read': ['The text mentions reading local files or databases.', 'Even though reading is low-impact, contents may appear in logs or reports.', 'Try with folders that contain no personal information first.'],
+    'help.dry_run_hint': ['The text mentions dry-run, preview, read-only, or no-write modes.', 'This is a good first step when learning.', 'Try the dry-run/preview mode before running any command that makes changes.'],
+    'cat.destructive_delete': 'Delete / Reset', 'cat.global_install': 'Install',
+    'cat.secrets_or_auth': 'Secrets', 'cat.paid_or_billing': 'Billing / Credits',
+    'cat.daemon_or_cron': 'Background Service', 'cat.config_mutation': 'Config Mutation',
+    'cat.remote_code_execution': 'Code Execution', 'cat.external_network': 'External Network',
+    'cat.filesystem_write': 'File Write', 'cat.container_or_vm': 'Container / VM',
+    'cat.ports': 'Local Port', 'cat.browser_control': 'Browser Automation',
+    'cat.local_read': 'Local Read', 'cat.dry_run_hint': 'Dry-Run Hint',
+  }
+};
+
+function t(key, ...args) {
+  let text = i18n[currentLang]?.[key] ?? i18n.ja[key] ?? key;
+  if (typeof text === 'string') {
+    args.forEach((v, i) => { text = text.replace('$' + (i + 1), v); });
+  }
+  return text;
+}
+
+function tArr(key) {
+  const val = i18n[currentLang]?.[key] ?? i18n.ja[key];
+  return Array.isArray(val) ? val : [val || key];
+}
+
+function setLang(lang) {
+  currentLang = lang;
+  localStorage.setItem(LANG_KEY, lang);
+  document.documentElement.lang = lang;
+  applyI18n();
+  const btn = document.getElementById('langToggle');
+  if (btn) btn.textContent = lang === 'ja' ? '🇺🇸 EN' : '🇯🇵 JA';
+}
+
+function applyI18n() {
+  const lang = currentLang === 'ja' ? i18n.ja : i18n.en;
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    const text = lang[key];
+    if (text != null) el.textContent = text;
+  });
+  document.querySelectorAll('[data-i18n-html]').forEach(el => {
+    const key = el.getAttribute('data-i18n-html');
+    const text = lang[key];
+    if (text != null) el.innerHTML = text;
+  });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+    const key = el.getAttribute('data-i18n-placeholder');
+    const text = lang[key];
+    if (text != null) el.placeholder = text;
+  });
+  const titleEl = document.querySelector('title[data-i18n]');
+  if (titleEl) {
+    const key = titleEl.getAttribute('data-i18n');
+    const text = lang[key];
+    if (text != null) document.title = text;
+  }
+}
+
+// ── Original state ──
 const state = { comments: [], docs: [], filter: 'open', currentDoc: 'readme-ja', activeTab: 'try' };
 
 const $ = (id) => document.getElementById(id);
@@ -108,7 +400,7 @@ function renderGlossary(filter = '') {
   });
   $('glossaryCount').textContent = `${filtered.length} / ${terms.length} 件`;
   if (!filtered.length) {
-    grid.innerHTML = `<p class="muted" style="padding:2rem;text-align:center">「${escapeHtml(filter)}」に一致する用語は見つかりませんでした。別の言葉で試してください。</p>`;
+    grid.innerHTML = `<p class="muted" style="padding:2rem;text-align:center">${currentLang === 'ja' ? `「${escapeHtml(filter)}」${t('glossary.noMatch')}` : t('glossary.noMatch', escapeHtml(filter))}</p>`;
     return;
   }
   grid.innerHTML = filtered.map(([term, desc]) => `
@@ -131,17 +423,31 @@ async function loadDoc(id = state.currentDoc) {
 
 function docGuide(id) {
   if (id === 'readme-ja' || id === 'readme') {
+    if (currentLang === 'ja') {
+      return `<section class="reader-guide">
+        <p class="reader-guide-kicker">最初に読むところ</p>
+        <h3>まず「これは何のための道具か」を短く説明し、そのあとに機能と使い方を並べています。</h3>
+        <p>初めて見る人には、機能一覧より先に「いつ使うのか」「何をしないのか」が分かる方が読みやすいので、README はその順番で整理しています。</p>
+      </section>`;
+    }
     return `<section class="reader-guide">
-      <p class="reader-guide-kicker">最初に読むところ</p>
-      <h3>まず「これは何のための道具か」を短く説明し、そのあとに機能と使い方を並べています。</h3>
-      <p>初めて見る人には、機能一覧より先に「いつ使うのか」「何をしないのか」が分かる方が読みやすいので、README はその順番で整理しています。</p>
+      <p class="reader-guide-kicker">Start here</p>
+      <h3>Briefly explains what this tool is for, then lists features and usage.</h3>
+      <p>For first-time readers, understanding "when to use" and "what it doesn't do" before the feature list makes the README easier to follow.</p>
     </section>`;
   }
   if (id === 'beginner-guide') {
+    if (currentLang === 'ja') {
+      return `<section class="reader-guide">
+        <p class="reader-guide-kicker">初心者向けガイド</p>
+        <h3>コマンドを実行する前に、何を確認すればいいかを順番に読むための文書です。</h3>
+        <p>README で全体像を掴んだあと、実際にフォルダをチェックするときの読み方をここで確認できます。</p>
+      </section>`;
+    }
     return `<section class="reader-guide">
-      <p class="reader-guide-kicker">初心者向けガイド</p>
-      <h3>コマンドを実行する前に、何を確認すればいいかを順番に読むための文書です。</h3>
-      <p>README で全体像を掴んだあと、実際にフォルダをチェックするときの読み方をここで確認できます。</p>
+      <p class="reader-guide-kicker">Beginner guide</p>
+      <h3>A step-by-step guide on what to check before running commands.</h3>
+      <p>After understanding the overview from the README, use this to learn how to read the scan results.</p>
     </section>`;
   }
   return '';
@@ -152,7 +458,7 @@ function renderComments() {
   const box = $('comments');
   const comments = state.filter === 'all' ? state.comments : state.comments.filter((c) => c.status === state.filter);
   if (!comments.length) {
-    box.innerHTML = '<p class="muted">この状態のリクエストはまだ無い。</p>';
+    box.innerHTML = `<p class="muted">${t('comments.empty')}</p>`;
     return;
   }
   box.innerHTML = comments.map((c) => `
@@ -163,10 +469,10 @@ function renderComments() {
         <span class="badge ${escapeHtml(c.status)}">${escapeHtml(c.status)}</span>
         <span>${escapeHtml(c.section)}</span>
       </div>
-      ${c.beginner_reaction ? `<p><strong>反応:</strong> ${escapeHtml(c.beginner_reaction)}</p>` : ''}
+      ${c.beginner_reaction ? `<p><strong>${t('comments.reaction')}</strong> ${escapeHtml(c.beginner_reaction)}</p>` : ''}
       <p>${escapeHtml(c.text)}</p>
-      ${c.owner_note ? `<p><strong>作業メモ:</strong> ${escapeHtml(c.owner_note)}</p>` : ''}
-      <button class="copy-btn" data-copy="${escapeHtml(c.text)}">このリクエストをコピー</button>
+      ${c.owner_note ? `<p><strong>${t('comments.workNote')}</strong> ${escapeHtml(c.owner_note)}</p>` : ''}
+      <button class="copy-btn" data-copy="${escapeHtml(c.text)}">${t('comments.copy')}</button>
       <div class="comment-actions">
         ${['open','accepted','fixed','parked'].map((s) => `<button data-id="${c.id}" data-status="${s}">${s}</button>`).join('')}
       </div>
@@ -321,8 +627,10 @@ function beginnerSummaryText(summary) {
 }
 
 function helpFor(item, index) {
+  const h = tArr('help.' + item.category);
   const ja = jaHelp[item.category];
-  return { what: ja?.[0] || item.plain_language || '', why: ja?.[1] || item.why_it_matters || '', next: ja?.[2] || item.beginner_next_step || '', title: `項目${index + 1}: ${item.category}` };
+  const catLabel = t('cat.' + item.category, item.category);
+  return { what: h[0] || ja?.[0] || item.plain_language || '', why: h[1] || ja?.[1] || item.why_it_matters || '', next: h[2] || ja?.[2] || item.beginner_next_step || '', title: `${currentLang === 'ja' ? '項目' : 'Item'}${index + 1}: ${catLabel}` };
 }
 
 function renderLegendCard(items) {
@@ -331,19 +639,23 @@ function renderLegendCard(items) {
   if (!present.size) return '';
   const chips = Array.from(present).map((cat) => {
     const emoji = jaCategoryEmoji[cat] || '•';
-    const label = jaCategoryLabel[cat] || cat;
+    const label = t('cat.' + cat, jaCategoryLabel[cat] || cat);
     return `<span class="legend-chip"><span class="legend-emoji">${emoji}</span><span>${escapeHtml(label)}</span></span>`;
   }).join('');
-  return `<div class="legend-card"><div class="legend-head"><span class="legend-title">🔍 このスキャンで検出された話題</span><span class="muted">${present.size} 種類</span></div><p class="muted legend-hint">下に続く各カードに付いている絵文字の意味です。専門用語にカーソルを合わせると解説が出ます。</p><div class="legend-chips">${chips}</div></div>`;
+  const kinds = currentLang === 'ja' ? '種類' : 'types';
+  return `<div class="legend-card"><div class="legend-head"><span class="legend-title">${t('scan.legendTitle')}</span><span class="muted">${present.size} ${kinds}</span></div><p class="muted legend-hint">${t('scan.legendHint')}</p><div class="legend-chips">${chips}</div></div>`;
 }
 
 function renderIntroCard() {
-  return `<div class="intro-card"><div class="intro-head">📋 このツールがやること（毎回確認）</div><ul class="intro-list"><li><strong>読み取り専用で</strong>スキャンします。指定されたフォルダのファイルを<strong>読みます</strong>。</li><li><strong>ファイルは書き換えません</strong>。新規作成も削除もしません。</li><li><strong>外部には送信しません</strong>。スキャン結果はあなたのブラウザにだけ表示されます。</li><li><strong>コマンドは実行しません</strong>。検出された注意点を表示するだけです。</li></ul><p class="muted intro-note">個人情報が含まれるフォルダを最初に入れるのは避け、テスト用フォルダで試してからにしてください。</p></div>`;
+  if (currentLang === 'ja') {
+    return `<div class="intro-card"><div class="intro-head">📋 このツールがやること（毎回確認）</div><ul class="intro-list"><li><strong>読み取り専用で</strong>スキャンします。指定されたフォルダのファイルを<strong>読みます</strong>。</li><li><strong>ファイルは書き換えません</strong>。新規作成も削除もしません。</li><li><strong>外部には送信しません</strong>。スキャン結果はあなたのブラウザにだけ表示されます。</li><li><strong>コマンドは実行しません</strong>。検出された注意点を表示するだけです。</li></ul><p class="muted intro-note">個人情報が含まれるフォルダを最初に入れるのは避け、テスト用フォルダで試してからにしてください。</p></div>`;
+  }
+  return `<div class="intro-card"><div class="intro-head">📋 ${t('scan.introTitle')}</div><ul class="intro-list"><li>Scans in <strong>read-only</strong> mode. It <strong>reads</strong> files in the specified folder.</li><li><strong>Does not modify files</strong>. No creation, deletion, or changes.</li><li><strong>Does not send data externally</strong>. Results are shown only in your browser.</li><li><strong>Does not execute commands</strong>. It only displays review notes.</li></ul><p class="muted intro-note">Avoid folders with personal information at first. Try a test folder first.</p></div>`;
 }
 
 function renderScanResult(data) {
   if (!data.ok) {
-    $('scanSummary').innerHTML = `<p class="bad">確認できませんでした: ${escapeHtml(data.error || 'unknown error')}</p>`;
+    $('scanSummary').innerHTML = `<p class="bad">${t('scan.error')}: ${escapeHtml(data.error || 'unknown error')}</p>`;
     $('scanResultTools').style.display = 'none';
     return;
   }
@@ -354,9 +666,9 @@ function renderScanResult(data) {
     const help = helpFor(item, index);
     return `<details class="scan-item" open>
       <summary><span class="badge ${escapeHtml(item.priority)}">${escapeHtml(item.priority)}</span> ${escapeHtml(help.title)} / ${escapeHtml(item.file)}:${escapeHtml(item.line)} <span class="muted hint">クリックで開閉</span></summary>
-      <p><strong>これは何？</strong> ${annotateTerms(help.what)}</p>
-      <p><strong>なぜ確認？</strong> ${annotateTerms(help.why)}</p>
-      <p><strong>次にすること:</strong> ${annotateTerms(help.next)}</p>
+      <p><strong>${currentLang === 'ja' ? 'これは何？' : 'What this means:'}</strong> ${annotateTerms(help.what)}</p>
+      <p><strong>${currentLang === 'ja' ? 'なぜ確認？' : 'Why it matters:'}</strong> ${annotateTerms(help.why)}</p>
+      <p><strong>${currentLang === 'ja' ? '次にすること:' : 'Next step:'}</strong> ${annotateTerms(help.next)}</p>
     </details>`;
   }).join('');
   $('scanSummary').dataset.raw = JSON.stringify(data, null, 2);
@@ -370,35 +682,41 @@ function renderScanResult(data) {
         <div class="decision-card ${escapeHtml(report.max_priority)}">
           <div class="decision-card-head">
             <div>
-              <p><strong>判定:</strong> ${escapeHtml(report.decision)}</p>
-              <p><strong>最大優先度:</strong> ${escapeHtml(report.max_priority)}</p>
-              <p><strong>確認項目:</strong> ${items.length}件</p>
+              <p><strong>${t('scan.decision')}:</strong> ${escapeHtml(report.decision)}</p>
+              <p><strong>${t('scan.maxPriority')}:</strong> ${escapeHtml(report.max_priority)}</p>
+              <p><strong>${t('scan.confirmItems')}:</strong> ${items.length} ${t('scan.items')}</p>
               <p>${escapeHtml(beginnerSummaryText(report.beginner_summary))}</p>
             </div>
             <div class="decision-card-actions">
-              <button type="button" class="primary" data-action="rerun">🔄 別のフォルダでやり直す</button>
-              <button type="button" class="expand-all-btn">全部ひらく</button>
-              <button type="button" class="collapse-all-btn">全部たたむ</button>
-              <button type="button" class="clear-result-btn">✕ 結果をしまう</button>
+              <button type="button" class="primary" data-action="rerun">${t('scan.rerun')}</button>
+              <button type="button" class="expand-all-btn">${t('scan.expandAll')}</button>
+              <button type="button" class="collapse-all-btn">${t('scan.collapseAll')}</button>
+              <button type="button" class="clear-result-btn">${t('scan.clear')}</button>
             </div>
           </div>
         </div>
         <div class="scan-items-wrap">${renderedItems || '<p class="muted">表示する確認項目はありません。</p>'}</div>
         <div class="next-step-card">
-          <div class="next-step-head">👉 このあとどうすればいい？</div>
+          <div class="next-step-head">${t('scan.nextTitle')}</div>
           <ol class="next-step-list">
-            <li>上の確認項目と元の説明書を読み、<strong>分からない点が残る場合は実行前に相談</strong>してください。</li>
+            ${currentLang === 'ja' ? `
+            <li>上の確認項目を読んで、<strong>心配なものがなければそのまま進んでOK</strong>です。</li>
             <li>心配な項目があったら、<strong>「診断結果をコピー」ボタンでコピー</strong>して、ChatGPT や詳しい人に「これ大丈夫？」と相談してください。</li>
             <li>このツールは<strong>読み取っただけで、あなたのPCは何も変わっていません</strong>。安心して閉じても大丈夫です。</li>
+            ` : `
+            <li>Read the review items above. <strong>If nothing worries you, you're good to go.</strong></li>
+            <li>If something concerns you, <strong>copy the scan results</strong> and ask ChatGPT or someone knowledgeable: "Is this safe?"</li>
+            <li>This tool only <strong>read files — nothing on your PC has changed</strong>. You can safely close this.</li>
+            `}
           </ol>
-          <p class="muted next-step-foot">🆓 このツールは完全無料・オープンソースです。お金は一切かかりません。</p>
+          <p class="muted next-step-foot">${t('scan.freeNote')}</p>
         </div>
       </div>
     </details>`;
 }
 
 function clearScanResult() {
-  $('scanSummary').innerHTML = '<p class="muted scan-empty-msg">まだ実行していません。ダウンロードしたフォルダのパスを入れるか、README などのテキストファイルをドラッグ＆ドロップしてください。</p>';
+  $('scanSummary').innerHTML = `<p class="muted scan-empty-msg">${t('try.emptyMsg')}</p>`;
   $('scanResultTools').style.display = 'none';
   delete $('scanSummary').dataset.raw;
 }
@@ -409,7 +727,7 @@ function rerunScan() {
   const shell = $('scanSummary').querySelector('details.scan-shell');
   if (shell) shell.open = false;
   const status = $('pickFolderStatus');
-  if (status) status.textContent = 'パスを変えるか、「フォルダ/ファイルを選ぶ...」で選び直して「このフォルダを確認する」を押してください。';
+  if (status) status.textContent = currentLang === 'ja' ? 'パスを変えるか、「フォルダ/ファイルを選ぶ...」で選び直して「このフォルダを確認する」を押してください。' : 'Change the path or use "Choose folder/file..." to select again, then press "Check this folder".';
 }
 
 function setAllScanItems(open) {
@@ -426,7 +744,7 @@ $('scanSummary')?.addEventListener('click', (event) => {
 });
 
 async function runScan(form) {
-  $('scanSummary').textContent = '確認中...';
+  $('scanSummary').textContent = t('scan.checking');
   const payload = Object.fromEntries(new FormData(form).entries());
   const data = await fetchJson('/api/scan', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload) });
   renderScanResult(data);
@@ -436,24 +754,24 @@ async function runScan(form) {
 
 async function pickFolder() {
   const status = $('pickFolderStatus');
-  status.textContent = 'Windowsの「開く」ダイアログを開いています...';
+  status.textContent = currentLang === 'ja' ? 'Windowsの「開く」ダイアログを開いています...' : 'Opening Windows Open dialog...';
   const data = await fetchJson('/api/pick-folder');
   if (!data.ok) {
-    status.textContent = data.cancelled ? 'キャンセルしました。' : `選択できませんでした: ${data.error || 'unknown error'}`;
+    status.textContent = data.cancelled ? (currentLang === 'ja' ? 'キャンセルしました。' : 'Cancelled.') : `${t('error.prefix')}${data.error || 'unknown error'}`;
     return;
   }
   $('targetPathInput').value = data.path;
-  status.textContent = `選択しました: ${data.path}`;
+  status.textContent = `${currentLang === 'ja' ? '選択しました: ' : 'Selected: '}${data.path}`;
 }
 
 async function scanTextFile(file) {
   if (!file) return;
   const status = $('scanSummary');
   if (file.size > 1_000_000) {
-    status.innerHTML = '<p class="bad">1MB を超えるテキストファイルは扱いません。</p>';
+    status.innerHTML = `<p class="bad">${currentLang === 'ja' ? '1MB を超えるテキストファイルは扱いません。' : 'Text files over 1MB are not supported.'}</p>`;
     return;
   }
-  status.textContent = `${file.name} を読み込み中...`;
+  status.textContent = currentLang === 'ja' ? `${file.name} を読み込み中...` : `Reading ${file.name}...`;
   const content = await file.text();
   const data = await fetchJson('/api/scan-text', {
     method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({filename: file.name, content})
@@ -512,18 +830,18 @@ function renderAiCandidates(ports) {
   const candidates = buildAiToolCandidates(ports);
   if (!candidates.length) {
     return `<div class="ai-candidate-box ai-candidate-empty">
-      <h3>🤖 AI/MCP候補まとめ</h3>
-      <p>よく知られたAI・MCP・ローカルLLM系ポートは見つかりませんでした。これは「何も使えない」という意味ではなく、今このPCで待ち受けているものからは候補を拾えなかった、という意味です。</p>
+      <h3>${t('port.aiEmptyTitle')}</h3>
+      <p>${t('port.aiEmptyDesc')}</p>
     </div>`;
   }
   const askText = `このPCでAIエージェントやバイブコーディングに使えそうなローカルツール候補を確認したいです。\n\n` + candidates.map((p) => `- port ${p.port} / ${p.process_name || '不明'} / ${p.candidate_label} / address ${p.address}`).join('\n') + `\n\nこれらがMCP、ローカルLLM、音声合成、画像生成、ブラウザ操作などに使えるか、初心者向けに確認手順を教えてください。いきなり設定変更やkillはしない前提でお願いします。`;
   return `<div class="ai-candidate-box">
     <div class="ai-candidate-head">
       <div>
-        <h3>🤖 AI/MCP候補まとめ</h3>
-        <p>ポート一覧の中から、AIエージェント・MCP・ローカルLLM・VOICEVOX・ComfyUI・ブラウザ操作に関係しそうなものだけを先にまとめました。</p>
+        <h3>${t('port.aiTitle')}</h3>
+        <p>${t('port.aiDesc')}</p>
       </div>
-      <button class="mcp-copy-btn" data-copy="${escapeHtml(askText)}">📋 AIに聞く文をコピー</button>
+      <button class="mcp-copy-btn" data-copy="${escapeHtml(askText)}">${t('port.aiCopy')}</button>
     </div>
     <div class="ai-candidate-grid">
       ${candidates.map((p) => `<article class="ai-candidate-card">
@@ -532,7 +850,7 @@ function renderAiCandidates(ports) {
         <small>${escapeHtml(p.process_name || '不明')} / ${escapeHtml(p.visibility_ja || p.address || '')}</small>
       </article>`).join('')}
     </div>
-    <p class="ai-candidate-note">📖 見つかった候補は「使えるかもしれない入口」です。MCPとして本当に使えるか、安全に接続できるかは、そのツールの設定と説明を確認してください。</p>
+    <p class="ai-candidate-note">${t('port.aiNote')}</p>
   </div>`;
 }
 
@@ -546,7 +864,7 @@ function renderPortOwners(data) {
   // Summary
   summary.innerHTML = `<div class="mcp-summary-box">
     <span class="mcp-summary-count">${data.total || 0}</span>
-    <span class="mcp-summary-label">ポートがLISTEN中</span>
+    <span class="mcp-summary-label">${t('port.listenLabel')}</span>
   </div>
   <p class="mcp-summary-text">${escapeHtml(data.summary || '')}</p>
   ${renderAiCandidates(data.ports || [])}`;
@@ -560,20 +878,20 @@ function renderPortOwners(data) {
 
   // Known ports — always visible
   if (knownPorts.length > 0) {
-    html += '<h3 class="mcp-section-title">🟢 用途がわかっているポート</h3>';
+    html += `<h3 class="mcp-section-title">${t('port.knownTitle')}</h3>`;
     html += _portTable(knownPorts, false);
   }
 
   // Unknown external — warning, shown by default
   if (unknownExt.length > 0) {
-    html += '<h3 class="mcp-section-title">⚠️ 見慣れないポート（外から見える可能性）</h3>';
+    html += `<h3 class="mcp-section-title">${t('port.unknownTitle')}</h3>`;
     html += _portTable(unknownExt, true);
   }
 
   // Unknown local — collapsed by default
   if (unknownLocal.length > 0) {
     html += `<details class="port-unknown-section">
-      <summary class="port-unknown-toggle">🔒 見慣れないポート（自分だけ） — ${unknownLocal.length}個 ▶</summary>
+      <summary class="port-unknown-toggle">${t('port.collapsedTitle')} — ${unknownLocal.length} ▶</summary>
       ${_portTable(unknownLocal, false)}
     </details>`;
   }
@@ -583,12 +901,12 @@ function renderPortOwners(data) {
 
 function _portTable(ports, isExternal) {
   let html = '<div class="port-table-wrap"><table class="port-table">';
-  html += '<thead><tr><th>ポート</th><th>プロセス</th><th>PID</th><th>説明</th><th>相談</th></tr></thead><tbody>';
+  { const h = tArr('port.headers'); html += `<thead><tr><th>${h[0]}</th><th>${h[1]}</th><th>${h[2]}</th><th>${h[3]}</th><th>${h[4]}</th></tr></thead><tbody>`; }
   for (const p of ports) {
     const portClass = p.is_self ? 'port-self' : (isExternal ? 'port-ext' : (p.is_known ? 'port-known' : 'port-local'));
     const desc = p.description ? escapeHtml(p.description) : '<span class="muted">—</span>';
-    const selfBadge = p.is_self ? ' <span class="port-self-badge">このツール</span>' : '';
-    const unknownBadge = !p.is_known ? ' <span class="port-unknown-badge">見慣れない</span>' : '';
+    const selfBadge = p.is_self ? ` <span class="port-self-badge">${t('port.selfBadge')}</span>` : '';
+    const unknownBadge = !p.is_known ? ` <span class="port-unknown-badge">${t('port.unknownBadge')}</span>` : '';
     const pathHint = p.exe_path ? `<span class="port-exe" title="${escapeHtml(p.exe_path)}">${escapeHtml(p.process_name)}</span>` : escapeHtml(p.process_name);
     const consultText = `ポート ${p.port} を使っているプロセスを確認したいです。\n\nプロセス名: ${p.process_name}\nPID: ${p.pid}\nアドレス: ${p.address}\n状態: LISTEN中\n\nいきなり kill せず、まず通常の終了方法を教えてください。`;
 
@@ -608,8 +926,8 @@ async function runPortOwnersScan() {
   const btn = $('portOwnersBtn');
   const status = $('portOwnersStatus');
   btn.disabled = true;
-  btn.textContent = 'チェック中...';
-  status.textContent = 'ポート情報を取得しています...';
+  btn.textContent = t('checking');
+  status.textContent = t('fetching.ports');
   $('portOwnersArea').style.display = 'none';
 
   try {
@@ -624,7 +942,7 @@ async function runPortOwnersScan() {
     status.textContent = `エラー: ${err.message}`;
   } finally {
     btn.disabled = false;
-    btn.textContent = '🔍 今使われているポートを一覧';
+    btn.textContent = t('port.scanBtn');
   }
 }
 
@@ -634,7 +952,7 @@ async function runPortOwnersScan() {
 // ══════════════════════════════════════════════
 
 function yesNo(value) {
-  return value ? 'あり' : 'なし';
+  return value ? t('yes') : t('no');
 }
 
 function buildToolBasicsAskText(data) {
@@ -643,10 +961,10 @@ function buildToolBasicsAskText(data) {
     '',
     `実行側: ${data.running_side || '不明'}`,
     '',
-    ...(data.tools || []).map((t) => {
-      const current = t.current_side || {};
-      const win = t.windows_side || {};
-      return `- ${t.label}: ${t.status_ja} / エージェント側=${yesNo(t.agent_can_use)} / Windows側=${yesNo(win.present)} / 実行コマンド=${t.run_command || current.command || t.id} / version=${current.version || '不明'}`;
+    ...(data.tools || []).map((tool) => {
+      const current = tool.current_side || {};
+      const win = tool.windows_side || {};
+      return `- ${tool.label}: ${tool.status_ja} / エージェント側=${yesNo(tool.agent_can_use)} / Windows側=${yesNo(win.present)} / 実行コマンド=${tool.run_command || current.command || tool.id} / version=${current.version || '不明'}`;
     }),
     '',
     'お願い: 不足している道具があっても、勝手にインストール・ログイン・Docker起動・設定変更をしないでください。まず初心者に、何が必要で、どちら側（Windows/WSL）に入れるべきかを短く説明してください。'
@@ -665,34 +983,35 @@ function renderToolBasics(data) {
   const windowsOnly = tools.filter((t) => t.status === 'windows_only').length;
   const askText = buildToolBasicsAskText(data);
   summary.innerHTML = `<div class="tool-summary-box">
-    <div><span class="mcp-summary-count">${tools.length}</span><span class="mcp-summary-label">個の基本道具を確認</span></div>
-    <button class="mcp-copy-btn" data-copy="${escapeHtml(askText)}">📋 AIに渡す確認メモをコピー</button>
+    <div><span class="mcp-summary-count">${tools.length}</span><span class="mcp-summary-label">${t('tools.confirmed')}</span></div>
+    <button class="mcp-copy-btn" data-copy="${escapeHtml(askText)}">${t('tools.copyMemo')}</button>
   </div>
   <p class="mcp-summary-text">${escapeHtml(data.summary || '')}</p>
   <div class="tool-agent-route-card">
-    <h3>🤖 AIエージェント向け導線</h3>
-    <p>エージェントは「自分が動いている側」にある道具しかそのまま使えません。Windows側だけにある道具をWSL側エージェントが使う作業では失敗することがあります。</p>
+    <h3>${t('tools.agentRoute')}</h3>
+    <p>${t('tools.agentDesc')}</p>
     <ul>
-      <li>エージェント側で見つからない道具: <strong>${agentMissing}</strong> 個</li>
-      <li>Windows側だけで見つかった道具: <strong>${windowsOnly}</strong> 個</li>
-      <li>不足があっても、勝手にインストールせず、まずユーザーに確認してください。</li>
+      <li>${t('tools.agentMissing')}: <strong>${agentMissing}</strong></li>
+      <li>${t('tools.windowsOnly')}: <strong>${windowsOnly}</strong></li>
+      <li>${t('tools.noAutoInstall')}</li>
     </ul>
   </div>`;
 
   table.innerHTML = `<div class="tool-table-wrap"><table class="tool-table">
-    <thead><tr><th>道具</th><th>状態</th><th>バージョン</th><th>実行コマンド</th><th>Windows側</th><th>エージェント側</th><th>説明 / 注意</th></tr></thead>
-    <tbody>${tools.map((t) => {
-      const current = t.current_side || {};
-      const win = t.windows_side || {};
-      const cls = t.agent_can_use ? 'tool-ok' : (win.present ? 'tool-windows-only' : 'tool-missing');
+    ${(() => { const h = tArr('tools.headers'); return `<thead><tr><th>${h[0]}</th><th>${h[1]}</th><th>${h[2]}</th><th>${h[3]}</th><th>${h[4]}</th><th>${h[5]}</th><th>${h[6]}</th></tr></thead>`; })()}
+    <tbody>${tools.map((tool) => {
+      const current = tool.current_side || {};
+      const win = tool.windows_side || {};
+      const cls = tool.agent_can_use ? 'tool-ok' : (win.present ? 'tool-windows-only' : 'tool-missing');
+      const statusKey = 'tools.status' + (tool.status === 'both' ? 'Both' : tool.status === 'agent_only' ? 'AgentOnly' : tool.status === 'windows_only' ? 'WindowsOnly' : 'Missing');
       return `<tr class="${cls}">
-        <td><strong>${escapeHtml(t.label)}</strong></td>
-        <td><span class="tool-status ${cls}">${escapeHtml(t.status_ja)}</span></td>
+        <td><strong>${escapeHtml(tool.label)}</strong></td>
+        <td><span class="tool-status ${cls}">${escapeHtml(t(statusKey))}</span></td>
         <td class="tool-version">${escapeHtml(current.version || '—')}</td>
-        <td><code>${escapeHtml(t.run_command || current.command || t.id)}</code></td>
+        <td><code>${escapeHtml(tool.run_command || current.command || tool.id)}</code></td>
         <td>${escapeHtml(yesNo(win.present))}${win.path ? `<br><small title="${escapeHtml(win.path)}">${escapeHtml(win.command || '')}</small>` : ''}</td>
-        <td>${escapeHtml(yesNo(t.agent_can_use))}${current.path ? `<br><small title="${escapeHtml(current.path)}">${escapeHtml(current.command || '')}</small>` : ''}</td>
-        <td><p>${escapeHtml(t.beginner_explanation || '')}</p><p class="muted">🤖 ${escapeHtml(t.agent_caution || '')}</p></td>
+        <td>${escapeHtml(yesNo(tool.agent_can_use))}${current.path ? `<br><small title="${escapeHtml(current.path)}">${escapeHtml(current.command || '')}</small>` : ''}</td>
+        <td><p>${escapeHtml(tool.beginner_explanation || '')}</p><p class="muted">🤖 ${escapeHtml(tool.agent_caution || '')}</p></td>
       </tr>`;
     }).join('')}</tbody>
   </table></div>`;
@@ -702,8 +1021,8 @@ async function runToolBasicsScan() {
   const btn = $('toolBasicsBtn');
   const status = $('toolBasicsStatus');
   btn.disabled = true;
-  btn.textContent = 'チェック中...';
-  status.textContent = '基本道具を確認しています...';
+  btn.textContent = t('checking');
+  status.textContent = t('fetching.tools');
   $('toolBasicsArea').style.display = 'none';
   try {
     const data = await fetchJson('/api/tool-basics');
@@ -716,7 +1035,7 @@ async function runToolBasicsScan() {
     status.textContent = `エラー: ${err.message}`;
   } finally {
     btn.disabled = false;
-    btn.textContent = '🔍 基本道具をチェック';
+    btn.textContent = t('tools.checkBtn');
   }
 }
 
@@ -759,18 +1078,20 @@ $('copyDocBtn')?.addEventListener('click', () => navigator.clipboard?.writeText(
 $('commentForm').addEventListener('submit', async (e) => { e.preventDefault(); await addComment(e.target); });
 $('scanForm')?.addEventListener('submit', async (e) => { e.preventDefault(); await runScan(e.target); });
 $('pickFolderBtn')?.addEventListener('click', async () => {
-  try { await pickFolder(); } catch (err) { $('pickFolderStatus').textContent = `選択できませんでした: ${err.message}`; }
+  try { await pickFolder(); } catch (err) { $('pickFolderStatus').textContent = `${t('error.prefix')}${err.message}`;}
 });
 $('copyScanBtn')?.addEventListener('click', () => navigator.clipboard?.writeText($('scanSummary').dataset.raw || $('scanSummary').innerText));
 $('glossarySearch')?.addEventListener('input', (e) => renderGlossary(e.target.value));
 $('portOwnersBtn')?.addEventListener('click', runPortOwnersScan);
 $('toolBasicsBtn')?.addEventListener('click', runToolBasicsScan);
+$('langToggle')?.addEventListener('click', () => setLang(currentLang === 'ja' ? 'en' : 'ja'));
 
 (async function boot() {
   setupDropZone();
   await loadState();
   await loadDoc('readme-ja');
   loadGlossary();
-  // デフォルトは「試す」タブ
   switchTab('try');
+  // Apply saved language preference
+  setLang(currentLang);
 })();
