@@ -59,6 +59,15 @@ const i18n = {
     'review.textLabel': 'リクエスト内容',
     'review.textPlaceholder': '例: confirm_before_running は『実行前に確認』と表示してほしい',
     'review.submitBtn': 'リクエストを追加',
+    'urlcard.title': 'エージェントがURLを開きたがっています',
+    'urlcard.reason': '理由:',
+    'urlcard.url': 'URL:',
+    'urlcard.open': '開く',
+    'urlcard.copy': 'コピー',
+    'urlcard.dismiss': '無視',
+    'urlcard.opened': '開きました',
+    'urlcard.copied': 'コピーしました',
+    'urlcard.none': '現在保留中のURLカードはありません。',
     // Dynamic-rendering keys only
     'yes': 'あり', 'no': 'なし',
     'checking': 'チェック中...', 'error.prefix': 'エラー: ',
@@ -176,6 +185,15 @@ const i18n = {
     'review.textLabel': 'Request details',
     'review.textPlaceholder': 'e.g. I want confirm_before_running to show as "Confirm before running"',
     'review.submitBtn': 'Add request',
+    'urlcard.title': 'Agent wants to open a URL',
+    'urlcard.reason': 'Reason:',
+    'urlcard.url': 'URL:',
+    'urlcard.open': 'Open',
+    'urlcard.copy': 'Copy',
+    'urlcard.dismiss': 'Dismiss',
+    'urlcard.opened': 'Opened',
+    'urlcard.copied': 'Copied',
+    'urlcard.none': 'No pending URL cards.',
     // Dynamic-rendering keys
     'yes': 'Yes', 'no': 'No',
     'checking': 'Checking...', 'error.prefix': 'Error: ',
@@ -1172,6 +1190,84 @@ $('copyScanBtn')?.addEventListener('click', () => navigator.clipboard?.writeText
 $('glossarySearch')?.addEventListener('input', (e) => renderGlossary(e.target.value));
 $('portOwnersBtn')?.addEventListener('click', runPortOwnersScan);
 $('toolBasicsBtn')?.addEventListener('click', runToolBasicsScan);
+// ══════════════════════════════════════════════
+//  URL Card — browser handoff from agent to user
+// ══════════════════════════════════════════════
+
+function renderUrlCards(cards) {
+  const area = document.getElementById('urlCardArea');
+  const list = document.getElementById('urlCardList');
+  if (!cards || !cards.length) {
+    area.style.display = 'none';
+    return;
+  }
+  area.style.display = '';
+  list.innerHTML = cards.map(c => {
+    const safeUrl = escapeHtml(c.url);
+    const safeReason = escapeHtml(c.reason || '');
+    const isDangerous = /^(javascript|data|file|vbscript):/i.test(c.url);
+    const warnClass = isDangerous ? 'url-card-danger' : '';
+    return `<div class="url-card ${warnClass}">
+      <div class="url-card-head">🔗 ${t('urlcard.title')}</div>
+      ${safeReason ? `<p class="url-card-reason"><strong>${t('urlcard.reason')}</strong> ${safeReason}</p>` : ''}
+      <p class="url-card-url"><strong>${t('urlcard.url')}</strong> <code>${safeUrl}</code></p>
+      ${isDangerous ? '<p class="url-card-warn">⚠️ このURLは安全ではありません。</p>' : ''}
+      <div class="url-card-actions">
+        <button class="url-card-btn url-card-open" data-card-id="${c.id}" data-url="${safeUrl}" ${isDangerous ? 'disabled title="blocked scheme"' : ''}>${t('urlcard.open')}</button>
+        <button class="url-card-btn url-card-copy" data-card-id="${c.id}" data-url="${safeUrl}">${t('urlcard.copy')}</button>
+        <button class="url-card-btn url-card-dismiss" data-card-id="${c.id}">${t('urlcard.dismiss')}</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function fetchUrlCards() {
+  try {
+    const res = await fetch('/api/url-cards');
+    const data = await res.json();
+    if (data.ok) renderUrlCards(data.cards);
+  } catch (_) {}
+}
+
+async function updateUrlCardStatus(cardId, status) {
+  try {
+    await fetch(`/api/url-card/${cardId}`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({status})
+    });
+    fetchUrlCards();
+  } catch (_) {}
+}
+
+document.addEventListener('click', (event) => {
+  const target = event.target;
+  if (!(target instanceof HTMLElement)) return;
+  if (target.classList.contains('url-card-open')) {
+    const url = target.dataset.url;
+    const cardId = target.dataset.cardId;
+    window.open(url, '_blank', 'noopener');
+    updateUrlCardStatus(cardId, 'opened');
+    target.textContent = t('urlcard.opened');
+    target.disabled = true;
+  }
+  if (target.classList.contains('url-card-copy')) {
+    const url = target.dataset.url;
+    const cardId = target.dataset.cardId;
+    navigator.clipboard?.writeText(url).then(() => {
+      target.textContent = t('urlcard.copied');
+      setTimeout(() => { target.textContent = t('urlcard.copy'); }, 2000);
+    });
+    updateUrlCardStatus(cardId, 'copied');
+  }
+  if (target.classList.contains('url-card-dismiss')) {
+    updateUrlCardStatus(target.dataset.cardId, 'dismissed');
+  }
+});
+
+// Poll for URL cards every 10 seconds
+setInterval(fetchUrlCards, 10000);
+
 $('langToggle')?.addEventListener('click', () => setLang(currentLang === 'ja' ? 'en' : 'ja'));
 
 (async function boot() {

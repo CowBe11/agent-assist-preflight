@@ -25,6 +25,7 @@ WEB_ROOT = Path(__file__).resolve().parent
 STATIC_ROOT = WEB_ROOT / "static"
 DATA_ROOT = WEB_ROOT / "data"
 COMMENTS_PATH = DATA_ROOT / "review_comments.json"
+URL_CARDS_PATH = DATA_ROOT / "url_cards.json"
 
 GLOSSARY = {
     "sudo": "パソコンの管理者権限で命令を実行すること。ふだんは安全のため制限されている操作も、sudoをつけると実行できてしまうので注意。",
@@ -211,6 +212,34 @@ def read_comments() -> list[dict]:
         data = []
     return data if isinstance(data, list) else []
 
+
+_BLOCKED_SCHEMES = {"javascript", "data", "file", "vbscript"}
+_MAX_URL_CARDS = 20
+
+def _validate_url(url: str) -> tuple[bool, str]:
+    """Validate URL for safety. Returns (ok, error_message)."""
+    if not url or not isinstance(url, str):
+        return False, "url is required"
+    url = url.strip()
+    if len(url) > 2048:
+        return False, "url too long (max 2048)"
+    # Check scheme
+    for scheme in _BLOCKED_SCHEMES:
+        if url.lower().startswith(scheme + ":"):
+            return False, f"blocked scheme: {scheme}:"
+    # Must be http or https
+    if not url.lower().startswith(("http://", "https://")):
+        return False, "url must start with http:// or https://"
+    return True, ""
+
+def read_url_cards() -> list[dict]:
+    if not URL_CARDS_PATH.exists():
+        write_json(URL_CARDS_PATH, [])
+    try:
+        data = json.loads(URL_CARDS_PATH.read_text(encoding="utf-8"))
+    except json.JSONDecodeError:
+        data = []
+    return data if isinstance(data, list) else []
 
 def next_comment_id(comments: list[dict]) -> str:
     nums = []
@@ -697,6 +726,9 @@ class Handler(BaseHTTPRequestHandler):
                 "POST /api/scan-text": {"description": "Scan a single text string for review items.", "body": {"filename": "virtual filename", "content": "text to scan"}, "agent_hint": "Use when you have text content but no local path."},
                 "POST /api/comments": {"description": "Add a customization request ticket.", "body": {"text": "request text", "section": "target section", "priority": "confirm|review|note"}},
                 "POST /api/comments/<id>": {"description": "Update a ticket status.", "body": {"status": "open|accepted|fixed|parked"}},
+                "POST /api/url-card": {"description": "Send a URL to the user as a browser handoff card. The user sees the URL with a reason and can choose to open, copy, or dismiss. Never auto-opens.", "body": {"url": "http/https URL to share", "reason": "why the agent wants the user to open this (shown to user)"}, "agent_hint": "Use this instead of trying to open a browser directly. Safer and works across WSL/Windows. Blocked: javascript:, data:, file:."},
+                "GET /api/url-cards": {"description": "List pending URL handoff cards (not yet opened/dismissed by user)."},
+                "PATCH /api/url-card/<id>": {"description": "Update URL card status.", "body": {"status": "opened|copied|dismissed"}},
             },
             "agent_workflow": {
                 "recommended_first_steps": [
@@ -796,6 +828,12 @@ class Handler(BaseHTTPRequestHandler):
                     result["summary"] = s
             self.send_json(result)
             return
+        if parsed.path == "/api/url-cards":
+            cards = read_url_cards()
+            # Return only pending (not dismissed) cards
+            pending = [c for c in cards if c.get("status") == "pending"]
+            self.send_json({"ok": True, "cards": pending})
+            return
         self.serve_static(parsed.path)
 
     def do_POST(self) -> None:  # noqa: N802
@@ -862,6 +900,43 @@ class Handler(BaseHTTPRequestHandler):
                     self.send_json({"ok": True, "comment": item, "comments": comments})
                     return
             self.send_json({"error": "comment not found"}, status=404)
+            return
+        if parsed.path == "/api/url-card":
+            url = str(payload.get("url", "")).strip()
+            reason = str(payload.get("reason", "")).strip()
+            ok, err = _validate_url(url)
+            if not ok:
+                self.send_json({"ok": False, "error": err}, status=400)
+                return
+            cards = read_url_cards()
+            now = utc_now()
+            card = {
+                "id": f"u{len(cards)+1:04d}",
+                "url": url,
+                "reason": reason,
+                "status": "pending",
+                "created_at": now,
+            }
+            cards.insert(0, card)
+            # Trim to max
+            if len(cards) > _MAX_URL_CARDS:
+                cards = cards[:_MAX_URL_CARDS]
+            write_json(URL_CARDS_PATH, cards)
+            self.send_json({"ok": True, "card": card}, status=201)
+            return
+        if parsed.path.startswith("/api/url-card/"):
+            cid = parsed.path.rsplit("/", 1)[-1]
+            cards = read_url_cards()
+            for card in cards:
+                if card.get("id") == cid:
+                    new_status = str(payload.get("status", "")).strip()
+                    if new_status in ("opened", "copied", "dismissed"):
+                        card["status"] = new_status
+                        card["updated_at"] = utc_now()
+                        write_json(URL_CARDS_PATH, cards)
+                    self.send_json({"ok": True, "card": card})
+                    return
+            self.send_json({"error": "card not found"}, status=404)
             return
         self.send_json({"error": "not found"}, status=404)
 
