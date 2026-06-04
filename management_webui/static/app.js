@@ -262,6 +262,8 @@ function setLang(lang) {
   applyI18n();
   const btn = document.getElementById('langToggle');
   if (btn) btn.textContent = lang === 'ja' ? '🇺🇸 EN' : '🇯🇵 JA';
+  // Re-render dynamic content that depends on language
+  if (Object.keys(glossaryData).length) renderGlossary(document.getElementById('glossarySearch')?.value || '');
 }
 
 function applyI18n() {
@@ -371,6 +373,80 @@ async function loadState() {
 
 // ── Glossary ──
 let glossaryData = {};
+let enGlossaryData = {
+  "sudo": "Running a command with administrator privileges. Normally restricted operations can be executed with sudo, so be careful.",
+  "apt": "A tool that searches for and automatically installs software from the internet. Like a text-only version of a phone's App Store.",
+  "brew": "An automatic software installer mainly used on Mac. Also called Homebrew.",
+  "pip": "A tool that fetches and adds components for Python from the internet. Convenient, but unknown packages may contain dangerous code.",
+  "npm": "A tool that fetches and adds components for Node.js from the internet. Convenient, but unknown packages may contain dangerous code.",
+  "curl": "A command that accesses URLs on the internet. Can download files or send data to web services. Running commands without checking their contents is dangerous.",
+  "wget": "A command that downloads files from the internet. Similar to curl, but wget is specialized for downloading only.",
+  "eval": "A command that executes a string as a program. Useful in some cases, but malicious strings can execute dangerous commands. Beginners should generally avoid it.",
+  "exec": "A mechanism that calls and executes another program or command. Convenient, but executing untrusted input can run dangerous commands.",
+  "subprocess": "A mechanism for starting new programs inside your computer. Whether it's dangerous depends on what it runs.",
+  "shell": "A program that receives commands typed in the terminal and passes them to the computer. Examples: bash, zsh, PowerShell.",
+  "chmod": "A command that changes the 'lock' settings on files. It can assign read, write, and execute permissions to yourself, your group, or others.",
+  "chown": "A command that changes the 'owner' of a file. It can transfer ownership from one user to another.",
+  "rm": "Deletes files. They don't go to the trash and are difficult to recover.",
+  "mv": "Moves or renames files.",
+  "cp": "Copies files.",
+  "crontab": "A timer that automatically runs commands at set times, like 'back up every morning at 7am'.",
+  "systemd": "A manager in Linux that starts and stops programs that run continuously in the background.",
+  "daemon": "A program that waits in the background, ready to respond when needed.",
+  "OAuth": "A mechanism for logging in using another service's account, like 'Sign in with Google.' Convenient, but granting access to untrusted apps can expose your data.",
+  "API Key": "A secret passphrase for using an online service. If discovered, others could use your account or credits.",
+  "Auth Token": "A digital key proving you are logged in. Like API keys, showing them to others or pasting them in chats can lead to misuse.",
+  "AI Token": "The smallest unit AI uses to read text. AI pricing and processing volume are often determined by token count.",
+  ".env": "A settings file often used to store passwords, API keys, and configuration values. Convenient, but may contain secrets — don't share or publish it.",
+  "quota": "The maximum number of times or amount you can use an online service. Exceeding it may temporarily block access or require extra payment.",
+  "credits": "Tickets or coins for using an online service. They decrease with use. When zero, access may stop or require purchasing more.",
+  "docker": "A technology that creates a small 'sandbox' inside your computer to run software. Keeps things isolated, but configuration can still affect your main files.",
+  "kubernetes": "A system that manages many Docker containers automatically. It can do things like 'replace broken containers with new ones automatically.'",
+  "localhost": "Your own computer. It doesn't connect to the internet and stays within your machine.",
+  "CDP": "A channel for remotely controlling the Chrome browser from programs. Can click buttons automatically or read page contents.",
+  "Playwright": "A tool for automating web browsers (like Chrome) from programs. Can click buttons, check if text appears, and more.",
+  "MCP": "A common protocol for AI apps and agents to interact with external tools. For example, it lets AI read files, check calendars, or control other software. Capabilities and safety depend on each MCP server.",
+  "MCP Server": "A program that lends its capabilities to AI. For example, it exposes features like 'read files,' 'control browser,' or 'use VOICEVOX' so AI can call them.",
+  "MCP Client": "An app that connects to MCP servers and uses their features. AI agents and development tools are examples.",
+  "MCP Compatible": "Means the software or tool may be usable via MCP. However, being compatible doesn't automatically mean it's safely connected.",
+  "dry-run": "A trial mode that shows what would happen without actually making changes.",
+  "venv": "A 'sandbox room' for Python. Creates a separate room for each project so their components don't conflict.",
+  "volume": "A 'window' connecting a Docker container to a folder on your computer. Through it, the container can read or write your files.",
+  "port": "A 'communication door' in your computer. Each door has a number and handles different tasks (browsing the web, sending email, etc.).",
+  "Resident": "Normally, closing a terminal window ends the programs running in it. But 'resident' programs keep running in the background even after closing.",
+  "Background": "Running behind the scenes without being displayed on screen.",
+  "CLI": "Operating software or your computer by typing text. Instead of clicking buttons, you type commands to run things.",
+  "GUI": "The familiar way of operating with buttons and windows. Using a mouse to click.",
+  "OSS": "Software whose design is publicly available. Anyone can view, modify, and often use it for free.",
+  "README": "The explanation file at the top of a project folder. The first file you should read.",
+  "MIT License": "A software license with very high freedom. You can use, modify, distribute, and even sell it if you follow the conditions.",
+  "Repository": "A place that manages source code and change history. Often on GitHub, but can also exist on your own computer.",
+  "commit": "In Git, recording a file change as 'saved at this state.'",
+  "push": "In Git, uploading your local commits to GitHub.",
+  "clone": "In Git, copying a project from a server to your local machine.",
+  "PR": "Pull Request. On GitHub, proposing 'please include this change.'",
+  "issue": "On GitHub etc., a discussion ticket for bugs, requests, or work notes.",
+  "CI": "A system that automatically checks 'does it still work?' every time you change code. Gives peace of mind by catching breakage immediately.",
+  "Vibe Coding": "A development style where you ask AI to 'build something like this' and it generates code.",
+  "WSL": "A mechanism for running Linux inside a Windows computer. You can create a Linux environment inside Windows without needing a separate machine.",
+  "Path": "The address of a file or folder. A string like C:\\Users\\... or /home/...",
+  "Terminal": "The screen used for CLI. A text-based app where you type into a dark window.",
+  "Agent": "An AI program that thinks and acts on its own. For example, if you ask 'check my calendar and tell me when I'm free,' it opens the calendar and finds the answer.",
+  "Git": "A tool that records file change history. Lets you track 'when and what changed,' revert to previous states, and collaborate with others.",
+  "GitHub": "A service for hosting Git-managed projects online. Commonly used as a code repository, work notebook, and public page.",
+  "branch": "A branch in Git for separating work. Useful for safely trying different approaches or keeping changes separate from the main code.",
+  "merge": "Combining changes made in separate branches back into the main flow.",
+  "fork": "Copying someone else's repository to your own account so you can modify it.",
+  "dependency": "Another component required for software to work. If dependencies are missing, installation or startup may fail.",
+  "package": "A bundle of software or components. Packages installed via npm or pip are examples.",
+  "PATH": "A list of places your computer searches for commands. If not registered in PATH, even installed software may show 'not found.'",
+  "Environment Variables": "Configuration values passed to your computer or programs. Often used for API keys or execution modes. Sometimes stored in .env files.",
+  "JSON": "A format for writing data like { name: Taro }. Commonly used in APIs and config files.",
+  "YAML": "A format often used for config files. Easy to read, but breaks easily if the number of spaces is off.",
+  "log": "A record of what a program did. Very useful for finding the cause of errors.",
+  "error": "A notification that a program didn't work properly. Not something to fear — it's a clue showing 'where the problem is.'",
+  "warning": "A notification that something deserves attention, though it's not serious enough to stop."
+};
 
 async function loadGlossary() {
   try {
@@ -383,7 +459,8 @@ async function loadGlossary() {
 
 function renderGlossary(filter = '') {
   const grid = $('glossaryGrid');
-  const terms = Object.entries(glossaryData);
+  const source = currentLang === 'en' ? enGlossaryData : glossaryData;
+  const terms = Object.entries(source);
   const q = filter.trim().toLowerCase();
   const filtered = q ? terms.filter(([k, v]) =>
     k.toLowerCase().includes(q) || v.toLowerCase().includes(q)
@@ -396,9 +473,9 @@ function renderGlossary(filter = '') {
     const aPrefix = a[0].toLowerCase().startsWith(q);
     const bPrefix = b[0].toLowerCase().startsWith(q);
     if (aPrefix !== bPrefix) return bPrefix - aPrefix;
-    return a[0].localeCompare(b[0], 'ja');
+    return a[0].localeCompare(b[0], currentLang === 'ja' ? 'ja' : 'en');
   });
-  $('glossaryCount').textContent = `${filtered.length} / ${terms.length} 件`;
+  $('glossaryCount').textContent = `${filtered.length} / ${terms.length} ${currentLang === 'ja' ? '件' : 'terms'}`;
   if (!filtered.length) {
     grid.innerHTML = `<p class="muted" style="padding:2rem;text-align:center">${currentLang === 'ja' ? `「${escapeHtml(filter)}」${t('glossary.noMatch')}` : t('glossary.noMatch', escapeHtml(filter))}</p>`;
     return;
