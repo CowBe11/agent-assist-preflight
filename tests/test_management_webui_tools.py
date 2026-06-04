@@ -42,10 +42,26 @@ class BasicToolCheckerTests(unittest.TestCase):
 
     def test_windows_subprocesses_request_utf8_with_replacement(self):
         completed = self.server.subprocess.CompletedProcess([], 0, stdout="", stderr="")
-        with patch.object(self.server.subprocess, "run", return_value=completed) as run:
+        with (
+            patch.object(self.server.shutil, "which", return_value="powershell.exe"),
+            patch.object(self.server.subprocess, "run", return_value=completed) as run,
+        ):
             self.server._windows_tool_snapshot()
         self.assertEqual(run.call_args.kwargs["encoding"], "utf-8")
         self.assertEqual(run.call_args.kwargs["errors"], "replace")
+
+    def test_url_card_ids_do_not_repeat_after_history_is_trimmed(self):
+        cards = [{"id": f"u{number:04d}"} for number in range(2, 22)]
+        self.assertEqual(self.server.next_url_card_id(cards), "u0022")
+
+    def test_url_card_status_endpoint_is_documented_as_post(self):
+        server_source = SERVER.read_text(encoding="utf-8")
+        self.assertIn('"POST /api/url-card/<id>"', server_source)
+        self.assertNotIn('"PATCH /api/url-card/<id>"', server_source)
+
+    def test_url_validation_requires_a_hostname(self):
+        self.assertEqual(self.server._validate_url("https://"), (False, "url must include a hostname"))
+        self.assertEqual(self.server._validate_url("https://example.com"), (True, ""))
 
     def test_webui_renders_all_review_items(self):
         app_js = (ROOT / "management_webui" / "static" / "app.js").read_text(encoding="utf-8")

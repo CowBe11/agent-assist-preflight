@@ -24,6 +24,7 @@ reports/
 # Local review and browser artifacts
 .playwright-mcp/
 management_webui/data/review_comments.json
+management_webui/data/url_cards.json
 hermes/
 
 # OS/editor

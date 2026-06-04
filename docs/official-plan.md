@@ -2,7 +2,7 @@
 
 発行日: 2026-06-02
 状態: 正式計画 v0.1 / 共同レビュー開始
-作業場所: `/mnt/e/hermes_kingdom/workspaces/agent-preflight-checker-publish`
+作業場所: 公開リポジトリ
 
 ## 1. 目的
 
