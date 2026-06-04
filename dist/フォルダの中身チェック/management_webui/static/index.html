@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>フォルダの中身チェック — 無料の安全確認ツール</title>
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="topbar-left">
+        <p class="eyebrow">ダウンロードしたプロジェクトを、実行する前にチェック　🆓 完全無料・オープンソース</p>
+        <h1>フォルダの中身チェック</h1>
+      </div>
+      <nav class="tabs" id="tabNav">
+        <button class="tab active" data-tab="try">🔍 試す</button>
+        <button class="tab" data-tab="docs">📖 読む</button>
+        <button class="tab" data-tab="glossary">📚 用語辞典</button>
+        <button class="tab" data-tab="beginner">🌱 初心者支援</button>
+        <button class="tab tab-customize" data-tab="review">🔧 カスタマイズ</button>
+      </nav>
+    </header>
+
+    <main id="mainContent">
+      <!-- ===== TAB: 試す ===== -->
+      <section class="tab-panel active" id="panelTry">
+        <div class="hero">
+          <div class="hero-text">
+            <p class="hero-emoji">🔍</p>
+            <h2>ダウンロードしたフォルダの README やテキストファイルをチェック</h2>
+            <p class="hero-sub">
+              README、.md、.txt、.py などの<strong>テキストファイル</strong>を読み取って、
+              「インストールするとPC全体に影響しそう」「秘密情報が書いてあるかも」といった
+              <strong>心配な部分を日本語で説明</strong>します。<br>
+              画像や動画、zip などは対象外です。フォルダを入れると中のテキストファイルだけを見ます。
+            </p>
+          </div>
+          <div class="hero-actions">
+            <form id="scanForm" class="scan-form">
+              <div class="scan-form-row">
+                <input name="target_path" id="targetPathInput" value="tests/fixtures/danger" placeholder="例: /mnt/c/Users/.../Downloads/tool （フォルダかテキストファイルのパス）" required class="scan-input" />
+                <button type="submit" class="primary scan-submit">このフォルダを確認する</button>
+              </div>
+              <div class="scan-form-sub">
+                <button type="button" id="pickFolderBtn" class="pick-btn">フォルダ/ファイルを選ぶ...</button>
+                <span class="muted" id="pickFolderStatus">Windowsの見慣れた「開く」ダイアログが開きます</span>
+              </div>
+            </form>
+            <div class="drop-zone" id="textDropZone" tabindex="0" role="button" aria-label="ここにテキストファイルをドラッグ＆ドロップ">
+              <strong>ここにテキストファイルをドラッグ＆ドロップ</strong>
+              <span>README、.txt、.md を 1 つだけ投げると中身をチェックします (1MB まで)</span>
+              <input type="file" id="textFileInput" accept=".txt,.md,.markdown,.rst,.py,.js,.ts,.json,.yaml,.yml,.toml,.sh,text/*" hidden />
+            </div>
+          </div>
+        </div>
+
+        <div id="scanResultArea" class="scan-result-area">
+          <div class="scan-summary" id="scanSummary">
+            <p class="muted scan-empty-msg">まだ実行していません。ダウンロードしたフォルダのパスを入れるか、README などのテキストファイルをドラッグ＆ドロップしてください。</p>
+          </div>
+          <div class="scan-result-tools" id="scanResultTools" style="display:none">
+            <button id="copyScanBtn">診断結果をコピー</button>
+            <span class="muted">ChatGPT などに貼って相談できます</span>
+            <span class="copy-warn">⚠️ 貼る前に、実際のパスワードやトークンが含まれていないか自分の目で確認してください。見つかった場合は <strong>その部分を消してから</strong>貼ってください。<br>（<strong>[REDACTED]</strong> と表示されている部分はツールが自動でマスク済みです）</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== TAB: 読む ===== -->
+      <section class="tab-panel" id="panelDocs">
+        <div class="panel-head">
+          <div>
+            <p class="eyebrow">ドキュメント</p>
+            <h2 id="docTitle">読み込み中...</h2>
+          </div>
+          <div class="panel-actions">
+            <select id="docSelect" aria-label="表示するドキュメント"></select>
+            <button id="copyDocBtn">この文書をコピー</button>
+          </div>
+        </div>
+        <article class="markdown" id="docContent">読み込み中...</article>
+      </section>
+
+      <!-- ===== TAB: 用語辞典 ===== -->
+      <section class="tab-panel" id="panelGlossary">
+        <div class="panel-head">
+          <div>
+            <p class="eyebrow">分からない言葉をやさしく解説</p>
+            <h2>用語辞典</h2>
+          </div>
+        </div>
+        <p class="muted" style="padding: 0 1rem .5rem; line-height:1.7">
+          ソフトやプログラミングの用語を、<strong>やさしい言葉で</strong>検索・一覧できます。<br>
+          下の検索欄に入れたり、スクロールして気になる言葉を探してください。
+        </p>
+        <div class="glossary-search-wrap">
+          <input type="search" id="glossarySearch" class="glossary-search" placeholder="🔍 調べたい言葉を入力（例: sudo, CLI, コミット...）" autocomplete="off" />
+          <span class="muted" id="glossaryCount"></span>
+        </div>
+        <div class="glossary-grid" id="glossaryGrid">
+          <p class="muted">読み込み中...</p>
+        </div>
+      </section>
+
+      <!-- ===== TAB: 初心者支援 ===== -->
+      <section class="tab-panel" id="panelBeginner">
+        <div class="panel-head">
+          <div>
+            <p class="eyebrow">バイブコーディングを楽しむための補助輪</p>
+            <h2>🌱 バイブコーディング初心者支援機能</h2>
+          </div>
+        </div>
+        <p class="muted" style="padding: 0 1rem .5rem; line-height:1.7">
+          AIエージェントやバイブコーディングを始める人が、つまずきにくくなるための機能をまとめています。<br>
+          下から使いたい機能を選んでください。
+        </p>
+
+        <!-- ── 機能1: 今どのポート使ってる？チェッカー ── -->
+        <details class="beginner-feature" open>
+          <summary class="beginner-feature-title">🔢 今どのポート使ってる？ — ポート取り合いチェッカー</summary>
+          <div class="beginner-feature-body">
+            <div class="mcp-intro-card">
+              <p><strong>今このPCで、どのポートがどのプロセスに使われているかを一覧します。</strong></p>
+              <p>開発サーバーやMCP、VOICEVOX、ローカルLLMなどがポートを占有していて、<br>
+              新しいツールが起動できないことがあります。「今誰が使ってんの？」を確認できます。<br>
+              よく使われるポートには「VOICEVOX」「ComfyUI」など用途候補も表示します。</p>
+              <p class="mcp-safe-note">📖 <strong>見るだけ</strong>です。ポートを塞いだり、プロセスを停止したり、設定を書き換えたりはしません。</p>
+            </div>
+            <div class="mcp-actions">
+              <button id="portOwnersBtn" class="primary mcp-scan-btn">🔍 今使われているポートを一覧</button>
+              <span class="muted" id="portOwnersStatus"></span>
+            </div>
+            <div id="portOwnersArea" class="mcp-result-area" style="display:none">
+              <div id="portOwnersSummary" class="mcp-summary"></div>
+              <div id="portOwnersTable"></div>
+              <div class="mcp-next-steps">
+                <p><strong>このあとどうすればいい？</strong></p>
+                <ol>
+                  <li>「用途がわかっているポート」に表示されたツールを、<strong>自分で起動したものか</strong>確認してください</li>
+                  <li>見慣れないポートが出たら、プロセス名をコピーしてAIに「これ何？」と聞いてみてください</li>
+                  <li>ポートを取り合って起動できない場合、右の「📋 AIに相談」ボタンで相談文をコピーしてAIに聞いてみてください。<strong>面白い使い道が見つかるかもしれません</strong></li>
+                  <li><strong>いきなり taskkill や kill はしないでください</strong> — データが壊れることがあります</li>
+                </ol>
+              </div>
+            </div>
+          </div>
+        </details>
+
+        <details class="beginner-feature">
+          <summary class="beginner-feature-title">🧰 基本道具チェック — AIエージェントの作業前確認</summary>
+          <div class="beginner-feature-body">
+            <div class="mcp-intro-card">
+              <p><strong>Python、Node.js、npm、Git、GitHub CLI、PowerShell、WSL、Docker が使えるかを確認します。</strong></p>
+              <p>Windows側にあるか、WSL/エージェント側にあるかがズレると、AIエージェントが「入っているはずなのに使えない」で止まることがあります。</p>
+              <p class="mcp-safe-note">📖 <strong>見るだけ</strong>です。インストール、更新、ログイン、Docker起動、設定変更はしません。</p>
+            </div>
+            <div class="mcp-actions">
+              <button id="toolBasicsBtn" class="primary mcp-scan-btn">🔍 基本道具をチェック</button>
+              <span class="muted" id="toolBasicsStatus"></span>
+            </div>
+            <div id="toolBasicsArea" class="mcp-result-area" style="display:none">
+              <div id="toolBasicsSummary" class="mcp-summary"></div>
+              <div id="toolBasicsTable"></div>
+              <div class="mcp-next-steps">
+                <p><strong>エージェントが見た時の導線チェック</strong></p>
+                <ol>
+                  <li>「エージェント側で使える？」が「いいえ」の道具は、そのAIが作業中に使えない可能性があります。</li>
+                  <li>Windows側だけにある道具をWSL側エージェントが使おうとしている場合、まずユーザーに確認してください。</li>
+                  <li>インストールやログインはこのツールでは行いません。AIに任せる前に、ユーザーが意図を確認してください。</li>
+                </ol>
+              </div>
+            </div>
+          </div>
+        </details>
+        <!-- ── 将来の機能追加はここに追加 ── -->
+
+      </section>
+
+      <!-- ===== TAB: カスタマイズ ===== -->
+      <section class="tab-panel" id="panelReview">
+        <div class="panel-head">
+          <div>
+            <p class="eyebrow">UIや機能の調整をリクエスト</p>
+            <h2>カスタマイズリクエスト</h2>
+          </div>
+          <button id="refreshBtn">更新</button>
+        </div>
+        <p class="muted" style="padding: 0 1rem .5rem; line-height:1.7">
+          表示や機能について「ここをこうしてほしい」というリクエストをためられます。<br>
+          <strong>ここではリクエストを書くだけ</strong>で、画面は自動では変わりません。<br>
+          直し方は：<br>
+          ① 下の「リクエストをコピー」で内容をコピー<br>
+          ② このプロジェクトのフォルダを <strong>Cursor や Claude Code などのバイブコーディングツールで開く</strong><br>
+          ③ コピーしたリクエストを貼り付けて「これ直して」と依頼する
+        </p>
+
+        <form id="commentForm" class="comment-form">
+          <label>対象セクション
+            <input name="section" placeholder="例: README冒頭 / decision名 / WebUI" />
+          </label>
+          <label>優先度
+            <select name="priority">
+              <option value="confirm">confirm: ここで止まりそう</option>
+              <option value="review" selected>review: 分かりにくい</option>
+              <option value="note">note: ちょい改善</option>
+            </select>
+          </label>
+          <label>どんなふうに変えてほしい？
+            <input name="beginner_reaction" placeholder="例: もっと簡単な言葉で / ボタンを大きく / 順番を変えて" />
+          </label>
+          <label>リクエスト内容
+            <textarea name="text" rows="4" placeholder="例: confirm_before_running は『実行前に確認』と表示してほしい" required></textarea>
+          </label>
+          <button type="submit" class="primary">リクエストを追加</button>
+        </form>
+
+        <div class="comment-toolbar">
+          <button data-filter="open" class="filter active">open</button>
+          <button data-filter="all" class="filter">all</button>
+          <button data-filter="fixed" class="filter">fixed</button>
+          <button data-filter="parked" class="filter">parked</button>
+        </div>
+        <div id="comments" class="comments"></div>
+      </section>
+    </main>
+
+    <script src="/app.js"></script>
+  </body>
+</html>

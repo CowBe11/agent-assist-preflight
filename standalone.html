@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🌱 バイブコーディング初心者支援ツール</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d1117;--panel:#151b23;--text:#e6edf3;--accent:#7cc2ff;
+  --accent-2:#b48cff;--confirm:#ffb86b;--review:#f5d76e;
+  --note:#8bdc9b;--danger:#ff7b72;--border:#21262d;
+  --radius:10px;--shadow:0 2px 8px rgba(0,0,0,.4)
+}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI','Hiragino Sans',sans-serif;line-height:1.7;min-height:100vh}
+a{color:var(--accent)}
+.topbar{background:var(--panel);border-bottom:1px solid var(--border);padding:12px 24px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:100}
+.topbar h1{font-size:1.1rem;font-weight:600}
+.topbar .badge{background:var(--note);color:#000;padding:2px 10px;border-radius:20px;font-size:.8rem;font-weight:600}
+.container{max-width:900px;margin:0 auto;padding:24px 16px}
+.hero{background:linear-gradient(135deg,#161b22,#1c2333);border:1px solid var(--border);border-radius:var(--radius);padding:32px;margin-bottom:24px}
+.hero h2{font-size:1.4rem;margin-bottom:16px;color:var(--accent)}
+.hero p{margin-bottom:12px;opacity:.9}
+.hero ul{list-style:none;padding:0}
+.hero li{padding:6px 0;padding-left:24px;position:relative}
+.hero li::before{content:'▸';position:absolute;left:4px;color:var(--accent)}
+.drop-zone{border:2px dashed var(--accent);border-radius:var(--radius);padding:48px 24px;text-align:center;background:rgba(124,194,255,.03);transition:all .2s;cursor:pointer;margin-bottom:24px}
+.drop-zone:hover,.drop-zone.dragover{background:rgba(124,194,255,.08);border-color:var(--accent-2)}
+.drop-zone p{font-size:1.1rem;margin-bottom:8px}
+.drop-zone .hint{font-size:.85rem;opacity:.6}
+.btn{display:inline-block;padding:10px 24px;border-radius:8px;border:none;font-size:.95rem;font-weight:600;cursor:pointer;transition:all .15s}
+.btn-primary{background:var(--accent);color:#000}
+.btn-primary:hover{filter:brightness(1.15)}
+.btn-secondary{background:var(--border);color:var(--text)}
+.btn-secondary:hover{background:#2d333b}
+.btn-copy{background:var(--panel);color:var(--text);border:1px solid var(--border);font-size:.8rem;padding:4px 12px;border-radius:6px;cursor:pointer}
+.btn-copy:hover{border-color:var(--accent)}
+input[type="file"]{display:none}
+.tabs{display:flex;gap:4px;margin-bottom:20px;border-bottom:1px solid var(--border);padding-bottom:4px}
+.tab{padding:8px 16px;border-radius:8px 8px 0 0;cursor:pointer;background:transparent;color:var(--text);border:none;font-size:.95rem;opacity:.6;transition:all .15s}
+.tab.active{background:var(--panel);opacity:1;border:1px solid var(--border);border-bottom-color:var(--panel);margin-bottom:-5px;padding-bottom:13px}
+.tab-content{display:none}
+.tab-content.active{display:block}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:16px}
+.card h3{margin-bottom:12px;font-size:1.05rem}
+.legend-item{display:inline-flex;align-items:center;gap:6px;margin-right:16px;margin-bottom:8px;font-size:.9rem}
+.legend-dot{width:10px;height:10px;border-radius:50%;display:inline-block}
+.review-card{border-left:4px solid var(--review);background:var(--panel);border-radius:0 var(--radius) var(--radius) 0;padding:20px;margin-bottom:16px;border-top:1px solid var(--border);border-right:1px solid var(--border);border-bottom:1px solid var(--border)}
+.review-card.high{border-left-color:var(--danger)}
+.review-card.medium{border-left-color:var(--confirm)}
+.review-card.low{border-left-color:var(--note)}
+.review-card .category{font-weight:700;font-size:1rem;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.review-card .category .level{font-size:.75rem;padding:2px 8px;border-radius:12px;font-weight:600}
+.level.high{background:rgba(255,123,114,.15);color:var(--danger)}
+.level.medium{background:rgba(255,184,107,.15);color:var(--confirm)}
+.level.low{background:rgba(139,220,155,.15);color:var(--note)}
+.match-text{background:#000;padding:12px;border-radius:6px;font-family:'Cascadia Code','Fira Code',monospace;font-size:.85rem;overflow-x:auto;margin:10px 0;word-break:break-all;max-height:120px;overflow-y:auto;border:1px solid var(--border)}
+.info-section{margin-top:10px}
+.info-section dt{font-weight:600;color:var(--accent);margin-top:8px;font-size:.9rem}
+.info-section dd{margin-left:0;opacity:.9;font-size:.9rem}
+.file-header{font-size:.8rem;opacity:.5;margin-bottom:6px;font-family:monospace}
+.results-summary{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:16px}
+.stat{padding:8px 16px;border-radius:8px;background:var(--panel);border:1px solid var(--border);font-size:.9rem}
+.stat strong{color:var(--accent)}
+.glossary-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px}
+.glossary-item{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px;cursor:pointer;transition:border-color .15s}
+.glossary-item:hover{border-color:var(--accent)}
+.glossary-item .term{font-weight:700;color:var(--accent);margin-bottom:4px}
+.glossary-item .desc{font-size:.85rem;opacity:.85;display:none}
+.glossary-item.open .desc{display:block}
+.search-box{width:100%;padding:10px 16px;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:.95rem;margin-bottom:16px;outline:none}
+.search-box:focus{border-color:var(--accent)}
+.search-box::placeholder{opacity:.4}
+.hidden{display:none!important}
+.empty-state{text-align:center;padding:48px 24px;opacity:.5}
+.next-steps{background:linear-gradient(135deg,#162417,#1a2a1c);border:1px solid rgba(139,220,155,.2);border-radius:var(--radius);padding:20px}
+.next-steps h3{color:var(--note);margin-bottom:12px}
+.next-steps li{padding:4px 0;padding-left:20px;position:relative;list-style:none}
+.next-steps li::before{content:'✓';position:absolute;left:0;color:var(--note)}
+.copy-toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--note);color:#000;padding:8px 20px;border-radius:8px;font-weight:600;font-size:.9rem;opacity:0;transition:opacity .3s;pointer-events:none;z-index:999}
+.copy-toast.show{opacity:1}
+footer{text-align:center;padding:24px;opacity:.4;font-size:.8rem;margin-top:40px}
+@media(max-width:600px){.container{padding:12px 8px}.hero{padding:20px}.glossary-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <h1>🌱 バイブコーディング初心者支援ツール</h1>
+  <span class="badge">🆓 完全無料・オフライン対応</span>
+</header>
+
+<div class="container">
+  <div class="tabs">
+    <button class="tab active" data-tab="scanner" onclick="switchTab('scanner')">🔍 ファイルスキャン</button>
+    <button class="tab" data-tab="glossary" onclick="switchTab('glossary')">📚 用語辞典</button>
+  </div>
+
+  <div id="tab-scanner" class="tab-content active">
+    <div class="hero">
+      <h2>エージェントの指示を、実行する前にチェック 🔍</h2>
+      <p>このツールは、AIエージェントから渡されたファイルや指示を読み込んで、<strong>注意が必要な項目</strong>をやさしく教えてくれます。</p>
+      <ul>
+        <li><strong>対象ファイル：</strong>.md / .txt / .py / .js / .json / .yaml / .yml / .sh / .toml / Dockerfile</li>
+        <li><strong>見つけられること：</strong>ファイル削除、秘密情報の取り扱い、課金の話、設定変更など14項目</li>
+        <li><strong>できないこと：</strong>ファイルの自動修正や実行は一切しません。読み取り専用です ✅</li>
+      </ul>
+    </div>
+
+    <div class="drop-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
+      <p>📂 ここにファイルをドラッグ＆ドロップ</p>
+      <p class="hint">またはクリックしてファイルを選択（複数可）</p>
+      <input type="file" id="fileInput" multiple accept=".md,.txt,.py,.js,.json,.yaml,.yml,.sh,.toml,.dockerfile">
+    </div>
+
+    <div id="resultsArea" class="hidden">
+      <div class="results-summary" id="resultsSummary"></div>
+      <div class="card" id="introCard">
+        <h3>📋 スキャン結果の見かた</h3>
+        <p>この結果は<strong>参考情報</strong>です。必ずしも危険というわけではありません。<br>
+        各項目の「これは何？」「なぜ確認？」「次にすること」を読んで、落ち着いて判断してください。</p>
+      </div>
+      <div class="card" id="legendCard">
+        <h3>🏷️ レベルの意味</h3>
+        <div>
+          <span class="legend-item"><span class="legend-dot" style="background:var(--danger)"></span> 高：しっかり確認してから進めてください</span>
+          <span class="legend-item"><span class="legend-dot" style="background:var(--confirm)"></span> 中：内容を知っておくと安心です</span>
+          <span class="legend-item"><span class="legend-dot" style="background:var(--note)"></span> 低：参考程度にどうぞ</span>
+        </div>
+      </div>
+      <div id="reviewCards"></div>
+      <div id="allClear" class="hidden">
+        <div class="card" style="text-align:center;border-color:var(--note)">
+          <h3 style="color:var(--note);font-size:1.2rem">✅ 注意が必要な項目は見つかりませんでした！</h3>
+          <p style="margin-top:8px;opacity:.8">このファイルの中身は読み取り専用の安全な内容のようです。<br>安心して読み進められます。</p>
+        </div>
+      </div>
+      <div class="next-steps" id="nextSteps">
+        <h3>📝 読み終わったらやってみて</h3>
+        <ul>
+          <li>上のカードを順番に読んで、気になる項目がないか確認</li>
+          <li>「次にすること」のアドバイスに従って、安全に進めましょう</li>
+          <li>わからない用語は「📚 用語辞典」タブで調べられます</li>
+          <li>不安なら、信頼できる人に「この指示、大丈夫？」と聞いてみて</li>
+          <li>結果をコピーして共有するには「📋 コピー」ボタンを押してください</li>
+        </ul>
+      </div>
+      <div style="margin-top:16px;text-align:center">
+        <button class="btn btn-secondary" onclick="copyResults()">📋 結果をクリップボードにコピー</button>
+        <button class="btn btn-secondary" style="margin-left:8px" onclick="resetScan()">🔄 もう一度スキャン</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="tab-glossary" class="tab-content">
+    <h2 style="margin-bottom:16px">📚 用語辞典 — よく使う用語をやさしく解説</h2>
+    <input type="text" class="search-box" id="glossarySearch" placeholder="🔍 用語を検索..." oninput="filterGlossary()">
+    <div class="glossary-grid" id="glossaryGrid"></div>
+  </div>
+</div>
+
+<div class="copy-toast" id="copyToast">✅ クリップボードにコピーしました！</div>
+
+<footer>🌱 バイブコーディング初心者支援ツール — 読み取り専用・完全無料・オフライン対応</footer>
+
+<script>
+// ===== RISK RULES =====
+const RISK_RULES = [
+  ["destructive_delete","high","\\b(rm\\s+-rf|del\\s+/[fsq]|remove-item\\s+.*-recurse|shutil\\.rmtree|delete\\s+all|drop\\s+database|drop\\s+table)\\b"],
+  ["global_install","high","\\b(sudo\\s+)?(npm|pnpm|yarn|pip|pipx|cargo|brew|apt|apt-get)\\s+(install|add)\\b|\\bcurl\\s+[^\\n|]+\\|\\s*(sh|bash)\\b"],
+  ["secrets_or_auth","high","\\b(api[_-]?key|secret|token|oauth|client_secret|password|bearer\\s+[^\\s]+|\\.env\\b)"],
+  ["paid_or_billing","high","\\b(billing|paid|subscription|credit card|stripe|pricing|usage-based|quota|credits?)\\b"],
+  ["daemon_or_cron","high","\\b(systemctl|launchctl|crontab|cron|daemon|service\\s+install|pm2\\s+start|forever\\s+start)\\b"],
+  ["config_mutation","high","\\b(hermes\\s+config\\s+set|mcpServers|claude_desktop_config|settings\\.json|config\\.yaml|write\\s+to\\s+.*config)\\b"],
+  ["remote_code_execution","high","\\b(eval\\(|exec\\(|child_process|subprocess\\.(run|popen|call)|os\\.system|powershell\\s+-enc)\\b"],
+  ["external_network","medium","\\b(https?://|websocket|ws://|wss://|fetch\\(|requests\\.|axios\\.|curl\\b|wget\\b|openai|anthropic|xai|github api)"],
+  ["filesystem_write","medium","\\b(write_file|fs\\.writeFile|open\\([^\\n]+['\"]w['\"]|mkdir|touch\\b|cp\\s+|mv\\s+|copy-item|set-content)\\b"],
+  ["container_or_vm","medium","\\b(docker\\s+run|docker compose|podman|kubectl|kind\\s+(create|delete|get|export|load|build)\\b|vagrant)\\b"],
+  ["ports","medium","\\b(port\\s*[:=]\\s*(8000|9000|9224|9500)|localhost:(8000|9000|9224|9500)|listen\\()"],
+  ["browser_control","medium","\\b(playwright|puppeteer|selenium|chrome devtools|remote debugging|--remote-debugging-port)\\b"],
+  ["local_read","low","\\b(read_file|fs\\.readFile|cat\\s+|sqlite|markdown|README)\\b"],
+  ["dry_run_hint","low","\\b(dry[- ]?run|--check|--no-write|readonly|read-only|preview)\\b"],
+];
+
+// ===== CHECK HELP =====
+const CHECK_HELP = {
+  destructive_delete:{ja:"ファイル削除やデータリセットの命令が見つかりました。",why:"間違ったフォルダで実行すると、大切なデータが消えてしまうことがあります。",next:"まずどのフォルダに影響するか確認してください。dry-run（試運転）モードがないか探してみて。"},
+  global_install:{ja:"PC全体にソフトをインストールする手順が見つかりました。",why:"PC全体に影響するので、プロジェクトの中だけでは済まないことがあります。",next:"まずローカルインストールや仮想環境で試せるか確認してください。sudoやcurl|shは要注意。"},
+  secrets_or_auth:{ja:"APIキーやパスワードなどの秘密情報の話が見つかりました。",why:"秘密情報がログやスクリーンショットに残ると、他人に見られる危険があります。",next:"本当の秘密情報は使わないでください。テスト用のダミー値で試してみて。"},
+  paid_or_billing:{ja:"課金や料金の話が見つかりました。",why:"気づかない間にお金がかかる場合があります。",next:"無料枠があるか確認してください。クレジットカード情報を入れる前に、必ず料金を確認して。"},
+  daemon_or_cron:{ja:"裏でずっと動くプログラムの設定が見つかりました。",why:"画面を閉じても動き続けるので、止め方を知らないと困ることがあります。",next:"起動する前に、止める方法とアンインストールの方法を確認しておいて。"},
+  config_mutation:{ja:"設定ファイルを変更する手順が見つかりました。",why:"設定の変更は他のプロジェクトや将来のセッションにも影響することがあります。",next:"変更前に設定ファイルをバックアップしてください。どのファイルが変わるか確認して。"},
+  remote_code_execution:{ja:"プログラムが命令を実行する仕組みが見つかりました。",why:"何を実行するか理解しないで動かすと、危険な命令が走る可能性があります。",next:"周りのコードを読んで、何を実行するか確認してからにして。"},
+  external_network:{ja:"インターネットに接続する仕組みが見つかりました。",why:"外にデータが送られたり、外部サービスに依存したりする可能性があります。",next:"何のデータが送られるか確認してください。オフラインで動くか探してみて。"},
+  filesystem_write:{ja:"ファイルを書き換えたり作成したりする仕組みが見つかりました。",why:"大切なファイルが上書きされたり、想定外の場所にファイルが作られたりすることがあります。",next:"書き込み先のパスを確認してください。テスト用のフォルダで先に試して。"},
+  container_or_vm:{ja:"Dockerやコンテナの話が見つかりました。",why:"コンテナでもフォルダを共有したりポートを使ったりします。",next:"マウントするフォルダとポートを確認してから起動してください。"},
+  ports:{ja:"ローカルポートの使用が見つかりました。",why:"他のツールとポートが被ると動かなかったり、思わぬ場所に公開されたりします。",next:"ポートが既に使われていないか確認してください。localhostだけに公開されているかチェック。"},
+  browser_control:{ja:"ブラウザを自動操作する仕組みが見つかりました。",why:"ログイン中のセッションやブラウザのデータにアクセスされる可能性があります。",next:"別のブラウザプロフィールで試してください。プライベートなページでは使わないで。"},
+  local_read:{ja:"ローカルファイルを読み込む仕組みが見つかりました。",why:"読み取りは比較的安全ですが、個人ファイルがログに残る可能性があります。",next:"どのファイルを読むか確認してください。個人的なフォルダは避けて試して。"},
+  dry_run_hint:{ja:"dry-run（試運転）やプレビューモードの仕組みが見つかりました。",why:"実際に変更せず確認できるので、初心者には安全な始め方です。",next:"まずはdry-runモードで試して、何が起きるか確認してから本番をどうぞ。"},
+};
+
+// ===== CATEGORY LABELS =====
+const CATEGORY_LABELS = {
+  destructive_delete:"🗑️ ファイル削除・リセット",
+  global_install:"📦 グローバルインストール",
+  secrets_or_auth:"🔑 秘密情報の取り扱い",
+  paid_or_billing:"💰 課金・料金",
+  daemon_or_cron:"⏰ 常駐プログラム",
+  config_mutation:"⚙️ 設定ファイル変更",
+  remote_code_execution:"⚡ コード実行",
+  external_network:"🌐 インターネット通信",
+  filesystem_write:"✏️ ファイル書き込み",
+  container_or_vm:"🐳 Docker・コンテナ",
+  ports:"🔌 ポート使用",
+  browser_control:"🖥️ ブラウザ自動操作",
+  local_read:"📖 ファイル読み取り",
+  dry_run_hint:"🛡️ dry-run（安全モード）",
+};
+
+// ===== LEVEL NAMES =====
+const LEVEL_NAMES = {high:"高",medium:"中",low:"低"};
+
+// ===== GLOSSARY =====
+const GLOSSARY = {
+  sudo:{term:"sudo",desc:"管理者権限でコマンドを実行するための命令。「Super User DO」の略。間違えるとPC全体に影響するので要注意。"},
+  apt:{term:"apt / apt-get",desc:"UbuntuやDebian系Linuxでソフトを入れるためのコマンド。brewのUbuntu版のようなもの。"},
+  brew:{term:"brew (Homebrew)",desc:"Macでソフトを入れるためのパッケージマネージャー。便利だけど、入れすぎるとPCが重くなることも。"},
+  pip:{term:"pip",desc:"Pythonのソフトを入れるためのコッマンド。pip installでPythonの拡張機能を追加できる。"},
+  npm:{term:"npm",desc:"JavaScript(Node.js)のソフトを入れるためのコマンド。package.jsonと一緒に使うことが多い。"},
+  curl:{term:"curl",desc:"インターネットからファイルをダウンロードしたり、APIにデータを送ったりするコマンド。curl|bashは要注意。"},
+  wget:{term:"wget",desc:"インターネットからファイルをダウンロードするコマンド。curlと似ているが、ファイル保存に特化。"},
+  eval:{term:"eval()",desc:"文字列をコードとして実行する関数。危険なコードが紛れ込む可能性があるので注意。"},
+  exec:{term:"exec()",desc:"別プロセスでコマンドを実行する関数。evalと同様、何が実行されるか事前に確認を。"},
+  subprocess:{term:"subprocess",desc:"Pythonで別のプログラムを実行するための仕組み。os.systemの後継で、より柔軟。"},
+  shell:{term:"shell (シェル)",desc:"コマンドを入力して実行する画面。ターミナルやコマンドプロンプトのこと。"},
+  chmod:{term:"chmod",desc:"ファイルのアクセス権限を変更するコマンド。「chmod 777」は全開放なので要注意。"},
+  chown:{term:"chown",desc:"ファイルの所有者を変更するコマンド。管理者権限が必要なことが多い。"},
+  rm:{term:"rm",desc:"ファイルを削除するコマンド。「rm -rf」はフォルダごと強制削除。取り消しができないので要注意。"},
+  mv:{term:"mv",desc:"ファイルを移動、または名前を変更するコマンド。上書きに注意。"},
+  cp:{term:"cp",desc:"ファイルをコピーするコマンド。元のファイルは残る。"},
+  crontab:{term:"crontab",desc:"定期的にコマンドを実行するスケジューラー。毎日深夜に実行、など設定可能。"},
+  systemd:{term:"systemd",desc:"Linuxのシステム管理ツール。サービスの起動・停止を管理する。"},
+  daemon:{term:"daemon (デーモン)",desc:"裏方でずっと動いているプログラム。Webサーバーなどはデーモンとして動作。"},
+  OAuth:{term:"OAuth",desc:"パスワードを渡さずに安全にログインする仕組み。「Googleでログイン」などがこれ。"},
+  "APIキー":{term:"APIキー",desc:"外部サービスにアクセスするための「合言葉」。パスワードと同じように大切に管理が必要。"},
+  "認証トークン":{term:"認証トークン",desc:"ログインしたことを証明するデータ。URLに残ると他人に悪用される可能性も。"},
+  "AIのトークン":{term:"AIのトークン (LLM)",desc:"AIが文章を処理するときの最小単位。1トークン≈英語で4文字、日本語で1〜2文字。課金の単位にもなる。"},
+  ".env":{term:".env ファイル",desc:"APIキーやパスワードなどを保存する設定ファイル。絶対に公開しないで！"},
+  quota:{term:"quota (割り当て)",desc:"使える量の上限。APIの呼び出し回数やストレージ容量などに設定される。"},
+  credits:{term:"credits (クレジット)",desc:"サービス内で使えるポイント。お金と交換できることも多く、使いすぎに注意。"},
+  docker:{term:"Docker",desc:"アプリを「箱（コンテナ）」に入れて動かす仕組み。環境の違いによる問題を防いでくれる。"},
+  kubernetes:{term:"Kubernetes (k8s)",desc:"Dockerのコンテナを大量に管理するためのツール。大規模サービス向け。"},
+  localhost:{term:"localhost",desc:"自分のPCを指すアドレス。127.0.0.1と同じ。外部から見えないのが普通。"},
+  CDP:{term:"CDP (Chrome DevTools Protocol)",desc:"Chromeをプログラムから操作するための仕組み。Playwrightなどが使っている。"},
+  Playwright:{term:"Playwright",desc:"ブラウザを自動操作するためのツール。テストやスクレイピングに使われる。"},
+  MCP:{term:"MCP (Model Context Protocol)",desc:"AIエージェントが外部ツールと連携するためのプロトコル。便利だけど、何を渡しているか注意。"},
+  "MCPサーバー":{term:"MCPサーバー",desc:"MCPでAIに機能を提供する側。ファイル操作やAPI呼び出しなど、さまざまな「スキル」を提供。"},
+  "MCPクライアント":{term:"MCPクライアント",desc:"MCPサーバーを使ってくれるAI側。エージェントやチャットボットがこれにあたる。"},
+  "MCP対応":{term:"MCP対応",desc:"MCPプロトコルに対応しているツールやアプリ。「MCP対応エージェント」などと使う。"},
+  "dry-run":{term:"dry-run (ドライラン)",desc:"実際に何も変更せず、何が起きるかだけ確認するモード。安全に試すための仕組み。"},
+  venv:{term:"venv (仮想環境)",desc:"Pythonのソフトをプロジェクトごとに分けて入れる仕組み。混ざり合いを防いでくれる。"},
+  volume:{term:"volume (ボリューム)",desc:"Dockerでデータを保存する領域。コンテナが消えてもデータは残る。"},
+  port:{term:"port (ポート)",desc:"ネットワーク通信の出入り口。番号で管理（80番、443番など）。番号が被ると動かない。"},
+  "常駐":{term:"常駐プログラム",desc:"起動しっぱなしで動いているプログラム。タスクトレイにアイコンがあるやつ。"},
+  "バックグラウンド":{term:"バックグラウンド",desc:"画面の裏側で動いている状態。ユーザーの操作を邪魔しない代わりに、気づきにくい。"},
+  CLI:{term:"CLI (コマンドライン)",desc:"文字だけで操作する方法。ターミナルにコマンドを打ち込むスタイル。"},
+  GUI:{term:"GUI (グラフィカル)",desc:"ボタンやメニューをクリックして操作する方法。Windowsの普通の操作スタイル。"},
+  OSS:{term:"OSS (オープンソース)",desc:"ソースコードが公開されているソフト。無料で使えて、誰でも改良できる。"},
+  README:{term:"README",desc:"プロジェクトの説明書。まず読むべきファイル。「読んでみて」という意味。"},
+  MITライセンス:{term:"MITライセンス",desc:"OSSの利用ルールの一つ。とても緩く、ほぼ自由に使える。"},
+  "リポジトリ":{term:"リポジトリ",desc:"Gitで管理されるプロジェクトの保存場所。GitHub上での「プロジェクト」そのもの。"},
+  commit:{term:"commit (コミット)",desc:"変更を保存する操作。「写真を撮る」ようなもの。履歴が残る。"},
+  push:{term:"push (プッシュ)",desc:"ローカルの変更をGitHubなどのサーバーに送る操作。"},
+  clone:{term:"clone (クローン)",desc:"GitHubのプロジェクトを自分のPCにコピーする操作。"},
+  PR:{term:"PR (プルリクエスト)",desc:"「この変更を採用してください」とお願いする仕組み。OSS貢献の第一歩。"},
+  issue:{term:"issue (イシュー)",desc:"GitHubでの「質問」や「問題報告」。バグ報告や機能要望に使う。"},
+  CI:{term:"CI (継続的インテグレーション)",desc:"コードを自動でテストしてくれる仕組み。GitHub Actionsなどが有名。"},
+  "バイブコーディング":{term:"バイブコーディング",desc:"AIを使いながら「感覚的」にプログラミングするスタイル。詳細な仕様書を書かずに、AIとの対話で作り進める。"},
+  WSL:{term:"WSL",desc:"Windows上でLinuxを動かす仕組み。Windows Subsystem for Linuxの略。"},
+  "パス":{term:"パス (path)",desc:"ファイルやフォルダの住所。C:\\Users\\name\\file.txt のような形式。"},
+  "ターミナル":{term:"ターミナル",desc:"コマンドを打ち込む画面。WindowsならPowerShellやコマンドプロンプト。"},
+  "エージェント":{term:"エージェント (AI)",desc:"自律的に動くAI。指示を出すと、自分で考えて行動してくれるプログラム。"},
+  Git:{term:"Git",desc:"ファイルの変更履歴を管理するツール。プログラミングでは必須。"},
+  GitHub:{term:"GitHub",desc:"Gitのリポジトリをインターネット上で管理するサービス。コード共有の定番。"},
+  branch:{term:"branch (ブランチ)",desc:"変更の「分岐路」。本線に影響せず試せる。"},
+  merge:{term:"merge (マージ)",desc:"ブランチの変更を元のブランチに統合すること。"},
+  fork:{term:"fork (フォーク)",desc:"他人のプロジェクトを自分のアカウントにコピーして改良する仕組み。"},
+  dependency:{term:"dependency (依存関係)",desc:"自分のプロジェクトが使う外部のライブラリやツール。"},
+  package:{term:"package (パッケージ)",desc:"再利用可能なソフトの部品。pipやnpmでインストールするもの。"},
+  PATH:{term:"PATH (環境変数)",desc:"コマンドを探す場所のリスト。ここに登録されていないと、コマンドが見つからない。"},
+  "環境変数":{term:"環境変数",desc:"プログラムに設定を渡す仕組み。APIキーやサーバーのアドレスなどを保存。"},
+  JSON:{term:"JSON",desc:"データを表現する形式。{key: value} の形。設定ファイルやAPIでよく使われる。"},
+  YAML:{term:"YAML",desc:"データを表現する形式。JSONより人間が読みやすい。設定ファイルでよく使われる。"},
+  log:{term:"log (ログ)",desc:"プログラムの動作記録。エラーの原因を調べるときに役立つ。"},
+  error:{term:"error (エラー)",desc:"問題が起きたこと。プログラムが正常に動かなかった状態。"},
+  warning:{term:"warning (警告)",desc:"「今のところ動いてるけど、このまま進むと問題になるかも」という注意。"},
+};
+
+// ===== EXTENSIONS TO SCAN =====
+const SCAN_EXTENSIONS = ['.md','.txt','.py','.js','.json','.yaml','.yml','.sh','.toml','.dockerfile'];
+
+// ===== SECRET REDACTION =====
+function redactSecrets(text) {
+  return text
+    .replace(/(bearer\s+)([^\s]+)/gi, '$1[REDACTED]')
+    .replace(/(api[_-]?key\s*[:=]\s*)([^\s,;}{]+)/gi, '$1[REDACTED]')
+    .replace(/(secret\s*[:=]\s*)([^\s,;}{]+)/gi, '$1[REDACTED]')
+    .replace(/(token\s*[:=]\s*)([^\s,;}{]+)/gi, '$1[REDACTED]')
+    .replace(/(password\s*[:=]\s*)([^\s,;}{]+)/gi, '$1[REDACTED]')
+    .replace(/(client_secret\s*[:=]\s*)([^\s,;}{]+)/gi, '$1[REDACTED]');
+}
+
+// ===== FILE SCANNING =====
+function scanFile(name, content) {
+  const matches = [];
+  for (const [category, level, pattern] of RISK_RULES) {
+    try {
+      const re = new RegExp(pattern, 'gi');
+      let m;
+      while ((m = re.exec(content)) !== null) {
+        const ctx = content.substring(Math.max(0, m.index - 40), Math.min(content.length, m.index + m[0].length + 40));
+        matches.push({category, level, matched: m[0], context: ctx, index: m.index});
+      }
+    } catch(e) { /* skip bad regex */ }
+  }
+  return matches;
+}
+
+// ===== UI LOGIC =====
+let allResults = [];
+
+function switchTab(tab) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.toggle('active', c.id === 'tab-' + tab));
+}
+
+function filterGlossary() {
+  const q = document.getElementById('glossarySearch').value.toLowerCase();
+  document.querySelectorAll('.glossary-item').forEach(el => {
+    const t = el.dataset.term.toLowerCase();
+    const d = el.dataset.desc.toLowerCase();
+    el.style.display = (t.includes(q) || d.includes(q)) ? '' : 'none';
+  });
+}
+
+function showToast(msg) {
+  const t = document.getElementById('copyToast');
+  t.textContent = msg || '✅ クリップボードにコピーしました！';
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+function resetScan() {
+  allResults = [];
+  document.getElementById('resultsArea').classList.add('hidden');
+  document.getElementById('fileInput').value = '';
+}
+
+function copyResults() {
+  let text = '📋 バイブコーディング初心者支援ツール — スキャン結果\n';
+  text += '=' .repeat(50) + '\n\n';
+  const grouped = {};
+  for (const r of allResults) {
+    if (!grouped[r.category]) grouped[r.category] = [];
+    grouped[r.category].push(r);
+  }
+  for (const [cat, items] of Object.entries(grouped)) {
+    const help = CHECK_HELP[cat];
+    const level = items[0].level;
+    text += `【${LEVEL_NAMES[level]}】${CATEGORY_LABELS[cat]}\n`;
+    text += `  ${help.ja}\n`;
+    text += `  なぜ確認？ ${help.why}\n`;
+    text += `  次にすること： ${help.next}\n`;
+    text += `  ファイル数: ${new Set(items.map(i=>i.file)).size} 件\n`;
+    text += `  マッチ数: ${items.length} 件\n\n`;
+  }
+  text += '\n※ この結果は参考情報です。詳細は各項目を確認してください。';
+  navigator.clipboard.writeText(text).then(() => showToast()).catch(() => showToast('⚠️ コピーに失敗しました'));
+}
+
+function displayResults(results) {
+  allResults = results;
+  const area = document.getElementById('resultsArea');
+  const summary = document.getElementById('resultsSummary');
+  const cards = document.getElementById('reviewCards');
+  const allClear = document.getElementById('allClear');
+
+  area.classList.remove('hidden');
+  cards.innerHTML = '';
+
+  const high = results.filter(r => r.level === 'high').length;
+  const med = results.filter(r => r.level === 'medium').length;
+  const low = results.filter(r => r.level === 'low').length;
+  const fileCount = new Set(results.map(r => r.file)).size;
+
+  summary.innerHTML = `
+    <div class="stat">📁 ファイル: <strong>${fileCount}</strong> 件</div>
+    <div class="stat">🔴 高: <strong>${high}</strong></div>
+    <div class="stat">🟡 中: <strong>${med}</strong></div>
+    <div class="stat">🟢 低: <strong>${low}</strong></div>
+  `;
+
+  if (results.length === 0) {
+    allClear.classList.remove('hidden');
+    return;
+  }
+  allClear.classList.add('hidden');
+
+  // Group by category
+  const grouped = {};
+  for (const r of results) {
+    if (!grouped[r.category]) grouped[r.category] = [];
+    grouped[r.category].push(r);
+  }
+
+  // Sort: high first
+  const levelOrder = {high:0, medium:1, low:2};
+  const sorted = Object.entries(grouped).sort((a,b) => levelOrder[a[1][0].level] - levelOrder[b[1][0].level]);
+
+  for (const [cat, items] of sorted) {
+    const help = CHECK_HELP[cat];
+    const level = items[0].level;
+    const card = document.createElement('div');
+    card.className = 'review-card ' + level;
+
+    // Deduplicate matches by file+matched text
+    const seen = new Set();
+    const unique = [];
+    for (const m of items) {
+      const key = m.file + '|' + m.matched;
+      if (!seen.has(key)) { seen.add(key); unique.push(m); }
+    }
+
+    // Show max 5 matches
+    const showItems = unique.slice(0, 5);
+    const moreCount = unique.length - showItems.length;
+
+    let html = `<div class="category">
+      <span>${CATEGORY_LABELS[cat] || cat}</span>
+      <span class="level ${level}">${LEVEL_NAMES[level]}</span>
+    </div>`;
+
+    for (const m of showItems) {
+      const redacted = redactSecrets(m.context);
+      const highlighted = redacted.replace(new RegExp(m.matched.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'gi'), '<mark style="background:rgba(255,123,114,.25);color:var(--danger);border-radius:2px;padding:0 2px">$&</mark>');
+      html += `<div class="file-header">📄 ${m.file}</div><div class="match-text">${escapeHtml(highlighted)}</div>`;
+    }
+    if (moreCount > 0) html += `<p style="opacity:.5;font-size:.85rem;margin-top:6px">...他 ${moreCount} 件のマッチ</p>`;
+
+    html += `<dl class="info-section">
+      <dt>💡 これは何？</dt><dd>${help.ja}</dd>
+      <dt>⚠️ なぜ確認？</dt><dd>${help.why}</dd>
+      <dt>👉 次にすること</dt><dd>${help.next}</dd>
+    </dl>`;
+
+    card.innerHTML = html;
+    cards.appendChild(card);
+  }
+}
+
+function escapeHtml(s) {
+  const d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+// ===== FILE HANDLING =====
+const MAX_SIZE = 512 * 1024;
+
+function isScannable(name) {
+  const lower = name.toLowerCase();
+  return SCAN_EXTENSIONS.some(ext => lower.endsWith(ext)) || lower === 'dockerfile';
+}
+
+async function processFiles(files) {
+  const results = [];
+  let skipped = 0;
+  for (const f of files) {
+    if (!isScannable(f.name)) { skipped++; continue; }
+    if (f.size > MAX_SIZE) { skipped++; continue; }
+    try {
+      const text = await f.text();
+      // Skip binary
+      if (/[\x00-\x08\x0E-\x1F]/.test(text.substring(0, 1024))) { skipped++; continue; }
+      const matches = scanFile(f.name, text);
+      for (const m of matches) {
+        results.push({...m, file: f.webkitRelativePath || f.name});
+      }
+    } catch(e) { skipped++; }
+  }
+  displayResults(results);
+}
+
+// ===== EVENT LISTENERS =====
+const dropZone = document.getElementById('dropZone');
+const fileInput = document.getElementById('fileInput');
+
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+dropZone.addEventListener('drop', e => {
+  e.preventDefault();
+  dropZone.classList.remove('dragover');
+  processFiles(e.dataTransfer.files);
+});
+fileInput.addEventListener('change', e => processFiles(e.target.files));
+
+// ===== GLOSSARY RENDER =====
+(function renderGlossary() {
+  const grid = document.getElementById('glossaryGrid');
+  const sorted = Object.values(GLOSSARY).sort((a,b) => a.term.localeCompare(b.term, 'ja'));
+  for (const g of sorted) {
+    const el = document.createElement('div');
+    el.className = 'glossary-item';
+    el.dataset.term = g.term;
+    el.dataset.desc = g.desc;
+    el.innerHTML = `<div class="term">${escapeHtml(g.term)}</div><div class="desc">${escapeHtml(g.desc)}</div>`;
+    el.addEventListener('click', () => el.classList.toggle('open'));
+    grid.appendChild(el);
+  }
+})();
+</script>
+</body>
+</html>

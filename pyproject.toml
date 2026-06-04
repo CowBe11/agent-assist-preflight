@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "agent-assist-preflight"
+version = "0.1.0"
+description = "Dependency-free read-only preflight assistant that turns setup docs into beginner-friendly review notes."
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+authors = [{ name = "Agent Assist Preflight maintainers" }]
+keywords = ["ai-agents", "mcp", "preflight", "cli", "beginner-friendly", "checklist"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Environment :: Console",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Topic :: Software Development :: Quality Assurance",
+  "Topic :: Utilities",
+]
+
+[project.scripts]
+agent-assist-preflight = "preflight_checker:main"
+agent-preflight-checker = "preflight_checker:main"
+
+[tool.setuptools]
+py-modules = ["preflight_checker"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
