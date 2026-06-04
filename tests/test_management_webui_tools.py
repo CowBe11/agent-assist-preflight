@@ -63,6 +63,10 @@ class BasicToolCheckerTests(unittest.TestCase):
         self.assertEqual(self.server._validate_url("https://"), (False, "url must include a hostname"))
         self.assertEqual(self.server._validate_url("https://example.com"), (True, ""))
 
+    def test_distribution_webui_server_matches_source(self):
+        distributed = ROOT / "dist" / "フォルダの中身チェック" / "management_webui" / "server.py"
+        self.assertEqual(distributed.read_text(encoding="utf-8"), SERVER.read_text(encoding="utf-8"))
+
     def test_webui_renders_all_review_items(self):
         app_js = (ROOT / "management_webui" / "static" / "app.js").read_text(encoding="utf-8")
         self.assertNotIn("items.slice(0, 5)", app_js)

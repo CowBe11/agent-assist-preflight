@@ -230,6 +230,11 @@ def _validate_url(url: str) -> tuple[bool, str]:
     # Must be http or https
     if not url.lower().startswith(("http://", "https://")):
         return False, "url must start with http:// or https://"
+    try:
+        if not urlparse(url).hostname:
+            return False, "url must include a hostname"
+    except ValueError:
+        return False, "url is invalid"
     return True, ""
 
 def read_url_cards() -> list[dict]:
@@ -240,6 +245,14 @@ def read_url_cards() -> list[dict]:
     except json.JSONDecodeError:
         data = []
     return data if isinstance(data, list) else []
+
+def next_url_card_id(cards: list[dict]) -> str:
+    nums = []
+    for item in cards:
+        cid = str(item.get("id", ""))
+        if cid.startswith("u") and cid[1:].isdigit():
+            nums.append(int(cid[1:]))
+    return f"u{(max(nums) if nums else 0) + 1:04d}"
 
 def next_comment_id(comments: list[dict]) -> str:
     nums = []
@@ -711,7 +724,7 @@ class Handler(BaseHTTPRequestHandler):
     def _send_api_index(self) -> None:
         self.send_json({
             "name": "Agent Assist Preflight",
-            "version": "1.0.0",
+            "version": "0.1.0",
             "description": "Read-only preflight assistant for beginners and AI agents. Scans local folders/text and produces plain-language review notes.",
             "description_ja": "初心者とAIエージェント向けの読み取り専用プリフライトアシスタント。ローカルフォルダ/テキストをスキャンして平易なレビューノートを生成します。",
             "endpoints": {
@@ -728,7 +741,7 @@ class Handler(BaseHTTPRequestHandler):
                 "POST /api/comments/<id>": {"description": "Update a ticket status.", "body": {"status": "open|accepted|fixed|parked"}},
                 "POST /api/url-card": {"description": "Send a URL to the user as a browser handoff card. The user sees the URL with a reason and can choose to open, copy, or dismiss. Never auto-opens.", "body": {"url": "http/https URL to share", "reason": "why the agent wants the user to open this (shown to user)"}, "agent_hint": "Use this instead of trying to open a browser directly. Safer and works across WSL/Windows. Blocked: javascript:, data:, file:."},
                 "GET /api/url-cards": {"description": "List pending URL handoff cards (not yet opened/dismissed by user)."},
-                "PATCH /api/url-card/<id>": {"description": "Update URL card status.", "body": {"status": "opened|copied|dismissed"}},
+                "POST /api/url-card/<id>": {"description": "Update URL card status.", "body": {"status": "opened|copied|dismissed"}},
             },
             "agent_workflow": {
                 "recommended_first_steps": [
@@ -911,7 +924,7 @@ class Handler(BaseHTTPRequestHandler):
             cards = read_url_cards()
             now = utc_now()
             card = {
-                "id": f"u{len(cards)+1:04d}",
+                "id": next_url_card_id(cards),
                 "url": url,
                 "reason": reason,
                 "status": "pending",
