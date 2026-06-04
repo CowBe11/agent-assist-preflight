@@ -50,7 +50,7 @@ const i18n = {
     'review.eyebrow': 'UIや機能の調整をリクエスト',
     'review.h2': 'カスタマイズリクエスト',
     'review.refreshBtn': '更新',
-    'review.desc': '表示や機能について「ここをこうしてほしい」というリクエストをためられます。<br><strong>ここではリクエストを書くだけ</strong>で、画面は自動では変わりません。<br>直し方は：<br>① 下の「リクエストをコピー」で内容をコピー<br>② このプロジェクトのフォルダを <strong>Cursor や Claude Code などのバイブコーディングツールで開く</strong><br>③ コピーしたリクエストを貼り付けて「これ直して」と依頼する',
+    'review.desc': '表示や機能について「ここをこうしてほしい」というリクエストをためられます。<br>ここで出したリクエストはチケットとして記録され、<strong>AIエージェントやバイブコーディングツールに「これ直して」とお願いするための材料</strong>になります。<br>画面は自動では変わりません。直し方は：<br>① 下の「リクエストをコピー」で内容をコピー<br>② このプロジェクトのフォルダを <strong>Cursor や Claude Code などのバイブコーディングツールで開く</strong><br>③ コピーしたリクエストを貼り付けて「これ直して」と依頼する',
     'review.sectionLabel': '対象セクション',
     'review.sectionPlaceholder': '例: README冒頭 / decision名 / WebUI',
     'review.priorityLabel': '優先度',
@@ -167,7 +167,7 @@ const i18n = {
     'review.eyebrow': 'Request UI or feature changes',
     'review.h2': 'Customization Requests',
     'review.refreshBtn': 'Refresh',
-    'review.desc': 'You can collect requests like "change this part of the UI".<br><strong>This only records requests</strong> — the screen won\'t change automatically.<br>How to apply:<br>① Copy the request with "Copy request" below<br>② Open this project folder in <strong>Cursor, Claude Code or another vibe coding tool</strong><br>③ Paste the request and ask "fix this"',
+    'review.desc': 'You can collect requests like "change this part of the UI".<br>Requests are recorded as tickets — <strong>use them as input when asking AI agents or vibe coding tools to fix the app</strong>.<br>The screen won\'t change automatically.<br>How to apply:<br>① Copy the request with "Copy request" below<br>② Open this project folder in <strong>Cursor, Claude Code or another vibe coding tool</strong><br>③ Paste the request and ask "fix this"',
     'review.sectionLabel': 'Target section',
     'review.sectionPlaceholder': 'e.g. README header / decision name / WebUI',
     'review.priorityLabel': 'Priority',
@@ -271,7 +271,18 @@ function applyI18n() {
   document.querySelectorAll('[data-i18n]').forEach(el => {
     const key = el.getAttribute('data-i18n');
     const text = lang[key];
-    if (text != null) el.textContent = text;
+    if (text == null) return;
+    // For labels with child elements, only update the first text node
+    if (el.tagName === 'LABEL' && el.children.length > 0) {
+      for (const node of el.childNodes) {
+        if (node.nodeType === Node.TEXT_NODE && node.textContent.trim()) {
+          node.textContent = text;
+          break;
+        }
+      }
+    } else {
+      el.textContent = text;
+    }
   });
   document.querySelectorAll('[data-i18n-html]').forEach(el => {
     const key = el.getAttribute('data-i18n-html');
