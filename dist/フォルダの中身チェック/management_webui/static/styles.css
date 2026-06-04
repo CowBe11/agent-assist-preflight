@@ -69,6 +69,18 @@ body {
   transition: background .15s, color .15s;
 }
 .lang-toggle:hover { background: var(--accent, #3b82f6); color: #fff; }
+.api-notice {
+  margin-top: .8rem;
+  padding: .6rem 1rem;
+  border-radius: 8px;
+  background: rgba(59,130,246,.08);
+  border: 1px solid rgba(59,130,246,.2);
+  font-size: .85rem;
+  line-height: 1.6;
+}
+.api-notice code { background: rgba(0,0,0,.08); padding: .1rem .3rem; border-radius: 3px; font-size: .8rem; }
+.api-notice a { color: var(--accent, #3b82f6); text-decoration: none; font-weight: 600; }
+.api-notice a:hover { text-decoration: underline; }
 
 /* ── main / panels ── */
 #mainContent {
