@@ -14,9 +14,10 @@
         <h1 data-i18n="site.h1">フォルダの中身チェック</h1>
       </div>
       <nav class="tabs" id="tabNav">
-        <button class="tab active" data-tab="try" data-i18n="tab.try">🔍 試す</button>
+        <button class="tab active" data-tab="try" data-i18n="tab.try">🔍 用語解説</button>
         <button class="tab" data-tab="docs" data-i18n="tab.docs">📖 読む</button>
         <button class="tab" data-tab="glossary" data-i18n="tab.glossary">📚 用語辞典</button>
+        <button class="tab" data-tab="cli" data-i18n="tab.cli">📋 CLIエラー診断</button>
         <button class="tab" data-tab="beginner" data-i18n="tab.beginner">🌱 初心者支援</button>
         <button class="tab tab-customize" data-tab="review" data-i18n="tab.customize">🔧 カスタマイズ</button>
         <button class="lang-toggle" id="langToggle" title="Switch language / 言語切替">🇺🇸 EN</button>
@@ -24,7 +25,7 @@
     </header>
 
     <main id="mainContent">
-      <!-- ===== TAB: 試す ===== -->
+      <!-- ===== TAB: 用語解説 ===== -->
       <section class="tab-panel active" id="panelTry">
         <div class="hero">
           <div class="hero-text">
@@ -108,6 +109,78 @@
         </div>
         <div class="glossary-grid" id="glossaryGrid">
           <p class="muted" data-i18n="glossary.loading">読み込み中...</p>
+        </div>
+      </section>
+
+      <!-- ===== TAB: CLIエラー診断 ===== -->
+      <section class="tab-panel" id="panelCli">
+        <div class="hero">
+          <div class="hero-text">
+            <p class="hero-emoji">📋</p>
+            <h2 data-i18n="cli.h2">ターミナルのエラーを貼り付けて原因を調べる</h2>
+            <p class="hero-sub" data-i18n-html="cli.desc">
+              ターミナルやPowerShell、cmdに出た<strong>エラーメッセージをそのまま貼り付ける</strong>と、
+              何が原因か、次に何をすればいいかを<strong>日本語で説明</strong>します。<br>
+              コマンドは実行しません。テキストを読むだけです。
+            </p>
+          </div>
+          <div class="hero-actions">
+            <textarea id="cliInput" class="cli-textarea" rows="8" data-i18n-placeholder="cli.placeholder" placeholder="ここにエラーメッセージやターミナルの出力を貼り付けてください..."></textarea>
+            <div class="cli-actions">
+              <button type="button" id="cliCheckBtn" class="primary" data-i18n="cli.checkBtn">🔍 エラーを調べる</button>
+              <button type="button" id="cliClearBtn" class="pick-btn" data-i18n="cli.clearBtn">クリア</button>
+              <span class="muted" id="cliStatus" data-i18n="cli.status">貼り付けて「エラーを調べる」を押してください</span>
+            </div>
+          </div>
+        </div>
+
+        <div id="cliResultArea" class="cli-result-area" style="display:none">
+          <!-- 秘密情報警告 (最優先) -->
+          <div id="cliSecretWarning" class="cli-card cli-card-danger" style="display:none">
+            <h3 data-i18n="cli.secretTitle">🚨 秘密情報の検出</h3>
+            <div id="cliSecretContent"></div>
+          </div>
+
+          <!-- 検出した問題 -->
+          <div id="cliIssuesCard" class="cli-card" style="display:none">
+            <h3 data-i18n="cli.issuesTitle">⚠️ 検出した問題</h3>
+            <div id="cliIssuesContent"></div>
+          </div>
+
+          <!-- 初心者向け説明 -->
+          <div id="cliExplainCard" class="cli-card" style="display:none">
+            <h3 data-i18n="cli.explainTitle">💡 初心者向け説明</h3>
+            <div id="cliExplainContent"></div>
+          </div>
+
+          <!-- 次に確認すること -->
+          <div id="cliNextCard" class="cli-card" style="display:none">
+            <h3 data-i18n="cli.nextTitle">👉 次に確認すること</h3>
+            <div id="cliNextContent"></div>
+          </div>
+
+          <!-- AIに渡す用の要約 -->
+          <div id="cliSummaryCard" class="cli-card cli-card-muted" style="display:none">
+            <h3 data-i18n="cli.summaryTitle">🤖 AIに渡す用の要約</h3>
+            <p class="muted" data-i18n="cli.summaryDesc">下のテキストをコピーして、ChatGPTやAIエージェントに貼り付けて相談できます。</p>
+            <pre id="cliSummaryText" class="cli-summary-pre"></pre>
+            <button type="button" id="cliCopySummaryBtn" data-i18n="cli.copySummary">要約をコピー</button>
+          </div>
+
+          <!-- 注意が必要な内容 -->
+          <div id="cliCautionCard" class="cli-card cli-card-caution" style="display:none">
+            <h3 data-i18n="cli.cautionTitle">⚠️ 注意が必要な内容が見つかりました</h3>
+            <div id="cliCautionContent"></div>
+          </div>
+
+          <!-- 問題なし -->
+          <div id="cliCleanCard" class="cli-card cli-card-ok" style="display:none">
+            <h3 data-i18n="cli.cleanTitle">✅ 問題は見つかりませんでした</h3>
+            <p data-i18n="cli.cleanDesc">貼り付けたテキストには、このツールが検出できるエラーパターンが見つかりませんでした。エラーが出ている場合は、全文を貼り付けてみてください。</p>
+          </div>
+
+          <!-- 補足文 -->
+          <p id="cliDisclaimer" class="cli-disclaimer" style="display:none" data-i18n="cli.disclaimer">このチェックは、代表的な危ない誘導や秘密情報らしき文字列に気づくための補助です。安全を保証するものではありません。</p>
         </div>
       </section>
 

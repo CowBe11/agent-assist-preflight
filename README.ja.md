@@ -184,7 +184,7 @@ python3 preflight_checker.py tests/fixtures/danger --format markdown
 
 WebUI では次のことができます：
 
-- フォルダのパスを入れて中身をチェック（🔍 試すタブ）
+- フォルダのパスを入れて中身をチェック（🔍 用語解説タブ）
 - README などのドキュメントを読む（📖 読むタブ）
 - 表示や機能のカスタマイズリクエストをためる（🔧 カスタマイズタブ）
 

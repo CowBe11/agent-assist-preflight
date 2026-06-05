@@ -610,6 +610,82 @@ button.primary { background: linear-gradient(135deg, #245b83, #563a86); border-c
 .tool-table small { color: var(--muted); font-size: .72rem; }
 .tool-table p { margin: 0 0 .35rem; }
 
+/* ── CLI Error Checker ── */
+.cli-textarea {
+  width: 100%;
+  min-height: 140px;
+  background: #0a0e14;
+  color: var(--text);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: .8rem;
+  font: inherit;
+  font-size: .88rem;
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  resize: vertical;
+}
+.cli-textarea:focus { outline: none; border-color: rgba(124,194,255,.5); }
+.cli-actions { display: flex; align-items: center; gap: .6rem; flex-wrap: wrap; margin-top: .6rem; }
+.cli-result-area { margin-top: 1.5rem; display: grid; gap: 1rem; }
+.cli-card {
+  padding: 1.2rem 1.4rem;
+  border-radius: 14px;
+  border: 1px solid rgba(124,194,255,.25);
+  background: rgba(124,194,255,.04);
+}
+.cli-card h3 { margin: 0 0 .8rem; font-size: 1.05rem; }
+.cli-card p { margin: 0 0 .5rem; line-height: 1.6; color: var(--muted); }
+.cli-card ol { margin: .4rem 0 0 1.2rem; line-height: 1.8; color: var(--muted); }
+.cli-card-danger {
+  border-color: rgba(255,80,80,.5);
+  background: rgba(255,80,80,.08);
+}
+.cli-card-danger h3 { color: #ff6b6b; }
+.cli-card-ok {
+  border-color: rgba(80,220,120,.4);
+  background: rgba(80,220,120,.06);
+}
+.cli-card-ok h3 { color: #6bdf8a; }
+.cli-card-caution {
+  border-color: rgba(255,200,60,.5);
+  background: rgba(255,200,60,.06);
+}
+.cli-card-caution h3 { color: #ffc83c; }
+.cli-card-muted {
+  border-color: rgba(150,150,150,.25);
+  background: rgba(150,150,150,.04);
+}
+.cli-item { margin-bottom: .8rem; }
+.cli-item:last-child { margin-bottom: 0; }
+.cli-item strong { color: var(--text); }
+.cli-item p { margin: .2rem 0; font-size: .9rem; }
+.cli-item em { color: #8bc4ff; font-style: normal; font-size: .88rem; }
+.cli-count { color: var(--muted); font-size: .82rem; }
+.cli-summary-pre {
+  background: #0a0e14;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: .8rem;
+  font-size: .82rem;
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  color: var(--text);
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 300px;
+  overflow-y: auto;
+  margin: .6rem 0;
+}
+.cli-disclaimer {
+  text-align: center;
+  color: var(--muted);
+  font-size: .82rem;
+  margin-top: 1rem;
+  padding: .6rem 1rem;
+  border-top: 1px solid var(--line);
+  line-height: 1.5;
+}
+
 @media (max-width: 700px) {
   .glossary-grid { grid-template-columns: 1fr; }
   .topbar { flex-direction: column; align-items: flex-start; }
