@@ -997,6 +997,11 @@ class Handler(BaseHTTPRequestHandler):
 # ═══════════════════════════════════════════════════════════════════════════════
 
 def main() -> None:
+    # Force UTF-8 stdout/stderr for Windows cp932 consoles
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+        sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+
     host = "127.0.0.1"
     port = 8765
 

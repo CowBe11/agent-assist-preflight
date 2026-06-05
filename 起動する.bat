@@ -12,5 +12,6 @@ if %errorlevel% neq 0 (
     exit /b 1
 )
 
+set PYTHONIOENCODING=utf-8
 python "%~dp0standalone.py"
 pause
