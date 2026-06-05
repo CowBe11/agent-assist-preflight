@@ -10,6 +10,7 @@ import preflight_checker
 
 ROOT = Path(__file__).resolve().parents[1]
 SCRIPT = ROOT / "preflight_checker.py"
+STANDALONE_SCRIPT = ROOT / "standalone.py"
 
 
 def run_checker(*args):
@@ -107,6 +108,30 @@ class PreflightCheckerTests(unittest.TestCase):
 
         self.assertEqual(result.returncode, 0, result.stderr.decode("utf-8", errors="replace"))
         self.assertIn("📖", result.stdout.decode("utf-8"))
+
+    def test_version_metadata_matches_release(self):
+        pyproject = (ROOT / "pyproject.toml").read_text(encoding="utf-8")
+
+        self.assertEqual(preflight_checker.VERSION, "0.1.2")
+        self.assertIn('version = "0.1.2"', pyproject)
+
+    def test_cli_version_flag_does_not_require_paths(self):
+        result = run_checker("--version")
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(result.stdout.strip(), "agent-assist-preflight 0.1.2")
+
+    def test_standalone_version_flag_exits_without_starting_server(self):
+        result = subprocess.run(
+            [sys.executable, str(STANDALONE_SCRIPT), "--version"],
+            cwd=ROOT,
+            text=True,
+            capture_output=True,
+            timeout=5,
+        )
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(result.stdout.strip(), "agent-assist-preflight-standalone 0.1.2")
 
 
 if __name__ == "__main__":

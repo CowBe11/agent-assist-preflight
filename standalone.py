@@ -9,6 +9,7 @@ directory ``management_webui/static/`` relative to this script.
 from __future__ import annotations
 
 import datetime as _dt
+import argparse
 import fnmatch
 import json
 import mimetypes
@@ -40,7 +41,7 @@ COMMENTS_PATH = DATA_ROOT / "review_comments.json"
 # Preflight checker (from preflight_checker.py)
 # ═══════════════════════════════════════════════════════════════════════════════
 
-VERSION = "0.1.0"
+VERSION = "0.1.2"
 DEFAULT_EXTENSIONS = {
     ".md", ".txt", ".json", ".jsonl", ".yaml", ".yml", ".toml",
     ".ini", ".env.example", ".sh", ".bash", ".ps1", ".py", ".js", ".ts",
@@ -997,6 +998,10 @@ class Handler(BaseHTTPRequestHandler):
 # ═══════════════════════════════════════════════════════════════════════════════
 
 def main() -> None:
+    parser = argparse.ArgumentParser(description="Start the standalone Agent Assist Preflight WebUI.")
+    parser.add_argument("--version", action="version", version=f"agent-assist-preflight-standalone {VERSION}")
+    parser.parse_args()
+
     # Force UTF-8 stdout/stderr for Windows cp932 consoles
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8", errors="replace")

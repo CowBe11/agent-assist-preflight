@@ -17,7 +17,7 @@ from dataclasses import dataclass, asdict
 from pathlib import Path
 from typing import Iterable, Optional
 
-VERSION = "0.1.0"
+VERSION = "0.1.2"
 DEFAULT_EXTENSIONS = {
     ".md", ".txt", ".json", ".jsonl", ".yaml", ".yml", ".toml",
     ".ini", ".env.example", ".sh", ".bash", ".ps1", ".py", ".js", ".ts",
@@ -385,6 +385,7 @@ def render_markdown(report: dict) -> str:
 
 def main(argv: Optional[list[str]] = None) -> int:
     parser = argparse.ArgumentParser(description="Read-only preflight assistant for README/config setup notes.")
+    parser.add_argument("--version", action="version", version=f"agent-assist-preflight {VERSION}")
     parser.add_argument("paths", nargs="+", help="Files or directories to scan")
     parser.add_argument("--format", choices=["markdown", "json"], default="markdown")
     parser.add_argument("--output", help="Optional output file. Parent directory must already be writable by the user.")
