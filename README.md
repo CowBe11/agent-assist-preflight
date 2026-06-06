@@ -1,4 +1,4 @@
-# Agent Assist Preflight
+# Agent Assist Preflight / AIエージェント初心者支援ツール
 
 [日本語 README](README.ja.md) | `v0.1.2` | Free · Open Source · Local Only
 
@@ -8,7 +8,7 @@
 >
 > A local, read-only safety layer for people using Claude Code, Cursor, Codex, OpenCode, ChatGPT, Hermes, or other AI agents on real projects.
 
-Agent Assist Preflight gives you one calm review screen before an AI agent, README, or terminal error pushes you into doing something risky or confusing.
+Agent Assist Preflight gives you one calm review screen before an AI agent, README, or terminal error pushes you into doing something risky or confusing. The Japanese name is shown in the title because this tool is meant to stay approachable for Japanese beginners too.
 
 It is for moments like these:
 
