@@ -78,6 +78,54 @@ class BasicToolCheckerTests(unittest.TestCase):
         self.assertNotIn("for (const term of terms)", annotation)
         self.assertIn("const pattern =", annotation)
 
+    def test_dashboard_exposes_operational_controls(self):
+        index_html = (ROOT / "management_webui" / "static" / "index.html").read_text(encoding="utf-8")
+        expected_ids = [
+            "dashScanForm",
+            "dashTargetPathInput",
+            "dashPickFolderBtn",
+            "dashTextInput",
+            "dashTextDropZone",
+            "dashTextFileInput",
+            "dashCliInput",
+            "dashPortOwnersBtn",
+            "dashToolBasicsBtn",
+            "dashGlossarySearch",
+            "dashWorkbenchOutput",
+        ]
+        for element_id in expected_ids:
+            with self.subTest(element_id=element_id):
+                self.assertIn(f'id="{element_id}"', index_html)
+
+    def test_dashboard_js_has_direct_action_handlers(self):
+        app_js = (ROOT / "management_webui" / "static" / "app.js").read_text(encoding="utf-8")
+        expected_functions = [
+            "async function runDashboardScan",
+            "async function runDashboardTextScan",
+            "async function scanDashboardTextFile",
+            "function setupDashboardDropZone",
+            "function runDashboardCliCheck",
+            "async function runDashboardPortOwners",
+            "async function runDashboardToolBasics",
+            "function renderDashboardGlossary",
+            "function bindDashboardControls",
+        ]
+        for function_name in expected_functions:
+            with self.subTest(function_name=function_name):
+                self.assertIn(function_name, app_js)
+
+    def test_dashboard_picker_reuses_shared_path_selection_flow(self):
+        app_js = (ROOT / "management_webui" / "static" / "app.js").read_text(encoding="utf-8")
+        self.assertIn("async function pickFolderForInputs(", app_js)
+        dashboard_picker = app_js.split("async function pickDashboardFolder()", 1)[1].split("\n}", 1)[0]
+        self.assertIn("pickFolderForInputs(", dashboard_picker)
+
+    def test_windows_picker_uses_topmost_owner_window(self):
+        server_source = SERVER.read_text(encoding="utf-8")
+        self.assertIn("$owner = New-Object System.Windows.Forms.Form", server_source)
+        self.assertIn("$owner.TopMost = $true", server_source)
+        self.assertIn("$dialog.ShowDialog($owner)", server_source)
+
 
 if __name__ == "__main__":
     unittest.main()

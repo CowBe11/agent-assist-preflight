@@ -8,10 +8,10 @@ let currentLang = localStorage.getItem(LANG_KEY) || (navigator.language.startsWi
 const i18n = {
   ja: {
     // Static HTML text keys (for restoring from English)
-    'site.title': 'フォルダの中身チェック — 無料の安全確認ツール',
-    'site.eyebrow': 'ダウンロードしたプロジェクトを、実行する前にチェック　🆓 完全無料・オープンソース',
-    'site.h1': 'フォルダの中身チェック',
-    'tab.try': '🔍 用語解説', 'tab.docs': '📖 読む', 'tab.glossary': '📚 用語辞典',
+    'site.title': 'AIエージェント初心者支援ツール — Agent Assist Preflight',
+    'site.eyebrow': 'AIエージェント接続可能',
+    'site.h1': '初心者支援ツール',
+    'tab.try': '🛡️ プリフライトチェック', 'tab.docs': '📖 読む', 'tab.glossary': '📚 用語辞典',
     'tab.beginner': '🌱 初心者支援', 'tab.customize': '🔧 カスタマイズ',
     'try.h2': 'ダウンロードしたフォルダの README やテキストファイルをチェック',
     'try.desc': 'README、.md、.txt、.py などの<strong>テキストファイル</strong>を読み取って、「インストールするとPC全体に影響しそう」「秘密情報が書いてあるかも」といった<strong>心配な部分を日本語で説明</strong>します。<br>画像や動画、zip などは対象外です。フォルダを入れると中のテキストファイルだけを見ます。',
@@ -59,15 +59,18 @@ const i18n = {
     'review.textLabel': 'リクエスト内容',
     'review.textPlaceholder': '例: confirm_before_running は『実行前に確認』と表示してほしい',
     'review.submitBtn': 'リクエストを追加',
-    'urlcard.title': 'エージェントがURLを開きたがっています',
+    'urlcard.title': 'エージェントからのURL確認リクエスト',
+    'urlcard.prompt': 'エージェントがこのURLを開きたいと言っています。理由を確認してから判断してください。',
     'urlcard.reason': '理由:',
     'urlcard.url': 'URL:',
-    'urlcard.open': '開く',
-    'urlcard.copy': 'コピー',
-    'urlcard.dismiss': '無視',
+    'urlcard.open': 'ブラウザで開く',
+    'urlcard.copy': 'URLをコピー',
+    'urlcard.dismiss': '無視する',
     'urlcard.opened': '開きました',
     'urlcard.copied': 'コピーしました',
     'urlcard.none': '現在保留中のURLカードはありません。',
+    'urlcard.infoAgentTitle': 'AIエージェント連携機能',
+    'urlcard.infoDesc': 'AIエージェント（Hermesなど）が「このページを開いてほしい」とURLと理由だけを送ってくると、ここにカードが表示されます。「ブラウザで開く」「URLをコピー」「無視する」を選べます。エージェントが勝手にブラウザを開くことはなく、あなたが理由を確認してから判断します。',
     // Dynamic-rendering keys only
     'yes': 'あり', 'no': 'なし',
     'checking': 'チェック中...', 'error.prefix': 'エラー: ',
@@ -110,6 +113,25 @@ const i18n = {
     'scan.nextTitle': '👉 このあとどうすればいい？',
     'scan.freeNote': '🆓 このツールは完全無料・オープンソースです。お金は一切かかりません。',
     'glossary.noMatch': 'に一致する用語は見つかりませんでした。別の言葉で試してください。',
+    'tab.dashboard': '🏠 ダッシュボード',
+    'dash.statGlossary': '用語辞典の用語数',
+    'dash.statCandidates': '実装前の候補数',
+    'dash.statUrlCards': '未確認のURLカード',
+    'dash.urlCardsEmpty': '保留中のURLカードはありません。AIエージェントがURLを送ると、ここに表示されます。',
+    'dash.quickTitle': '⚡ クイック操作',
+    'dash.actionScan': 'フォルダを\nチェック',
+    'dash.actionCli': 'エラーを\n調べる',
+    'dash.actionGloss': '用語を\n検索',
+    'dash.actionBegin': 'ポートを\n確認',
+    'dash.agentTitle': '🤖 AIエージェント向けAPI',
+    'dash.agentDesc': 'このツールは <code>GET /api</code> でAIエージェントから制御できます。<br>HermesなどのAIエージェントが自動でフォルダスキャン、ポート確認、用語検索を行えます。',
+    'tab.candidates': '📝 実装前',
+    'candidates.eyebrow': '開発者用 — 公開には含めていません',
+    'candidates.h2': '📝 用語辞典 実装前候補',
+    'candidates.desc': 'まだ <strong>server.py の GLOSSARY / GLOSSARY_EN に移動していない</strong> 用語候補です。<br>温度調整（既存72語のトーンに合わせる）が済んだものから順に実装します。<br>各候補には優先度とカテゴリが付いています。',
+    'candidates.placeholder': '🔍 候補を絞り込む...',
+    'candidates.loading': '読み込み中...',
+    'candidates.noMatch': 'に一致する候補は見つかりませんでした。',
     'help.destructive_delete': ['削除・リセット系のコマンドが書かれています。', '違うフォルダで実行すると、作業ファイルや設定を消す可能性があります。', 'まだ実行しないでください。何を消すのか、バックアップやdry-runがあるか確認してください。'],
     'help.global_install': ['グローバルインストール、またはダウンロードしたスクリプトをそのまま実行する手順が書かれています。', 'プロジェクトフォルダの外までPC環境を変える可能性があります。', 'まずローカルインストール、仮想環境、使い捨てフォルダで試せるか確認してください。sudo、-g、curl | sh は人に確認してから。'],
     'help.secrets_or_auth': ['トークン、パスワード、APIキー、OAuth、.env などの秘密情報について書かれています。', '秘密情報はログ、履歴、スクリーンショット、コミット、AIエージェントの文脈に漏れることがあります。', '最初はダミー値を使ってください。本物の秘密情報を貼る前に、どこへ保存されるか確認してください。'],
@@ -154,11 +176,13 @@ const i18n = {
   },
   en: {
     // Static HTML text (applied via data-i18n)
-    'site.title': 'Folder Contents Check — Free Safety Review Tool',
-    'site.eyebrow': 'Check downloaded projects before running them 🆓 Free & Open Source',
-    'site.h1': 'Folder Contents Check',
-    'tab.try': '🔍 Explain', 'tab.docs': '📖 Read', 'tab.glossary': '📚 Glossary',
+    'site.title': 'AI-Agent Beginner Support Tool — Agent Assist Preflight',
+    'site.eyebrow': 'AI-agent connectable',
+    'site.h1': 'Beginner Support Tool',
+    'tab.try': '🛡️ Preflight', 'tab.docs': '📖 Read', 'tab.glossary': '📚 Glossary',
+    'tab.dashboard': '🏠 Dashboard',
     'tab.beginner': '🌱 Beginner Help', 'tab.customize': '🔧 Customize',
+    'tab.candidates': '📝 WIP',
     'try.h2': 'Check README and text files in downloaded folders',
     'try.desc': 'Reads <strong>text files</strong> like README, .md, .txt, .py and explains <strong>risky parts in plain language</strong> — such as "this may affect your whole PC" or "this may contain secrets".<br>Images, videos, zip files are not scanned. Dropping a folder only reads text files inside.',
     'try.placeholder': 'e.g. /mnt/c/Users/.../Downloads/tool (folder or text file path)',
@@ -205,15 +229,18 @@ const i18n = {
     'review.textLabel': 'Request details',
     'review.textPlaceholder': 'e.g. I want confirm_before_running to show as "Confirm before running"',
     'review.submitBtn': 'Add request',
-    'urlcard.title': 'Agent wants to open a URL',
+    'urlcard.title': 'URL review request from the agent',
+    'urlcard.prompt': 'The agent is asking you to open this URL. Review the reason before deciding.',
     'urlcard.reason': 'Reason:',
     'urlcard.url': 'URL:',
-    'urlcard.open': 'Open',
-    'urlcard.copy': 'Copy',
-    'urlcard.dismiss': 'Dismiss',
+    'urlcard.open': 'Open in browser',
+    'urlcard.copy': 'Copy URL',
+    'urlcard.dismiss': 'Ignore',
     'urlcard.opened': 'Opened',
     'urlcard.copied': 'Copied',
     'urlcard.none': 'No pending URL cards.',
+    'urlcard.infoAgentTitle': 'AI Agent Integration',
+    'urlcard.infoDesc': 'When an AI agent (e.g. Hermes) sends only a URL and reason, a card appears here. You can Open in browser, Copy URL, or Ignore. The agent never opens your browser directly — you review the reason and stay in control.',
     // Dynamic-rendering keys
     'yes': 'Yes', 'no': 'No',
     'checking': 'Checking...', 'error.prefix': 'Error: ',
@@ -554,6 +581,63 @@ function renderGlossary(filter = '') {
       <h3>${escapeHtml(term)}</h3>
       <p>${escapeHtml(desc)}</p>
     </article>`).join('');
+}
+
+// ── Candidates (pre-implementation glossary) ──
+let candidatesData = {};
+const CATEGORY_ICONS = { github: '📂', cli: '💻', programming: '🐍', ai: '🤖', general: '🖥', error: '⚠️' };
+const CATEGORY_LABELS = { github: 'GitHub', cli: 'CLI', programming: 'プログラミング', ai: 'AI/ML', general: '一般IT', error: 'エラー' };
+const PRIORITY_LABELS = { high: '📌 優先 高', mid: '🔵 中', low: '⚪ 低' };
+let candidatesFilterCat = 'all';
+
+async function loadCandidates() {
+  try {
+    candidatesData = await fetchJson('/api/glossary-candidates');
+  } catch (_) {
+    candidatesData = {};
+  }
+  renderCandidates();
+}
+
+function renderCandidates() {
+  const grid = $('candidatesGrid');
+  if (!grid) return;
+  const q = ($('candidatesSearch')?.value || '').trim().toLowerCase();
+  const entries = Object.entries(candidatesData);
+  const filtered = entries.filter(([term, data]) => {
+    if (candidatesFilterCat !== 'all' && data.cat !== candidatesFilterCat) return false;
+    if (!q) return true;
+    return term.toLowerCase().includes(q)
+      || (data.ja || '').toLowerCase().includes(q)
+      || (data.en || '').toLowerCase().includes(q);
+  });
+  const totalCount = $('candidatesCount');
+  if (totalCount) totalCount.textContent = `${filtered.length} / ${entries.length} ${currentLang === 'ja' ? '件' : 'items'}`;
+  if (!filtered.length) {
+    grid.innerHTML = `<p class="muted" style="padding:2rem;text-align:center">${entries.length === 0 ? (currentLang === 'ja' ? 'データがありません。glossary_candidates.json を確認してください。' : 'No data. Check glossary_candidates.json.') : (currentLang === 'ja' ? `「${escapeHtml(q)}」${t('candidates.noMatch')}` : t('candidates.noMatch', escapeHtml(q)))}</p>`;
+    return;
+  }
+  grid.innerHTML = filtered.map(([term, data]) => {
+    const p = data.pri || 'mid';
+    const cat = data.cat || 'general';
+    const ja = data.ja || '';
+    const en = data.en || '';
+    const catIcon = CATEGORY_ICONS[cat] || '📁';
+    const catLabel = CATEGORY_LABELS[cat] || cat;
+    const priLabel = PRIORITY_LABELS[p] || '🔵 中';
+    const displayLang = currentLang === 'ja' ? ja : (en || ja);
+    const secondLang = currentLang === 'ja' ? en : '';
+    return `<article class="candidates-card pri-${p}">
+      <div class="card-header">
+        <span class="pri-badge pri-${p}">${priLabel}</span>
+        <span class="card-badge">${catIcon} ${catLabel}</span>
+        <span class="card-badge pri-status">実装前</span>
+        <h3>${escapeHtml(term)}</h3>
+      </div>
+      <p class="card-desc">${escapeHtml(displayLang)}</p>
+      ${secondLang ? `<p class="card-en">${escapeHtml(secondLang)}</p>` : ''}
+    </article>`;
+  }).join('');
 }
 
 async function loadDoc(id = state.currentDoc) {
@@ -898,16 +982,24 @@ async function runScan(form) {
   $('scanResultArea')?.scrollIntoView?.({ behavior: 'smooth' });
 }
 
-async function pickFolder() {
-  const status = $('pickFolderStatus');
-  status.textContent = currentLang === 'ja' ? 'Windowsの「開く」ダイアログを開いています...' : 'Opening Windows Open dialog...';
+async function pickFolderForInputs({ inputId, statusId, onPicked, onError } = {}) {
+  const status = statusId ? $(statusId) : null;
+  if (status) status.textContent = currentLang === 'ja' ? 'Windowsの「開く」ダイアログを開いています...' : 'Opening Windows Open dialog...';
   const data = await fetchJson('/api/pick-folder');
   if (!data.ok) {
-    status.textContent = data.cancelled ? (currentLang === 'ja' ? 'キャンセルしました。' : 'Cancelled.') : `${t('error.prefix')}${data.error || 'unknown error'}`;
+    const message = data.cancelled ? (currentLang === 'ja' ? 'キャンセルしました。' : 'Cancelled.') : `${t('error.prefix')}${data.error || 'unknown error'}`;
+    if (status) status.textContent = message;
+    onError?.(data);
     return;
   }
-  $('targetPathInput').value = data.path;
-  status.textContent = `${currentLang === 'ja' ? '選択しました: ' : 'Selected: '}${data.path}`;
+  const input = inputId ? $(inputId) : null;
+  if (input) input.value = data.path;
+  if (status) status.textContent = `${currentLang === 'ja' ? '選択しました: ' : 'Selected: '}${data.path}`;
+  onPicked?.(data);
+}
+
+async function pickFolder() {
+  await pickFolderForInputs({ inputId: 'targetPathInput', statusId: 'pickFolderStatus' });
 }
 
 async function scanTextFile(file) {
@@ -1249,7 +1341,8 @@ function renderUrlCards(cards) {
     const warnClass = isDangerous ? 'url-card-danger' : '';
     return `<div class="url-card ${warnClass}">
       <div class="url-card-head">🔗 ${t('urlcard.title')}</div>
-      ${safeReason ? `<p class="url-card-reason"><strong>${t('urlcard.reason')}</strong> ${safeReason}</p>` : ''}
+      <p class="url-card-prompt">${t('urlcard.prompt')}</p>
+      ${safeReason ? `<div class="url-card-agent-bubble"><span class="url-card-agent-label">${t('urlcard.reason')}</span><p>${safeReason}</p></div>` : ''}
       <p class="url-card-url"><strong>${t('urlcard.url')}</strong> <code>${safeUrl}</code></p>
       ${isDangerous ? '<p class="url-card-warn">⚠️ このURLは安全ではありません。</p>' : ''}
       <div class="url-card-actions">
@@ -1265,9 +1358,336 @@ async function fetchUrlCards() {
   try {
     const res = await fetch('/api/url-cards');
     const data = await res.json();
-    if (data.ok) renderUrlCards(data.cards);
+    if (data.ok) {
+      renderUrlCards(data.cards);
+      renderDashboardUrlCards(data.cards);
+    }
+    // Toggle info text: show when no cards, hide when cards exist
+    const info = document.getElementById('urlCardInfo');
+    if (info) {
+      info.style.display = (data.ok && data.cards && data.cards.length > 0) ? 'none' : '';
+    }
+    // Refresh dashboard stats
+    refreshDashboard();
   } catch (_) {}
 }
+
+// ── Dashboard ──
+function setDashboardOutput(html, raw) {
+  const output = $('dashWorkbenchOutput');
+  if (!output) return;
+  output.innerHTML = html;
+  if (raw) output.dataset.raw = typeof raw === 'string' ? raw : JSON.stringify(raw, null, 2);
+  else delete output.dataset.raw;
+}
+
+function dashboardLoading(label) {
+  setDashboardOutput(`<p class="dash-loading">${escapeHtml(label)}</p>`);
+}
+
+function renderDashboardScanResult(data, sourceLabel) {
+  if (!data.ok) {
+    setDashboardOutput(`<div class="dash-result-card bad"><strong>確認できませんでした</strong><p>${escapeHtml(data.error || 'unknown error')}</p></div>`, data);
+    return;
+  }
+  const report = data.report || {};
+  const items = report.review_items || [];
+  const itemRows = items.slice(0, 6).map((item, index) => {
+    const help = helpFor(item, index);
+    return `<li><span class="badge ${escapeHtml(item.priority || 'note')}">${escapeHtml(item.priority || 'note')}</span> <strong>${escapeHtml(help.title)}</strong><span>${escapeHtml(item.file || sourceLabel || '')}${item.line ? ':' + escapeHtml(item.line) : ''}</span></li>`;
+  }).join('');
+  setDashboardOutput(`
+    <div class="dash-result-card">
+      <div class="dash-result-head">
+        <span class="dash-result-icon">🛡️</span>
+        <div>
+          <strong>${escapeHtml(sourceLabel || 'Preflight result')}</strong>
+          <p>${escapeHtml(beginnerSummaryText(report.beginner_summary) || report.decision || '')}</p>
+        </div>
+      </div>
+      <div class="dash-result-metrics">
+        <span><b>${escapeHtml(report.decision || '-')}</b> 判定</span>
+        <span><b>${escapeHtml(report.max_priority || '-')}</b> 最大優先度</span>
+        <span><b>${items.length}</b> 確認項目</span>
+      </div>
+      ${itemRows ? `<ul class="dash-result-list">${itemRows}</ul>` : '<p class="muted">目立つ確認項目はありませんでした。ただし安全保証ではありません。</p>'}
+      <div class="dash-result-actions">
+        <button type="button" data-tab="try" class="dash-ghost-btn">詳細タブで見る</button>
+      </div>
+    </div>`, data);
+}
+
+async function runDashboardScan(event) {
+  event?.preventDefault?.();
+  const input = $('dashTargetPathInput');
+  const targetPath = input?.value?.trim();
+  if (!targetPath) {
+    setDashboardOutput('<div class="dash-result-card bad"><strong>パスを入力してください</strong><p>確認したいフォルダまたはテキストファイルのパスが必要です。</p></div>');
+    return;
+  }
+  dashboardLoading('フォルダ / ファイルを確認しています...');
+  try {
+    const data = await fetchJson('/api/scan', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({target_path: targetPath}),
+    });
+    renderDashboardScanResult(data, targetPath);
+  } catch (err) {
+    setDashboardOutput(`<div class="dash-result-card bad"><strong>確認できませんでした</strong><p>${escapeHtml(err.message || String(err))}</p></div>`);
+  }
+}
+
+async function runDashboardTextScan() {
+  const content = $('dashTextInput')?.value?.trim();
+  if (!content) {
+    setDashboardOutput('<div class="dash-result-card bad"><strong>テキストを貼り付けてください</strong><p>README断片や手順テキストを入力すると確認できます。</p></div>');
+    return;
+  }
+  dashboardLoading('貼り付けテキストを確認しています...');
+  try {
+    const data = await fetchJson('/api/scan-text', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({filename: 'dashboard-pasted-text.txt', content}),
+    });
+    renderDashboardScanResult(data, '貼り付けテキスト');
+  } catch (err) {
+    setDashboardOutput(`<div class="dash-result-card bad"><strong>確認できませんでした</strong><p>${escapeHtml(err.message || String(err))}</p></div>`);
+  }
+}
+
+async function scanDashboardTextFile(file) {
+  if (!file) return;
+  if (file.size > 1_000_000) {
+    setDashboardOutput('<div class="dash-result-card bad"><strong>ファイルが大きすぎます</strong><p>1MB を超えるテキストファイルは扱いません。</p></div>');
+    return;
+  }
+  dashboardLoading(`${escapeHtml(file.name)} を読み込んでいます...`);
+  try {
+    const content = await file.text();
+    const input = $('dashTextInput');
+    if (input) input.value = content;
+    const data = await fetchJson('/api/scan-text', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({filename: file.name, content}),
+    });
+    renderDashboardScanResult(data, file.name);
+  } catch (err) {
+    setDashboardOutput(`<div class="dash-result-card bad"><strong>テキストファイルを確認できませんでした</strong><p>${escapeHtml(err.message || String(err))}</p></div>`);
+  }
+}
+
+function setupDashboardDropZone() {
+  const zone = $('dashTextDropZone');
+  const input = $('dashTextFileInput');
+  if (!zone || !input) return;
+  zone.addEventListener('click', () => input.click());
+  zone.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      input.click();
+    }
+  });
+  input.addEventListener('change', async () => {
+    await scanDashboardTextFile(input.files?.[0]);
+    input.value = '';
+  });
+  for (const name of ['dragenter', 'dragover']) {
+    zone.addEventListener(name, (event) => {
+      event.preventDefault();
+      zone.classList.add('dragover');
+    });
+  }
+  for (const name of ['dragleave', 'drop']) {
+    zone.addEventListener(name, (event) => {
+      event.preventDefault();
+      zone.classList.remove('dragover');
+    });
+  }
+  zone.addEventListener('drop', async (event) => {
+    const file = event.dataTransfer?.files?.[0];
+    await scanDashboardTextFile(file);
+  });
+}
+
+function runDashboardCliCheck() {
+  const raw = $('dashCliInput')?.value?.trim();
+  if (!raw) {
+    setDashboardOutput('<div class="dash-result-card bad"><strong>ターミナル出力を貼り付けてください</strong><p>PowerShellやnpmのエラー全文を入れると診断できます。</p></div>');
+    return;
+  }
+  const text = raw.length > CLI_MAX_CHARS ? raw.substring(0, CLI_MAX_CHARS) : raw;
+  _cliInputText = text;
+  const results = analyzeCliOutput(text);
+  const allIssues = [...results.secrets, ...results.issues, ...results.cautions];
+  const rows = allIssues.slice(0, 8).map((item) => `<li><strong>${escapeHtml(redactSecrets(item.title || ''))}</strong><span>${escapeHtml(redactSecrets(item.next || item.explain || ''))}</span></li>`).join('');
+  setDashboardOutput(`
+    <div class="dash-result-card">
+      <div class="dash-result-head">
+        <span class="dash-result-icon">📋</span>
+        <div>
+          <strong>CLIエラー診断</strong>
+          <p>${results.hasSecrets ? '秘密情報らしき文字列を検出しました。ログ全文をそのまま貼らないでください。' : '貼り付けた出力をローカルで診断しました。'}</p>
+        </div>
+      </div>
+      <div class="dash-result-metrics">
+        <span><b>${results.secrets.length}</b> 秘密情報候補</span>
+        <span><b>${results.issues.length}</b> 問題候補</span>
+        <span><b>${results.cautions.length}</b> 注意候補</span>
+      </div>
+      ${rows ? `<ul class="dash-result-list">${rows}</ul>` : '<p class="muted">既知のエラーパターンは見つかりませんでした。</p>'}
+      <div class="dash-result-actions"><button type="button" data-tab="cli" class="dash-ghost-btn">CLIタブで詳しく見る</button></div>
+    </div>`, results);
+}
+
+async function runDashboardPortOwners() {
+  dashboardLoading('ポート使用状況を取得しています...');
+  try {
+    const data = await fetchJson('/api/port-owners');
+    const ports = data.ports || [];
+    const known = ports.filter((p) => p.is_known || p.is_self);
+    const exposed = ports.filter((p) => !p.is_known && !p.is_self && p.visibility === 'all');
+    const rows = ports.slice(0, 10).map((p) => `<li><strong>${escapeHtml(p.port)}</strong><span>${escapeHtml(p.process_name || 'unknown')} / PID ${escapeHtml(p.pid || '-')} / ${escapeHtml(p.description || p.visibility || '')}</span></li>`).join('');
+    setDashboardOutput(`
+      <div class="dash-result-card">
+        <div class="dash-result-head">
+          <span class="dash-result-icon">🔢</span>
+          <div><strong>ポート一覧</strong><p>LISTEN中のポートを読み取り専用で確認しました。</p></div>
+        </div>
+        <div class="dash-result-metrics">
+          <span><b>${ports.length}</b> LISTEN中</span>
+          <span><b>${known.length}</b> 用途候補あり</span>
+          <span><b>${exposed.length}</b> 外から見える可能性</span>
+        </div>
+        ${rows ? `<ul class="dash-result-list">${rows}</ul>` : '<p class="muted">LISTEN中のポートは見つかりませんでした。</p>'}
+        <div class="dash-result-actions"><button type="button" data-tab="beginner" class="dash-ghost-btn">初心者支援タブで詳しく見る</button></div>
+      </div>`, data);
+  } catch (err) {
+    setDashboardOutput(`<div class="dash-result-card bad"><strong>ポート確認に失敗しました</strong><p>${escapeHtml(err.message || String(err))}</p></div>`);
+  }
+}
+
+async function runDashboardToolBasics() {
+  dashboardLoading('Python / Node / Git などの基本ツールを確認しています...');
+  try {
+    const data = await fetchJson('/api/tool-basics');
+    const tools = data.tools || [];
+    const agentMissing = tools.filter((tool) => !tool.agent_can_use);
+    const rows = tools.map((tool) => `<li><strong>${escapeHtml(tool.label || tool.id)}</strong><span>${escapeHtml(tool.status || '')} / ${tool.agent_can_use ? 'エージェント側OK' : 'エージェント側で未確認'}</span></li>`).join('');
+    setDashboardOutput(`
+      <div class="dash-result-card">
+        <div class="dash-result-head">
+          <span class="dash-result-icon">🧰</span>
+          <div><strong>基本道具チェック</strong><p>AIエージェントが使う側とWindows側の道具を確認しました。</p></div>
+        </div>
+        <div class="dash-result-metrics">
+          <span><b>${tools.length}</b> 確認</span>
+          <span><b>${agentMissing.length}</b> エージェント側で不足候補</span>
+        </div>
+        <ul class="dash-result-list">${rows}</ul>
+        <div class="dash-result-actions"><button type="button" data-tab="beginner" class="dash-ghost-btn">初心者支援タブで詳しく見る</button></div>
+      </div>`, data);
+  } catch (err) {
+    setDashboardOutput(`<div class="dash-result-card bad"><strong>基本道具チェックに失敗しました</strong><p>${escapeHtml(err.message || String(err))}</p></div>`);
+  }
+}
+
+function renderDashboardGlossary() {
+  const box = $('dashGlossaryResults');
+  if (!box) return;
+  const q = ($('dashGlossarySearch')?.value || '').trim().toLowerCase();
+  const source = currentLang === 'en' ? enGlossaryData : glossaryData;
+  const terms = Object.entries(source);
+  const filtered = q
+    ? terms.filter(([term, desc]) => term.toLowerCase().includes(q) || String(desc).toLowerCase().includes(q)).slice(0, 5)
+    : terms.slice(0, 3);
+  box.innerHTML = filtered.length
+    ? filtered.map(([term, desc]) => `<article><strong>${escapeHtml(term)}</strong><p>${escapeHtml(desc)}</p></article>`).join('')
+    : '<p class="muted">一致する用語は見つかりませんでした。</p>';
+}
+
+async function pickDashboardFolder() {
+  try {
+    await pickFolderForInputs({
+      inputId: 'dashTargetPathInput',
+      statusId: 'dashPickFolderStatus',
+      onPicked: (data) => setDashboardOutput(`<div class="dash-result-card"><strong>選択しました</strong><p>${escapeHtml(data.path)}</p></div>`),
+      onError: (data) => {
+        if (!data.cancelled) {
+          setDashboardOutput(`<div class="dash-result-card bad"><strong>選択できませんでした</strong><p>${escapeHtml(data.error || '')}</p></div>`);
+        }
+      },
+    });
+  } catch (err) {
+    setDashboardOutput(`<div class="dash-result-card bad"><strong>選択できませんでした</strong><p>${escapeHtml(err.message || String(err))}</p></div>`);
+  }
+}
+
+function bindDashboardControls() {
+  $('dashScanForm')?.addEventListener('submit', runDashboardScan);
+  $('dashPickFolderBtn')?.addEventListener('click', pickDashboardFolder);
+  $('dashTextScanBtn')?.addEventListener('click', runDashboardTextScan);
+  $('dashCliCheckBtn')?.addEventListener('click', runDashboardCliCheck);
+  $('dashPortOwnersBtn')?.addEventListener('click', runDashboardPortOwners);
+  $('dashToolBasicsBtn')?.addEventListener('click', runDashboardToolBasics);
+  $('dashGlossarySearch')?.addEventListener('input', renderDashboardGlossary);
+  $('dashClearOutputBtn')?.addEventListener('click', () => setDashboardOutput('<p class="muted">上の操作を実行すると、ここに結果が表示されます。詳しく見たい場合は各タブへ移動できます。</p>'));
+  setupDashboardDropZone();
+  renderDashboardGlossary();
+}
+
+function refreshDashboard() {
+  // Update stats
+  fetch('/api/glossary').then(r => r.json()).then(data => {
+    const el = document.getElementById('dashGlossaryCount');
+    if (el) el.textContent = Object.keys(data).length;
+  }).catch(() => {});
+
+  fetch('/api/glossary-candidates').then(r => r.json()).then(data => {
+    const el = document.getElementById('dashCandidatesCount');
+    if (el) el.textContent = Object.keys(data).length;
+  }).catch(() => {});
+
+  fetch('/api/url-cards').then(r => r.json()).then(data => {
+    const el = document.getElementById('dashUrlCardsCount');
+    if (el && data.ok) {
+      const count = data.cards ? data.cards.length : 0;
+      el.textContent = count;
+      el.style.color = count > 0 ? '#ffc27c' : '';
+    }
+    if (data.ok && data.cards) renderDashboardUrlCards(data.cards);
+  }).catch(() => {});
+}
+
+function renderDashboardUrlCards(cards) {
+  const list = document.getElementById('dashUrlCardList');
+  if (!list) return;
+  if (!cards || cards.length === 0) {
+    list.innerHTML = `<p class="muted" style="padding:1.5rem;text-align:center">${t('dash.urlCardsEmpty')}</p>`;
+    return;
+  }
+  list.innerHTML = cards.map(c => {
+    const reason = escapeHtml(c.reason || t('urlcard.none'));
+    const url = escapeHtml(c.url || '');
+    return `<div class="dash-url-mini-card">
+      <div class="dash-url-reason">${reason}</div>
+      <div class="dash-url-meta">
+        <code title="${url}">${url.substring(0, 60)}${url.length > 60 ? '…' : ''}</code>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// Quick navigation buttons in dashboard
+function handleDashboardNavigationClick(event) {
+  const target = event.target.closest('.dash-action-btn, .dash-module-card, .dash-ghost-btn');
+  if (!target) return;
+  const tab = target.dataset.tab;
+  if (tab) switchTab(tab);
+}
+document.addEventListener('click', handleDashboardNavigationClick);
 
 async function updateUrlCardStatus(cardId, status) {
   try {
@@ -1849,12 +2269,25 @@ $('cliCopySummaryBtn')?.addEventListener('click', () => {
   }
 });
 
+// ── Candidates event handlers ──
+$('candidatesSearch')?.addEventListener('input', () => renderCandidates());
+$('candidatesFilters')?.addEventListener('click', (event) => {
+  const btn = event.target.closest('.cfilter');
+  if (!btn) return;
+  document.querySelectorAll('.cfilter').forEach((b) => b.classList.toggle('active', b === btn));
+  candidatesFilterCat = btn.dataset.cat;
+  renderCandidates();
+});
+
 (async function boot() {
   setupDropZone();
   await loadState();
   await loadDoc('readme-ja');
-  loadGlossary();
-  switchTab('try');
+  await loadGlossary();
+  await loadCandidates();
+  bindDashboardControls();
+  refreshDashboard();
+  switchTab('dashboard');
   // Apply saved language preference
   setLang(currentLang);
   // Load pending URL cards

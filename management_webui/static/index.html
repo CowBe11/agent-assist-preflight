@@ -3,30 +3,268 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title data-i18n="site.title">フォルダの中身チェック — 無料の安全確認ツール</title>
+    <title data-i18n="site.title">AIエージェント初心者支援ツール — Agent Assist Preflight</title>
     <link rel="icon" href="data:," />
     <link rel="stylesheet" href="/styles.css" />
   </head>
   <body>
     <header class="topbar">
       <div class="topbar-left">
-        <p class="eyebrow" data-i18n="site.eyebrow">ダウンロードしたプロジェクトを、実行する前にチェック　🆓 完全無料・オープンソース</p>
-        <h1 data-i18n="site.h1">フォルダの中身チェック</h1>
+        <p class="eyebrow" data-i18n="site.eyebrow">AIエージェント接続可能</p>
+        <h1 data-i18n="site.h1">初心者支援ツール</h1>
       </div>
       <nav class="tabs" id="tabNav">
-        <button class="tab active" data-tab="try" data-i18n="tab.try">🔍 用語解説</button>
+        <button class="tab active" data-tab="dashboard" data-i18n="tab.dashboard">🏠 ダッシュボード</button>
+        <button class="tab" data-tab="try" data-i18n="tab.try">🔍 用語解説</button>
         <button class="tab" data-tab="docs" data-i18n="tab.docs">📖 読む</button>
         <button class="tab" data-tab="glossary" data-i18n="tab.glossary">📚 用語辞典</button>
         <button class="tab" data-tab="cli" data-i18n="tab.cli">📋 CLIエラー診断</button>
-        <button class="tab" data-tab="beginner" data-i18n="tab.beginner">🌱 初心者支援</button>
+        <button class="tab tab-candidates" data-tab="candidates" data-i18n="tab.candidates">📝 実装前</button>
+        <button class="tab tab-beginner" data-tab="beginner" data-i18n="tab.beginner">🌱 初心者支援</button>
         <button class="tab tab-customize" data-tab="review" data-i18n="tab.customize">🔧 カスタマイズ</button>
         <button class="lang-toggle" id="langToggle" title="Switch language / 言語切替">🇺🇸 EN</button>
       </nav>
     </header>
 
     <main id="mainContent">
+      <!-- ===== TAB: ダッシュボード ===== -->
+      <section class="tab-panel active" id="panelDashboard">
+        <div class="dashboard modern-dashboard">
+          <div class="dash-hero">
+            <div>
+              <p class="dash-kicker">Agent Assist Preflight</p>
+              <h2>AIエージェント初心者支援ハブ</h2>
+              <p class="dash-lead">AIエージェントからのURL確認、実行前チェック、ポート確認、用語解説をひとつに。初心者とAIエージェントの間に入るローカル安全レイヤーです。</p>
+            </div>
+            <div class="dash-user-card" aria-label="現在の利用者モード">
+              <span class="dash-avatar">🧑‍💻</span>
+              <div>
+                <strong>Solo Developer</strong>
+                <span>初心者サポート重視</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="dash-stats" id="dashStats">
+            <article class="dash-stat-card">
+              <div class="dash-stat-icon shield">🛡️</div>
+              <div class="dash-stat-body">
+                <div class="dash-stat-num">Read-only</div>
+                <div class="dash-stat-label">インストールも実行もせず確認</div>
+              </div>
+            </article>
+            <article class="dash-stat-card">
+              <div class="dash-stat-icon">📚</div>
+              <div class="dash-stat-body">
+                <div class="dash-stat-num" id="dashGlossaryCount">72</div>
+                <div class="dash-stat-label" data-i18n="dash.statGlossary">用語辞典の用語数</div>
+              </div>
+            </article>
+            <article class="dash-stat-card">
+              <div class="dash-stat-icon">📝</div>
+              <div class="dash-stat-body">
+                <div class="dash-stat-num" id="dashCandidatesCount">-</div>
+                <div class="dash-stat-label" data-i18n="dash.statCandidates">実装前の候補数</div>
+              </div>
+            </article>
+            <article class="dash-stat-card">
+              <div class="dash-stat-icon url">🔗</div>
+              <div class="dash-stat-body">
+                <div class="dash-stat-num" id="dashUrlCardsCount">0</div>
+                <div class="dash-stat-label" data-i18n="dash.statUrlCards">未確認のURLカード</div>
+              </div>
+            </article>
+          </div>
+
+          <section class="dash-panel dash-command-center" aria-label="ダッシュボード操作盤">
+            <div class="dash-panel-head">
+              <div>
+                <p class="dash-mini-kicker">Command Center</p>
+                <h3>ここから主要機能を実行</h3>
+              </div>
+              <span class="dash-readonly-badge">read-only / local only</span>
+            </div>
+
+            <div class="dash-ops-grid">
+              <div class="dash-op-card dash-op-primary">
+                <div class="dash-op-head">
+                  <span class="dash-op-icon">🛡️</span>
+                  <div>
+                    <h4>フォルダ / ファイルを実行前チェック</h4>
+                    <p>READMEや設定ファイルを読み、危ない操作の前で止まれるようにします。</p>
+                  </div>
+                </div>
+                <form id="dashScanForm" class="dash-inline-form">
+                  <input name="target_path" id="dashTargetPathInput" value="tests/fixtures/danger" placeholder="例: tests/fixtures/danger または ダウンロードしたフォルダのパス" />
+                  <div class="dash-inline-actions">
+                    <button type="button" id="dashPickFolderBtn">選ぶ</button>
+                    <button type="submit" class="primary">チェック</button>
+                  </div>
+                  <span class="muted dash-picker-status" id="dashPickFolderStatus">Windowsの「開く」ダイアログで選べます</span>
+                </form>
+              </div>
+
+              <div class="dash-op-card">
+                <div class="dash-op-head">
+                  <span class="dash-op-icon">🧾</span>
+                  <div>
+                    <h4>テキストを直接チェック</h4>
+                    <p>README断片やAIが出した手順を貼り付けて、その場で確認します。</p>
+                  </div>
+                </div>
+                <textarea id="dashTextInput" rows="4" placeholder="ここにREADMEや手順テキストを貼り付け"></textarea>
+                <div class="drop-zone dash-drop-zone" id="dashTextDropZone" tabindex="0" role="button" aria-label="ここにテキストファイルをドラッグ＆ドロップ">
+                  <strong>ここにテキストファイルをドラッグ＆ドロップ</strong>
+                  <span>README、.txt、.md などを投げるとダッシュボード上でチェックします (1MB まで)</span>
+                  <input type="file" id="dashTextFileInput" accept=".txt,.md,.markdown,.rst,.py,.js,.ts,.json,.yaml,.yml,.toml,.sh,text/*" hidden />
+                </div>
+                <button type="button" id="dashTextScanBtn" class="dash-wide-btn">貼り付けテキストをチェック</button>
+              </div>
+
+              <div class="dash-op-card">
+                <div class="dash-op-head">
+                  <span class="dash-op-icon">📋</span>
+                  <div>
+                    <h4>CLIエラー診断</h4>
+                    <p>PowerShellやnpmのエラー、秘密情報らしき文字列を確認します。</p>
+                  </div>
+                </div>
+                <textarea id="dashCliInput" rows="4" placeholder="ここにターミナル出力を貼り付け"></textarea>
+                <button type="button" id="dashCliCheckBtn" class="dash-wide-btn">エラーを調べる</button>
+              </div>
+
+              <div class="dash-op-card dash-toolbox-card">
+                <div class="dash-op-head">
+                  <span class="dash-op-icon">🧰</span>
+                  <div>
+                    <h4>作業環境を確認</h4>
+                    <p>ポート競合と基本ツールの有無を、ダッシュボードから直接見ます。</p>
+                  </div>
+                </div>
+                <div class="dash-tool-buttons">
+                  <button type="button" id="dashPortOwnersBtn">ポート一覧</button>
+                  <button type="button" id="dashToolBasicsBtn">基本道具チェック</button>
+                </div>
+              </div>
+
+              <div class="dash-op-card dash-glossary-card">
+                <div class="dash-op-head">
+                  <span class="dash-op-icon">📚</span>
+                  <div>
+                    <h4>用語をすぐ検索</h4>
+                    <p>分からない言葉を別タブに移動せず確認できます。</p>
+                  </div>
+                </div>
+                <input id="dashGlossarySearch" type="search" placeholder="例: sudo, MCP, PATH, APIキー" />
+                <div id="dashGlossaryResults" class="dash-mini-results"></div>
+              </div>
+            </div>
+
+            <div class="dash-workbench">
+              <div class="dash-workbench-head">
+                <strong>実行結果</strong>
+                <button type="button" id="dashClearOutputBtn">クリア</button>
+              </div>
+              <div id="dashWorkbenchOutput" class="dash-workbench-output">
+                <p class="muted">上の操作を実行すると、ここに結果が表示されます。詳しく見たい場合は各タブへ移動できます。</p>
+              </div>
+            </div>
+          </section>
+
+          <div class="dash-layout">
+            <div class="dash-main-column">
+              <section class="dash-panel dash-url-panel">
+                <div class="dash-panel-head">
+                  <div>
+                    <p class="dash-mini-kicker">Browser Handoff</p>
+                    <h3>🔗 URLカード — エージェントからの共有</h3>
+                  </div>
+                  <button class="dash-ghost-btn" data-tab="try">詳しく見る →</button>
+                </div>
+                <div id="dashUrlCardList">
+                  <p class="muted dash-empty" data-i18n="dash.urlCardsEmpty">保留中のURLカードはありません。AIエージェントがURLを送ると、ここに表示されます。</p>
+                </div>
+              </section>
+
+              <section class="dash-panel">
+                <div class="dash-panel-head">
+                  <div>
+                    <p class="dash-mini-kicker">Core Modules</p>
+                    <h3>主要モジュール（現在のステータス）</h3>
+                  </div>
+                </div>
+                <div class="dash-module-grid">
+                  <button class="dash-module-card" data-tab="try">
+                    <span class="mod-icon">🔍</span>
+                    <strong>Preflight Checks</strong>
+                    <small>READMEやテキストを実行前に確認</small>
+                    <em class="status active">● アクティブ</em>
+                  </button>
+                  <button class="dash-module-card" data-tab="cli">
+                    <span class="mod-icon">📋</span>
+                    <strong>CLI Error Check</strong>
+                    <small>エラー貼り付けと秘密情報マスク</small>
+                    <em class="status active">● アクティブ</em>
+                  </button>
+                  <button class="dash-module-card" data-tab="beginner">
+                    <span class="mod-icon">🔢</span>
+                    <strong>Port Owners</strong>
+                    <small>ポート使用状況を可視化</small>
+                    <em class="status active">● アクティブ</em>
+                  </button>
+                  <button class="dash-module-card" data-tab="glossary">
+                    <span class="mod-icon">📚</span>
+                    <strong>Glossary</strong>
+                    <small>初心者向けに用語をやさしく説明</small>
+                    <em class="status active">● アクティブ</em>
+                  </button>
+                  <button class="dash-module-card" data-tab="candidates">
+                    <span class="mod-icon">📝</span>
+                    <strong>WIP Terms</strong>
+                    <small>公開前の用語候補を確認</small>
+                    <em class="status wip">● 実装前</em>
+                  </button>
+                  <button class="dash-module-card" data-tab="review">
+                    <span class="mod-icon">🔧</span>
+                    <strong>Feedback</strong>
+                    <small>改善要望をローカルに記録</small>
+                    <em class="status beta">● 調整中</em>
+                  </button>
+                </div>
+              </section>
+            </div>
+
+            <aside class="dash-side-column">
+              <section class="dash-highlight-card">
+                <div class="rocket">🚀</div>
+                <h3>いま強いところ</h3>
+                <ul>
+                  <li>勝手に開かないURLカード</li>
+                  <li>危険スキームをAPIで拒否</li>
+                  <li>日本語・絵文字の理由も保持</li>
+                  <li>AIエージェント向けローカルAPI</li>
+                </ul>
+              </section>
+
+              <section class="dash-panel dash-api-card">
+                <p class="dash-mini-kicker">Local API</p>
+                <h3 data-i18n="dash.agentTitle">🤖 AIエージェント向けAPI</h3>
+                <p data-i18n-html="dash.agentDesc">このツールは <code>GET /api</code> でAIエージェントから制御できます。<br>HermesなどのAIエージェントが自動でフォルダスキャン、ポート確認、用語検索を行えます。</p>
+                <div class="dash-api-endpoints">
+                  <code>POST /api/scan</code><span>フォルダ確認</span>
+                  <code>POST /api/scan-text</code><span>テキスト確認</span>
+                  <code>POST /api/url-card</code><span>URL共有</span>
+                  <code>GET /api/port-owners</code><span>ポート一覧</span>
+                  <code>GET /api/glossary</code><span>用語辞典</span>
+                </div>
+              </section>
+            </aside>
+          </div>
+        </div>
+      </section>
+
       <!-- ===== TAB: 用語解説 ===== -->
-      <section class="tab-panel active" id="panelTry">
+      <section class="tab-panel" id="panelTry">
         <div class="hero">
           <div class="hero-text">
             <p class="hero-emoji">🔍</p>
@@ -60,6 +298,10 @@
           </div>
         </div>
 
+        <p class="url-card-info muted" id="urlCardInfo">
+          🤖 <strong data-i18n="urlcard.infoAgentTitle">AIエージェント連携機能</strong><br>
+          <span data-i18n="urlcard.infoDesc">AIエージェント（Hermesなど）が「このページを開いてほしい」とURLを送ってくると、ここにカードが表示されます。「開く」「コピー」「無視」を選べます。エージェントが勝手にブラウザを開くことはなく、あなたが確認してから開けます。</span>
+        </p>
         <div id="urlCardArea" class="url-card-area" style="display:none">
           <div id="urlCardList"></div>
         </div>
@@ -181,6 +423,43 @@
 
           <!-- 補足文 -->
           <p id="cliDisclaimer" class="cli-disclaimer" style="display:none" data-i18n="cli.disclaimer">このチェックは、代表的な危ない誘導や秘密情報らしき文字列に気づくための補助です。安全を保証するものではありません。</p>
+        </div>
+      </section>
+
+      <!-- ===== TAB: 実装前 ===== -->
+      <section class="tab-panel" id="panelCandidates">
+        <div class="panel-head">
+          <div>
+            <p class="eyebrow" data-i18n="candidates.eyebrow">開発者用 — 公開には含めていません</p>
+            <h2 data-i18n="candidates.h2">📝 用語辞典 実装前候補</h2>
+          </div>
+        </div>
+        <p class="muted" style="padding: 0 1rem .5rem; line-height:1.7" data-i18n-html="candidates.desc">
+          まだ <strong>server.py の GLOSSARY / GLOSSARY_EN に移動していない</strong> 用語候補です。<br>
+          温度調整（既存72語のトーンに合わせる）が済んだものから順に実装します。<br>
+          各候補には優先度とカテゴリが付いています。
+        </p>
+        <div class="candidates-controls">
+          <input type="search" id="candidatesSearch" class="glossary-search" placeholder="🔍 候補を絞り込む..." data-i18n-placeholder="candidates.placeholder" autocomplete="off" />
+          <span class="muted" id="candidatesCount"></span>
+        </div>
+        <div class="candidates-filters" id="candidatesFilters">
+          <button class="cfilter active" data-cat="all">すべて</button>
+          <button class="cfilter" data-cat="github">📂 GitHub</button>
+          <button class="cfilter" data-cat="cli">💻 CLI</button>
+          <button class="cfilter" data-cat="programming">🐍 プログラミング</button>
+          <button class="cfilter" data-cat="ai">🤖 AI/ML</button>
+          <button class="cfilter" data-cat="general">🖥 一般IT</button>
+          <button class="cfilter" data-cat="error">⚠️ エラー</button>
+        </div>
+        <div class="candidates-legend">
+          <span class="pri-badge pri-high">📌 優先高</span>
+          <span class="pri-badge pri-mid">🔵 中</span>
+          <span class="pri-badge pri-low">⚪ 低</span>
+          <span class="pri-badge pri-status">まだ実装前です</span>
+        </div>
+        <div class="glossary-grid" id="candidatesGrid">
+          <p class="muted" data-i18n="candidates.loading">読み込み中...</p>
         </div>
       </section>
 

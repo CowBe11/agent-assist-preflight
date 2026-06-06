@@ -26,6 +26,7 @@ STATIC_ROOT = WEB_ROOT / "static"
 DATA_ROOT = WEB_ROOT / "data"
 COMMENTS_PATH = DATA_ROOT / "review_comments.json"
 URL_CARDS_PATH = DATA_ROOT / "url_cards.json"
+CANDIDATES_PATH = DATA_ROOT / "glossary_candidates.json"
 
 GLOSSARY = {
     "sudo": "パソコンの管理者権限で命令を実行すること。ふだんは安全のため制限されている操作も、sudoをつけると実行できてしまうので注意。",
@@ -334,7 +335,14 @@ $dialog.CheckFileExists = $false
 $dialog.CheckPathExists = $true
 $dialog.ValidateNames = $false
 $dialog.FileName = 'このフォルダを選択'
-if ($dialog.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) {
+$owner = New-Object System.Windows.Forms.Form
+$owner.TopMost = $true
+$owner.ShowInTaskbar = $false
+$owner.StartPosition = 'CenterScreen'
+$owner.Width = 1
+$owner.Height = 1
+$owner.Add_Shown({ $owner.Activate() })
+if ($dialog.ShowDialog($owner) -eq [System.Windows.Forms.DialogResult]::OK) {
   $selected = $dialog.FileName
   if ([System.IO.Path]::GetFileName($selected) -eq 'このフォルダを選択') {
     Write-Output ([System.IO.Path]::GetDirectoryName($selected))
@@ -342,6 +350,7 @@ if ($dialog.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) {
     Write-Output $selected
   }
 }
+$owner.Dispose()
 '''
             proc = subprocess.run(
                 ["powershell.exe", "-NoProfile", "-STA", "-Command", script],
@@ -709,7 +718,18 @@ class Handler(BaseHTTPRequestHandler):
         length = int(self.headers.get("Content-Length", "0") or "0")
         if length <= 0:
             return {}
-        raw = self.rfile.read(length).decode("utf-8")
+        raw_bytes = self.rfile.read(length)
+        # Try UTF-8 first (modern tools, Hermes, curl)
+        # Fall back to cp932/shift_jis for Windows PowerShell etc.
+        raw = None
+        for enc in ("utf-8", "cp932", "shift_jis", "utf-8-sig"):
+            try:
+                raw = raw_bytes.decode(enc)
+                break
+            except (UnicodeDecodeError, LookupError):
+                continue
+        if raw is None:
+            raw = raw_bytes.decode("utf-8", errors="replace")
         payload = json.loads(raw)
         if not isinstance(payload, dict):
             raise ValueError("JSON body must be an object")
@@ -756,7 +776,18 @@ class Handler(BaseHTTPRequestHandler):
                     "Use these fields to explain risks to beginners in simple language before running commands.",
                     "Do not auto-install tools. Report missing tools and let the user decide.",
                     "Do not auto-run dangerous commands. Use the review_items as conversation starters.",
-                ]
+                ],
+                "browser_handoff": {
+                    "summary": "AI agents can send URLs to the user's browser through the URL card system. The agent POSTs a URL+reason to /api/url-card; the user sees a card in the WebUI with 'Open', 'Copy', and 'Dismiss' buttons. The agent never opens a browser directly.",
+                    "why_it_matters": [
+                        "Agents running in WSL/Linux cannot open the Windows user's browser directly.",
+                        "Auto-opening URLs feels invasive and can be dangerous (tracking pixels, drive-by downloads).",
+                        "URL cards keep the user in control: they see the URL, the agent's reason, and decide what to do.",
+                        "Blocked URL schemes (javascript:, data:, file:) prevent XSS and local file leaks.",
+                        "Works across the WSL/Windows boundary without extra setup."
+                    ],
+                    "example_agent_workflow": "1. Agent fetches a GitHub README\n2. Agent wants to show the user a reference page\n3. Agent POSTs to /api/url-card with the URL and a plain-language reason\n4. User sees the card in the preflight WebUI\n5. User clicks 'Open' → page opens in their default browser\n6. No copy-paste, no WSLg Chrome, no terminal needed."
+                }
             }
         })
 
@@ -796,6 +827,12 @@ class Handler(BaseHTTPRequestHandler):
         if parsed.path == "/api/glossary":
             lang = self._get_lang(parsed)
             self.send_json(GLOSSARY_EN if lang == "en" else GLOSSARY)
+            return
+        if parsed.path == "/api/glossary-candidates":
+            if CANDIDATES_PATH.exists():
+                self.send_json(json.loads(CANDIDATES_PATH.read_text(encoding="utf-8")))
+            else:
+                self.send_json({})
             return
         if parsed.path == "/api/port-owners":
             lang = self._get_lang(parsed)
