@@ -238,7 +238,9 @@ The agent asks. The user reviews. The user decides.
 **Future exploration:**
 
 - Command confirmation card (`POST /api/check-command`)
-  - Same mechanism as URL cards: the agent notifies "I'm about to run this command." The user can tap "What does this mean?" for inline glossary lookup, then allow or deny. Phase 1: in-WebUI explanation, Phase 2: copy-paste question generation, Phase 3: agent callback (requires ecosystem support).
+  - Same mechanism as URL cards: the agent notifies "I'm about to run this command." The user can tap "What does this mean?" for inline glossary lookup, then allow or deny. Phase 1: inline glossary lookup → allow/deny. On denial, a hint ("maybe the explanation needs more detail") is returned so the agent can improve its reason and retry — not yet bidirectional, but gives the agent a learning loop.
+Phase 2: copy-paste question generation for any agent.
+Phase 3: agent registers a reply target, enabling true two-way confirmation (requires ecosystem support).
 
 **Additional planned improvements:**
 
