@@ -1757,6 +1757,7 @@ function renderAutoDiagnostic(data) {
       <div class="dash-auto-body">
         <div class="dash-auto-line ${toolClass}">${toolLine}</div>
         <div class="dash-auto-line ${portClass}">${portLine}</div>
+        ${(portExternal > 0 || portUnknown > 0) ? `<div class="dash-auto-port-note">${isJa ? '💡 多くは Windows、ブラウザ、開発ツール、ローカルアプリが使う通常の通信口です。危険判定ではなく、AIエージェントが操作前に確認できる材料を表示しています。' : '💡 Most are normal ports used by Windows, browsers, dev tools, and local apps. This is not a danger assessment — it shows what ports are in use so the AI agent can check before acting.'}</div>` : ''}
         ${detailLines.length ? `<div class="dash-auto-detail">${detailLines.map(l => `<span>${escapeHtml(l)}</span>`).join('')}</div>` : ''}
         ${runningSide === 'wsl' ? `<div class="dash-auto-side">${isJa ? 'ℹ️ WSL環境で動作中 — Windows側とWSL側で道具が違うことがあります' : 'ℹ️ Running in WSL — tools may differ between sides'}</div>` : ''}
         <details class="dash-auto-summary-wrap">
@@ -1768,16 +1769,21 @@ function renderAutoDiagnostic(data) {
               <span>${isJa ? 'バージョン' : 'Version'}</span>
             </div>
             ${tools.map(t => {
-              const icon = t.agent_can_use ? '✅' : t.present ? '💡' : '❌';
+              const icon = t.agent_can_use ? '✅' : t.present ? '⚠️' : '❌';
               const statusLabel = t.agent_can_use
-                ? (isJa ? 'エージェント側OK' : 'OK on agent')
+                ? (isJa ? '使えます' : 'Available')
                 : t.present
-                  ? (isJa ? 'Windows側のみ' : 'Windows only')
+                  ? (isJa ? '注意あり' : 'Caution')
                   : (isJa ? '未検出' : 'Not found');
+              const agentNote = t.agent_can_use
+                ? (isJa ? 'AIエージェントが利用できる状態です' : 'Available for AI agent use')
+                : t.present
+                  ? (isJa ? 'Windows側にはあります。WSLのエージェントからは使えないかもしれません' : 'On Windows side. May not be usable from WSL agent')
+                  : (isJa ? '見つかりませんでした。必要ならユーザーに確認してください' : 'Not found. Ask the user if needed');
               const version = t.version || '-';
               return `<div class="dash-auto-tool-row">
                 <span><strong>${escapeHtml(t.label)}</strong><br><small>${escapeHtml(t.beginner || '')}</small></span>
-                <span>${icon} ${statusLabel}</span>
+                <span>${icon} ${statusLabel}<br><small>${agentNote}</small></span>
                 <span><code>${escapeHtml(version)}</code></span>
               </div>`;
             }).join('')}

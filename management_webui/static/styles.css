@@ -195,6 +195,11 @@ body {
 }
 .dash-auto-tool-row:last-child { border-bottom: none; }
 .dash-auto-tool-row small { font-size: .68rem; color: var(--muted); }
+.dash-auto-port-note {
+  font-size: .75rem; color: var(--muted); padding: .4rem .6rem;
+  background: rgba(255,255,255,.02); border-radius: 6px; margin-top: .3rem;
+  line-height: 1.5;
+}
 .dash-auto-foot {
   padding: .5rem 1rem; font-size: .72rem;
   border-top: 1px solid var(--line, #303846); text-align: center;
