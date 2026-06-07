@@ -1,8 +1,8 @@
 # Agent Assist Preflight / AIエージェント初心者支援ツール
 
-## AIエージェント接続可能な初心者支援ツール
+## AIエージェントに任せる前の初心者支援ツール
 
-[English README](README.md) | `v0.1.2` | 無料・オープンソース・ローカル専用
+[English README](README.md) | `v0.2.0 "Control Deck"` / コントロールデッキ | 無料・オープンソース・ローカル専用
 
 ---
 

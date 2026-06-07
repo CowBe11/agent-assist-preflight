@@ -1362,6 +1362,75 @@ body {
   grid-row: span 2;
   background: linear-gradient(180deg, #f7fbff, #fff);
 }
+
+/* Feature color accents: CSS-only; do not change dashboard HTML/JS wiring. */
+.dash-ops-grid > .dash-op-card {
+  --feature-accent: #2453d6;
+  --feature-accent-2: #5b78e5;
+  --feature-tint: #f4f7ff;
+  --feature-border: #cfdbff;
+  border-color: var(--feature-border);
+  background:
+    linear-gradient(90deg, var(--feature-accent) 0 4px, transparent 4px),
+    linear-gradient(180deg, var(--feature-tint), #fff 58%);
+  box-shadow: 0 12px 28px rgba(8, 30, 64, .055);
+}
+.dash-ops-grid > .dash-op-card:nth-child(1) {
+  --feature-accent: #2563eb;
+  --feature-accent-2: #58a6ff;
+  --feature-tint: #f3f8ff;
+  --feature-border: #c7dcff;
+}
+.dash-ops-grid > .dash-op-card:nth-child(2) {
+  --feature-accent: #7c3aed;
+  --feature-accent-2: #a78bfa;
+  --feature-tint: #faf7ff;
+  --feature-border: #ded0ff;
+}
+.dash-ops-grid > .dash-op-card:nth-child(3) {
+  --feature-accent: #ea580c;
+  --feature-accent-2: #fb923c;
+  --feature-tint: #fff7ed;
+  --feature-border: #fed7aa;
+}
+.dash-ops-grid > .dash-op-card:nth-child(4) {
+  --feature-accent: #16a34a;
+  --feature-accent-2: #4ade80;
+  --feature-tint: #f3fbf5;
+  --feature-border: #bfe8ca;
+}
+.dash-ops-grid > .dash-op-card:nth-child(5) {
+  --feature-accent: #0891b2;
+  --feature-accent-2: #22d3ee;
+  --feature-tint: #f0fbff;
+  --feature-border: #bae6fd;
+}
+.dash-ops-grid > .dash-op-card:hover {
+  border-color: var(--feature-accent-2);
+  box-shadow: 0 14px 32px rgba(8, 30, 64, .085);
+}
+.dash-ops-grid > .dash-op-card .dash-op-icon {
+  background: color-mix(in srgb, var(--feature-accent) 12%, #ffffff);
+  color: var(--feature-accent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--feature-accent) 16%, transparent);
+}
+.dash-ops-grid > .dash-op-card h4 {
+  color: color-mix(in srgb, var(--feature-accent) 34%, #071a3c);
+}
+.dash-ops-grid > .dash-op-card button:focus-visible,
+.dash-ops-grid > .dash-op-card input:focus-visible,
+.dash-ops-grid > .dash-op-card textarea:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--feature-accent) 26%, transparent);
+  outline-offset: 2px;
+}
+.dash-ops-grid > .dash-op-card button:hover {
+  border-color: var(--feature-accent-2);
+  background: color-mix(in srgb, var(--feature-accent) 8%, #ffffff);
+}
+.dash-ops-grid > .dash-op-card button.primary {
+  background: linear-gradient(135deg, var(--feature-accent), var(--feature-accent-2)) !important;
+  border-color: var(--feature-accent) !important;
+}
 .dash-op-head {
   display: grid;
   grid-template-columns: 44px minmax(0, 1fr);

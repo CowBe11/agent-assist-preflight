@@ -16,7 +16,6 @@
       <nav class="tabs" id="tabNav">
         <button class="tab active" data-tab="dashboard" data-i18n="tab.dashboard">🏠 ダッシュボード</button>
         <button class="tab" data-tab="try" data-i18n="tab.try">🔍 用語解説</button>
-        <button class="tab" data-tab="docs" data-i18n="tab.docs">📖 読む</button>
         <button class="tab" data-tab="glossary" data-i18n="tab.glossary">📚 用語辞典</button>
         <button class="tab" data-tab="cli" data-i18n="tab.cli">📋 CLIエラー診断</button>
         <button class="tab tab-candidates" data-tab="candidates" data-i18n="tab.candidates">📝 実装前</button>
@@ -32,15 +31,15 @@
         <div class="dashboard modern-dashboard">
           <div class="dash-hero">
             <div>
-              <p class="dash-kicker">Agent Assist Preflight</p>
-              <h2>AIエージェント初心者支援ハブ</h2>
-              <p class="dash-lead">AIエージェントからのURL確認、実行前チェック、ポート確認、用語解説をひとつに。初心者とAIエージェントの間に入るローカル安全レイヤーです。</p>
+              <p class="dash-kicker" data-i18n="dash.kicker">Agent Assist Preflight</p>
+              <h2 data-i18n="dash.h2">AIエージェント初心者支援ハブ</h2>
+              <p class="dash-lead" data-i18n="dash.lead">AIエージェントからのURL確認、実行前チェック、ポート確認、用語解説をひとつに。初心者とAIエージェントの間に入るローカル安全レイヤーです。</p>
             </div>
             <div class="dash-user-card" aria-label="現在の利用者モード">
               <span class="dash-avatar">🧑‍💻</span>
               <div>
-                <strong>Solo Developer</strong>
-                <span>初心者サポート重視</span>
+                <strong data-i18n="dash.userRole">Solo Developer</strong>
+                <span data-i18n="dash.userMode">初心者サポート重視</span>
               </div>
             </div>
           </div>
@@ -49,8 +48,8 @@
             <article class="dash-stat-card">
               <div class="dash-stat-icon shield">🛡️</div>
               <div class="dash-stat-body">
-                <div class="dash-stat-num">Read-only</div>
-                <div class="dash-stat-label">インストールも実行もせず確認</div>
+                <div class="dash-stat-num" data-i18n="dash.statReadonly">Read-only</div>
+                <div class="dash-stat-label" data-i18n="dash.statReadonlyLabel">インストールも実行もせず確認</div>
               </div>
             </article>
             <article class="dash-stat-card">
@@ -81,22 +80,22 @@
           <section class="dash-panel dash-url-cards-panel dash-zone-danger" aria-label="コマンド履歴">
             <div class="dash-panel-head">
               <div>
-                <p class="dash-mini-kicker">Command History</p>
-                <h3>📋 コマンド確認履歴</h3>
+                <p class="dash-mini-kicker" data-i18n="dash.cmdHistoryKicker">Command History</p>
+                <h3 data-i18n="cmdHistory.title">📋 コマンド確認履歴</h3>
               </div>
             </div>
             <div id="dashCmdCardList">
-              <p class="muted" style="padding:1.5rem;text-align:center">まだコマンド履歴はありません。エージェントが作業を始めるとここに表示されます。</p>
+              <p class="muted" style="padding:1.5rem;text-align:center" data-i18n="cmdHistory.none">まだコマンド履歴はありません。エージェントが作業を始めるとここに表示されます。</p>
             </div>
           </section>
 
           <section class="dash-panel dash-command-center dash-zone-tools" aria-label="ダッシュボード操作盤">
             <div class="dash-panel-head">
               <div>
-                <p class="dash-mini-kicker">Command Center</p>
-                <h3>ここから主要機能を実行</h3>
+                <p class="dash-mini-kicker" data-i18n="dash.commandCenterKicker">Command Center</p>
+                <h3 data-i18n="dash.commandCenterH3">ここから主要機能を実行</h3>
               </div>
-              <span class="dash-readonly-badge">read-only / local only</span>
+              <span class="dash-readonly-badge" data-i18n="dash.readonlyBadge">read-only / local only</span>
             </div>
 
             <div class="dash-ops-grid">
@@ -104,17 +103,17 @@
                 <div class="dash-op-head">
                   <span class="dash-op-icon">🛡️</span>
                   <div>
-                    <h4>フォルダ / ファイルを実行前チェック</h4>
-                    <p>READMEや設定ファイルを読み、危ない操作の前で止まれるようにします。</p>
+                    <h4 data-i18n="dash.op1.title">フォルダ / ファイルを実行前チェック</h4>
+                    <p data-i18n="dash.op1.desc">READMEや設定ファイルを読み、危ない操作の前で止まれるようにします。</p>
                   </div>
                 </div>
                 <form id="dashScanForm" class="dash-inline-form">
-                  <input name="target_path" id="dashTargetPathInput" value="" placeholder="ダウンロードしたフォルダのパス または READMEのある場所" />
+                  <input name="target_path" id="dashTargetPathInput" value="" placeholder="ダウンロードしたフォルダのパス または READMEのある場所" data-i18n-placeholder="dash.op1.placeholder" />
                   <div class="dash-inline-actions">
-                    <button type="button" id="dashPickFolderBtn">選ぶ</button>
-                    <button type="submit" class="primary">チェック</button>
+                    <button type="button" id="dashPickFolderBtn" data-i18n="dash.op1.pickBtn">選ぶ</button>
+                    <button type="submit" class="primary" data-i18n="dash.op1.scanBtn">チェック</button>
                   </div>
-                  <span class="muted dash-picker-status" id="dashPickFolderStatus">Windowsの「開く」ダイアログで選べます</span>
+                  <span class="muted dash-picker-status" id="dashPickFolderStatus" data-i18n="dash.op1.pickStatus">Windowsの「開く」ダイアログで選べます</span>
                 </form>
               </div>
 
@@ -122,42 +121,42 @@
                 <div class="dash-op-head">
                   <span class="dash-op-icon">🧾</span>
                   <div>
-                    <h4>テキストを直接チェック</h4>
-                    <p>README断片やAIが出した手順を貼り付けて、その場で確認します。</p>
+                    <h4 data-i18n="dash.op2.title">テキストを直接チェック</h4>
+                    <p data-i18n="dash.op2.desc">README断片やAIが出した手順を貼り付けて、その場で確認します。</p>
                   </div>
                 </div>
-                <textarea id="dashTextInput" rows="4" placeholder="ここにREADMEや手順テキストを貼り付け"></textarea>
+                <textarea id="dashTextInput" rows="4" placeholder="ここにREADMEや手順テキストを貼り付け" data-i18n-placeholder="dash.op2.placeholder"></textarea>
                 <div class="drop-zone dash-drop-zone" id="dashTextDropZone" tabindex="0" role="button" aria-label="ここにテキストファイルをドラッグ＆ドロップ">
-                  <strong>ここにテキストファイルをドラッグ＆ドロップ</strong>
-                  <span>README、.txt、.md などを投げるとダッシュボード上でチェックします (1MB まで)</span>
+                  <strong data-i18n="dash.op2.dropTitle">ここにテキストファイルをドラッグ＆ドロップ</strong>
+                  <span data-i18n="dash.op2.dropDesc">README、.txt、.md などを投げるとダッシュボード上でチェックします (1MB まで)</span>
                   <input type="file" id="dashTextFileInput" accept=".txt,.md,.markdown,.rst,.py,.js,.ts,.json,.yaml,.yml,.toml,.sh,text/*" hidden />
                 </div>
-                <button type="button" id="dashTextScanBtn" class="dash-wide-btn">貼り付けテキストをチェック</button>
+                <button type="button" id="dashTextScanBtn" class="dash-wide-btn" data-i18n="dash.op2.scanBtn">貼り付けテキストをチェック</button>
               </div>
 
               <div class="dash-op-card">
                 <div class="dash-op-head">
                   <span class="dash-op-icon">📋</span>
                   <div>
-                    <h4>CLIエラー診断</h4>
-                    <p>PowerShellやnpmのエラー、秘密情報らしき文字列を確認します。</p>
+                    <h4 data-i18n="dash.op3.title">CLIエラー診断</h4>
+                    <p data-i18n="dash.op3.desc">PowerShellやnpmのエラー、秘密情報らしき文字列を確認します。</p>
                   </div>
                 </div>
-                <textarea id="dashCliInput" rows="4" placeholder="ここにターミナル出力を貼り付け"></textarea>
-                <button type="button" id="dashCliCheckBtn" class="dash-wide-btn">エラーを調べる</button>
+                <textarea id="dashCliInput" rows="4" placeholder="ここにターミナル出力を貼り付け" data-i18n-placeholder="dash.op3.placeholder"></textarea>
+                <button type="button" id="dashCliCheckBtn" class="dash-wide-btn" data-i18n="dash.op3.checkBtn">エラーを調べる</button>
               </div>
 
               <div class="dash-op-card dash-toolbox-card">
                 <div class="dash-op-head">
                   <span class="dash-op-icon">🧰</span>
                   <div>
-                    <h4>作業環境を確認</h4>
-                    <p>ポート競合と基本ツールの有無を、ダッシュボードから直接見ます。</p>
+                    <h4 data-i18n="dash.op4.title">作業環境を確認</h4>
+                    <p data-i18n="dash.op4.desc">ポート競合と基本ツールの有無を、ダッシュボードから直接見ます。</p>
                   </div>
                 </div>
                 <div class="dash-tool-buttons">
-                  <button type="button" id="dashPortOwnersBtn">ポート一覧</button>
-                  <button type="button" id="dashToolBasicsBtn">基本道具チェック</button>
+                  <button type="button" id="dashPortOwnersBtn" data-i18n="dash.op4.portBtn">ポート一覧</button>
+                  <button type="button" id="dashToolBasicsBtn" data-i18n="dash.op4.toolBtn">基本道具チェック</button>
                 </div>
               </div>
 
@@ -165,22 +164,22 @@
                 <div class="dash-op-head">
                   <span class="dash-op-icon">📚</span>
                   <div>
-                    <h4>用語をすぐ検索</h4>
-                    <p>分からない言葉を別タブに移動せず確認できます。</p>
+                    <h4 data-i18n="dash.op5.title">用語をすぐ検索</h4>
+                    <p data-i18n="dash.op5.desc">分からない言葉を別タブに移動せず確認できます。</p>
                   </div>
                 </div>
-                <input id="dashGlossarySearch" type="search" placeholder="例: sudo, MCP, PATH, APIキー" />
+                <input id="dashGlossarySearch" type="search" placeholder="例: sudo, MCP, PATH, APIキー" data-i18n-placeholder="dash.op5.placeholder" />
                 <div id="dashGlossaryResults" class="dash-mini-results"></div>
               </div>
             </div>
 
             <div class="dash-workbench">
               <div class="dash-workbench-head">
-                <strong>実行結果</strong>
-                <button type="button" id="dashClearOutputBtn">クリア</button>
+                <strong data-i18n="dash.workbench.title">実行結果</strong>
+                <button type="button" id="dashClearOutputBtn" data-i18n="dash.workbench.clearBtn">クリア</button>
               </div>
               <div id="dashWorkbenchOutput" class="dash-workbench-output">
-                <p class="muted">上の操作を実行すると、ここに結果が表示されます。詳しく見たい場合は各タブへ移動できます。</p>
+                <p class="muted" data-i18n="dash.workbench.placeholder">上の操作を実行すると、ここに結果が表示されます。詳しく見たい場合は各タブへ移動できます。</p>
               </div>
             </div>
           </section>
@@ -190,10 +189,10 @@
               <section class="dash-panel dash-url-panel dash-zone-url">
                 <div class="dash-panel-head">
                   <div>
-                    <p class="dash-mini-kicker">Browser Handoff</p>
-                    <h3>🔗 URLカード — エージェントからの共有</h3>
+                    <p class="dash-mini-kicker" data-i18n="dash.urlKicker">Browser Handoff</p>
+                    <h3 data-i18n="dash.urlH3">🔗 URLカード — エージェントからの共有</h3>
                   </div>
-                  <button class="dash-ghost-btn" data-tab="try">詳しく見る →</button>
+                  <button class="dash-ghost-btn" data-tab="try" data-i18n="dash.urlDetailBtn">詳しく見る →</button>
                 </div>
                 <div id="dashUrlCardList">
                   <p class="muted dash-empty" data-i18n="dash.urlCardsEmpty">保留中のURLカードはありません。AIエージェントがURLを送ると、ここに表示されます。</p>
@@ -203,46 +202,46 @@
               <section class="dash-panel dash-zone-supplement">
                 <div class="dash-panel-head">
                   <div>
-                    <p class="dash-mini-kicker">Core Modules</p>
-                    <h3>主要モジュール（現在のステータス）</h3>
+                    <p class="dash-mini-kicker" data-i18n="dash.modules.kicker">Core Modules</p>
+                    <h3 data-i18n="dash.modules.h3">主要モジュール（現在のステータス）</h3>
                   </div>
                 </div>
                 <div class="dash-module-grid">
                   <button class="dash-module-card" data-tab="try">
                     <span class="mod-icon">🔍</span>
-                    <strong>Preflight Checks</strong>
-                    <small>READMEやテキストを実行前に確認</small>
-                    <em class="status active">● アクティブ</em>
+                    <strong data-i18n="dash.mod.preflight.name">Preflight Checks</strong>
+                    <small data-i18n="dash.mod.preflight.desc">READMEやテキストを実行前に確認</small>
+                    <em class="status active" data-i18n="dash.modules.statusActive">● アクティブ</em>
                   </button>
                   <button class="dash-module-card" data-tab="cli">
                     <span class="mod-icon">📋</span>
-                    <strong>CLI Error Check</strong>
-                    <small>エラー貼り付けと秘密情報マスク</small>
-                    <em class="status active">● アクティブ</em>
+                    <strong data-i18n="dash.mod.cli.name">CLI Error Check</strong>
+                    <small data-i18n="dash.mod.cli.desc">エラー貼り付けと秘密情報マスク</small>
+                    <em class="status active" data-i18n="dash.modules.statusActive">● アクティブ</em>
                   </button>
                   <button class="dash-module-card" data-tab="beginner">
                     <span class="mod-icon">🔢</span>
-                    <strong>Port Owners</strong>
-                    <small>ポート使用状況を可視化</small>
-                    <em class="status active">● アクティブ</em>
+                    <strong data-i18n="dash.mod.ports.name">Port Owners</strong>
+                    <small data-i18n="dash.mod.ports.desc">ポート使用状況を可視化</small>
+                    <em class="status active" data-i18n="dash.modules.statusActive">● アクティブ</em>
                   </button>
                   <button class="dash-module-card" data-tab="glossary">
                     <span class="mod-icon">📚</span>
-                    <strong>Glossary</strong>
-                    <small>初心者向けに用語をやさしく説明</small>
-                    <em class="status active">● アクティブ</em>
+                    <strong data-i18n="dash.mod.glossary.name">Glossary</strong>
+                    <small data-i18n="dash.mod.glossary.desc">初心者向けに用語をやさしく説明</small>
+                    <em class="status active" data-i18n="dash.modules.statusActive">● アクティブ</em>
                   </button>
                   <button class="dash-module-card" data-tab="candidates">
                     <span class="mod-icon">📝</span>
-                    <strong>用語レビュー</strong>
-                    <small>初心者にも意味が分かるか確認中</small>
-                    <em class="status wip">● レビュー中</em>
+                    <strong data-i18n="dash.mod.candidates.name">用語レビュー</strong>
+                    <small data-i18n="dash.mod.candidates.desc">初心者にも意味が分かるか確認中</small>
+                    <em class="status wip" data-i18n="dash.modules.statusWip">● レビュー中</em>
                   </button>
                   <button class="dash-module-card" data-tab="review">
                     <span class="mod-icon">🔧</span>
-                    <strong>Feedback</strong>
-                    <small>改善要望をローカルに記録</small>
-                    <em class="status beta">● 調整中</em>
+                    <strong data-i18n="dash.mod.feedback.name">Feedback</strong>
+                    <small data-i18n="dash.mod.feedback.desc">改善要望をローカルに記録</small>
+                    <em class="status beta" data-i18n="dash.modules.statusBeta">● 調整中</em>
                   </button>
                 </div>
               </section>
@@ -251,25 +250,25 @@
             <aside class="dash-side-column">
               <section class="dash-highlight-card dash-zone-supplement">
                 <div class="rocket">🚀</div>
-                <h3>いま強いところ</h3>
+                <h3 data-i18n="dash.strengths.h3">いま強いところ</h3>
                 <ul>
-                  <li>勝手に開かないURLカード</li>
-                  <li>危険スキームをAPIで拒否</li>
-                  <li>日本語・絵文字の理由も保持</li>
-                  <li>AIエージェント向けローカルAPI</li>
+                  <li data-i18n="dash.strengths.1">勝手に開かないURLカード</li>
+                  <li data-i18n="dash.strengths.2">危険スキームをAPIで拒否</li>
+                  <li data-i18n="dash.strengths.3">日本語・絵文字の理由も保持</li>
+                  <li data-i18n="dash.strengths.4">AIエージェント向けローカルAPI</li>
                 </ul>
               </section>
 
               <section class="dash-panel dash-api-card dash-zone-supplement">
-                <p class="dash-mini-kicker">Local API</p>
+                <p class="dash-mini-kicker" data-i18n="dash.api.kicker">Local API</p>
                 <h3 data-i18n="dash.agentTitle">🤖 AIエージェント向けAPI</h3>
                 <p data-i18n-html="dash.agentDesc">このツールは <code>GET /api</code> でAIエージェントから制御できます。<br>HermesなどのAIエージェントが自動でフォルダスキャン、ポート確認、用語検索を行えます。</p>
                 <div class="dash-api-endpoints">
-                  <code>POST /api/scan</code><span>フォルダ確認</span>
-                  <code>POST /api/scan-text</code><span>テキスト確認</span>
-                  <code>POST /api/url-card</code><span>URL共有</span>
-                  <code>GET /api/port-owners</code><span>ポート一覧</span>
-                  <code>GET /api/glossary</code><span>用語辞典</span>
+                  <code>POST /api/scan</code><span data-i18n="dash.api.scan">フォルダ確認</span>
+                  <code>POST /api/scan-text</code><span data-i18n="dash.api.scanText">テキスト確認</span>
+                  <code>POST /api/url-card</code><span data-i18n="dash.api.urlCard">URL共有</span>
+                  <code>GET /api/port-owners</code><span data-i18n="dash.api.portOwners">ポート一覧</span>
+                  <code>GET /api/glossary</code><span data-i18n="dash.api.glossary">用語辞典</span>
                 </div>
               </section>
             </aside>
@@ -458,19 +457,19 @@
           <span class="muted" id="candidatesCount"></span>
         </div>
         <div class="candidates-filters" id="candidatesFilters">
-          <button class="cfilter active" data-cat="all">すべて</button>
+          <button class="cfilter active" data-cat="all" data-i18n="candidates.filterAll">すべて</button>
           <button class="cfilter" data-cat="github">📂 GitHub</button>
           <button class="cfilter" data-cat="cli">💻 CLI</button>
-          <button class="cfilter" data-cat="programming">🐍 プログラミング</button>
+          <button class="cfilter" data-cat="programming" data-i18n="candidates.filterProgramming">🐍 プログラミング</button>
           <button class="cfilter" data-cat="ai">🤖 AI/ML</button>
-          <button class="cfilter" data-cat="general">🖥 一般IT</button>
-          <button class="cfilter" data-cat="error">⚠️ エラー</button>
+          <button class="cfilter" data-cat="general" data-i18n="candidates.filterGeneral">🖥 一般IT</button>
+          <button class="cfilter" data-cat="error" data-i18n="candidates.filterError">⚠️ エラー</button>
         </div>
         <div class="candidates-legend">
-          <span class="pri-badge pri-high">📌 優先高</span>
-          <span class="pri-badge pri-mid">🔵 中</span>
-          <span class="pri-badge pri-low">⚪ 低</span>
-          <span class="pri-badge pri-status">まだ実装前です</span>
+          <span class="pri-badge pri-high"><span data-i18n="candidates.priHighLegend">📌 優先高</span></span>
+          <span class="pri-badge pri-mid"><span data-i18n="candidates.priMidLegend">🔵 中</span></span>
+          <span class="pri-badge pri-low"><span data-i18n="candidates.priLowLegend">⚪ 低</span></span>
+          <span class="pri-badge pri-status"><span data-i18n="candidates.notImplemented">まだ実装前です</span></span>
         </div>
         <div class="glossary-grid" id="candidatesGrid">
           <p class="muted" data-i18n="candidates.loading">読み込み中...</p>
@@ -575,9 +574,9 @@
           </label>
           <label data-i18n="review.priorityLabel">優先度
             <select name="priority">
-              <option value="confirm">confirm: ここで止まりそう</option>
-              <option value="review" selected>review: 分かりにくい</option>
-              <option value="note">note: ちょい改善</option>
+              <option value="confirm" data-i18n="review.optConfirm">confirm: ここで止まりそう</option>
+              <option value="review" selected data-i18n="review.optReview">review: 分かりにくい</option>
+              <option value="note" data-i18n="review.optNote">note: ちょい改善</option>
             </select>
           </label>
           <label data-i18n="review.reactionLabel">どんなふうに変えてほしい？

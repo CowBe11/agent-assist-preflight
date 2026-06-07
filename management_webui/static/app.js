@@ -52,6 +52,9 @@ const i18n = {
     'review.refreshBtn': '更新',
     'review.desc': '表示や機能について「ここをこうしてほしい」というリクエストをためられます。<br>ここで出したリクエストはチケットとして記録され、<strong>AIエージェントやバイブコーディングツールに「これ直して」とお願いするための材料</strong>になります。<br>画面は自動では変わりません。直し方は：<br>① 下の「リクエストをコピー」で内容をコピー<br>② このプロジェクトのフォルダを <strong>Cursor や Claude Code などのバイブコーディングツールで開く</strong><br>③ コピーしたリクエストを貼り付けて「これ直して」と依頼する',
     'review.sectionLabel': '対象セクション',
+    'review.optConfirm': 'confirm: ここで止まりそう',
+    'review.optReview': 'review: 分かりにくい',
+    'review.optNote': 'note: ちょい改善',
     'review.sectionPlaceholder': '例: README冒頭 / decision名 / WebUI',
     'review.priorityLabel': '優先度',
     'review.reactionLabel': 'どんなふうに変えてほしい？',
@@ -132,6 +135,17 @@ const i18n = {
     'dash.statCandidates': '用語レビュー中',
     'dash.statUrlCards': '未確認のURLカード',
     'dash.urlCardsEmpty': '保留中のURLカードはありません。AIエージェントがURLを送ると、ここに表示されます。',
+    'dash.kicker': 'Agent Assist Preflight',
+    'dash.h2': 'AIエージェント初心者支援ハブ',
+    'dash.lead': 'AIエージェントからのURL確認、実行前チェック、ポート確認、用語解説をひとつに。初心者とAIエージェントの間に入るローカル安全レイヤーです。',
+    'dash.userRole': 'Solo Developer',
+    'dash.userMode': '初心者サポート重視',
+    'dash.statReadonly': 'Read-only',
+    'dash.statReadonlyLabel': 'インストールも実行もせず確認',
+    'dash.cmdHistoryKicker': 'Command History',
+    'dash.commandCenterKicker': 'Command Center',
+    'dash.commandCenterH3': 'ここから主要機能を実行',
+    'dash.readonlyBadge': 'read-only / local only',
     'dash.quickTitle': '⚡ クイック操作',
     'dash.actionScan': 'フォルダを\nチェック',
     'dash.actionCli': 'エラーを\n調べる',
@@ -139,6 +153,68 @@ const i18n = {
     'dash.actionBegin': 'ポートを\n確認',
     'dash.agentTitle': '🤖 AIエージェント向けAPI',
     'dash.agentDesc': 'このツールは <code>GET /api</code> でAIエージェントから制御できます。<br>HermesなどのAIエージェントが自動でフォルダスキャン、ポート確認、用語検索を行えます。',
+    // Operation cards
+    'dash.op1.title': 'フォルダ / ファイルを実行前チェック',
+    'dash.op1.desc': 'READMEや設定ファイルを読み、危ない操作の前で止まれるようにします。',
+    'dash.op1.placeholder': 'ダウンロードしたフォルダのパス または READMEのある場所',
+    'dash.op1.pickBtn': '選ぶ',
+    'dash.op1.scanBtn': 'チェック',
+    'dash.op1.pickStatus': 'Windowsの「開く」ダイアログで選べます',
+    'dash.op2.title': 'テキストを直接チェック',
+    'dash.op2.desc': 'README断片やAIが出した手順を貼り付けて、その場で確認します。',
+    'dash.op2.placeholder': 'ここにREADMEや手順テキストを貼り付け',
+    'dash.op2.dropTitle': 'ここにテキストファイルをドラッグ＆ドロップ',
+    'dash.op2.dropDesc': 'README、.txt、.md などを投げるとダッシュボード上でチェックします (1MB まで)',
+    'dash.op2.scanBtn': '貼り付けテキストをチェック',
+    'dash.op3.title': 'CLIエラー診断',
+    'dash.op3.desc': 'PowerShellやnpmのエラー、秘密情報らしき文字列を確認します。',
+    'dash.op3.placeholder': 'ここにターミナル出力を貼り付け',
+    'dash.op3.checkBtn': 'エラーを調べる',
+    'dash.op4.title': '作業環境を確認',
+    'dash.op4.desc': 'ポート競合と基本ツールの有無を、ダッシュボードから直接見ます。',
+    'dash.op4.portBtn': 'ポート一覧',
+    'dash.op4.toolBtn': '基本道具チェック',
+    'dash.op5.title': '用語をすぐ検索',
+    'dash.op5.desc': '分からない言葉を別タブに移動せず確認できます。',
+    'dash.op5.placeholder': '例: sudo, MCP, PATH, APIキー',
+    // Workbench
+    'dash.workbench.title': '実行結果',
+    'dash.workbench.clearBtn': 'クリア',
+    'dash.workbench.placeholder': '上の操作を実行すると、ここに結果が表示されます。詳しく見たい場合は各タブへ移動できます。',
+    // URL cards section
+    'dash.urlKicker': 'Browser Handoff',
+    'dash.urlH3': '🔗 URLカード — エージェントからの共有',
+    'dash.urlDetailBtn': '詳しく見る →',
+    // Core modules
+    'dash.modules.kicker': 'Core Modules',
+    'dash.modules.h3': '主要モジュール（現在のステータス）',
+    'dash.modules.statusActive': '● アクティブ',
+    'dash.modules.statusWip': '● レビュー中',
+    'dash.modules.statusBeta': '● 調整中',
+    'dash.mod.preflight.name': 'Preflight Checks',
+    'dash.mod.preflight.desc': 'READMEやテキストを実行前に確認',
+    'dash.mod.cli.name': 'CLI Error Check',
+    'dash.mod.cli.desc': 'エラー貼り付けと秘密情報マスク',
+    'dash.mod.ports.name': 'Port Owners',
+    'dash.mod.ports.desc': 'ポート使用状況を可視化',
+    'dash.mod.glossary.name': 'Glossary',
+    'dash.mod.glossary.desc': '初心者向けに用語をやさしく説明',
+    'dash.mod.candidates.name': '用語レビュー',
+    'dash.mod.candidates.desc': '初心者にも意味が分かるか確認中',
+    'dash.mod.feedback.name': 'Feedback',
+    'dash.mod.feedback.desc': '改善要望をローカルに記録',
+    // Sidebar strengths
+    'dash.strengths.h3': 'いま強いところ',
+    'dash.strengths.1': '勝手に開かないURLカード',
+    'dash.strengths.2': '危険スキームをAPIで拒否',
+    'dash.strengths.3': '日本語・絵文字の理由も保持',
+    'dash.strengths.4': 'AIエージェント向けローカルAPI',
+    'dash.api.kicker': 'Local API',
+    'dash.api.scan': 'フォルダ確認',
+    'dash.api.scanText': 'テキスト確認',
+    'dash.api.urlCard': 'URL共有',
+    'dash.api.portOwners': 'ポート一覧',
+    'dash.api.glossary': '用語辞典',
     'tab.candidates': '📝 用語レビュー',
     'candidates.eyebrow': '初心者にも意味が分かるか確認中です',
     'candidates.h2': '📝 用語レビュー — 分かりやすさを確認中',
@@ -146,6 +222,25 @@ const i18n = {
     'candidates.placeholder': '🔍 候補を絞り込む...',
     'candidates.loading': '読み込み中...',
     'candidates.noMatch': 'に一致する候補は見つかりませんでした。',
+    'candidates.catProgramming': 'プログラミング',
+    'candidates.catGeneral': '一般IT',
+    'candidates.catError': 'エラー',
+    'candidates.priHigh': '📌 優先 高',
+    'candidates.priMid': '🔵 中',
+    'candidates.priLow': '⚪ 低',
+    'candidates.statusReview': 'レビュー中',
+    'candidates.filterAll': 'すべて',
+    'candidates.filterProgramming': '🐍 プログラミング',
+    'candidates.filterGeneral': '🖥 一般IT',
+    'candidates.filterError': '⚠️ エラー',
+    'candidates.priHighLegend': '📌 優先高',
+    'candidates.priMidLegend': '🔵 中',
+    'candidates.priLowLegend': '⚪ 低',
+    'candidates.notImplemented': 'まだ実装前です',
+    'candidates.catGithub': 'GitHub',
+    'candidates.catCli': 'CLI',
+    'candidates.catAi': 'AI/ML',
+    'try.apiNotice': '🤖 <strong>AIエージェント向け:</strong> このツールはローカルAPI（<code>GET /api</code>）で接続できます。AIエージェントが自動でフォルダスキャンやポート確認を行えます。<a href="/api" target="_blank">API仕様を見る →</a>',
     'help.destructive_delete': ['削除・リセット系のコマンドが書かれています。', '違うフォルダで実行すると、作業ファイルや設定を消す可能性があります。', 'まだ実行しないでください。何を消すのか、バックアップやdry-runがあるか確認してください。'],
     'help.global_install': ['グローバルインストール、またはダウンロードしたスクリプトをそのまま実行する手順が書かれています。', 'プロジェクトフォルダの外までPC環境を変える可能性があります。', 'まずローカルインストール、仮想環境、使い捨てフォルダで試せるか確認してください。sudo、-g、curl | sh は人に確認してから。'],
     'help.secrets_or_auth': ['トークン、パスワード、APIキー、OAuth、.env などの秘密情報について書かれています。', '秘密情報はログ、履歴、スクリーンショット、コミット、AIエージェントの文脈に漏れることがあります。', '最初はダミー値を使ってください。本物の秘密情報を貼る前に、どこへ保存されるか確認してください。'],
@@ -197,6 +292,91 @@ const i18n = {
     'tab.dashboard': '🏠 Dashboard',
     'tab.beginner': '🌱 Beginner Help', 'tab.customize': '🔧 Customize',
     'tab.candidates': '📝 Term Review',
+    // Dashboard
+    'dash.kicker': 'Agent Assist Preflight',
+    'dash.h2': 'AI-Agent Beginner Support Hub',
+    'dash.lead': 'URL review, preflight checks, port visibility, and glossary — all in one place. A local safety layer between beginners and AI agents.',
+    'dash.userRole': 'Solo Developer',
+    'dash.userMode': 'Beginner Support Focused',
+    'dash.statReadonly': 'Read-only',
+    'dash.statReadonlyLabel': 'Check without installing or running',
+    'dash.statGlossary': 'Glossary terms',
+    'dash.statCandidates': 'Terms under review',
+    'dash.statUrlCards': 'Pending URL cards',
+    'dash.urlCardsEmpty': 'No pending URL cards. When an AI agent sends a URL, it will appear here.',
+    'dash.cmdHistoryKicker': 'Command History',
+    'dash.commandCenterKicker': 'Command Center',
+    'dash.commandCenterH3': 'Run Key Features Here',
+    'dash.readonlyBadge': 'read-only / local only',
+    'dash.quickTitle': '⚡ Quick Actions',
+    'dash.actionScan': 'Check\\na Folder',
+    'dash.actionCli': 'Diagnose\\nErrors',
+    'dash.actionGloss': 'Search\\nTerms',
+    'dash.actionBegin': 'Check\\nPorts',
+    'dash.agentTitle': '🤖 AI Agent API',
+    'dash.agentDesc': 'This tool can be controlled by AI agents via <code>GET /api</code>.<br>Agents such as Hermes can automatically scan folders, check ports, and search the glossary.',
+    // Operation cards
+    'dash.op1.title': 'Preflight: Check a Folder / File',
+    'dash.op1.desc': 'Reads READMEs and config files so you can stop before dangerous operations.',
+    'dash.op1.placeholder': 'Path to a downloaded folder or where README lives',
+    'dash.op1.pickBtn': 'Browse',
+    'dash.op1.scanBtn': 'Check',
+    'dash.op1.pickStatus': 'Opens a familiar Windows "Open" dialog',
+    'dash.op2.title': 'Check Pasted Text',
+    'dash.op2.desc': 'Paste a README snippet or AI-generated instructions and check them on the spot.',
+    'dash.op2.placeholder': 'Paste README or instruction text here',
+    'dash.op2.dropTitle': 'Drag & drop a text file here',
+    'dash.op2.dropDesc': 'Drop a README, .txt, .md, etc. to check it on the dashboard (up to 1MB)',
+    'dash.op2.scanBtn': 'Check Pasted Text',
+    'dash.op3.title': 'CLI Error Check',
+    'dash.op3.desc': 'Checks PowerShell/npm errors and possible secrets in pasted output.',
+    'dash.op3.placeholder': 'Paste terminal output here',
+    'dash.op3.checkBtn': 'Check Errors',
+    'dash.op4.title': 'Check Your Environment',
+    'dash.op4.desc': 'See port conflicts and basic tool availability directly from the dashboard.',
+    'dash.op4.portBtn': 'Port List',
+    'dash.op4.toolBtn': 'Tool Check',
+    'dash.op5.title': 'Quick Glossary Search',
+    'dash.op5.desc': 'Look up unfamiliar terms without leaving this tab.',
+    'dash.op5.placeholder': 'e.g. sudo, MCP, PATH, API key',
+    // Workbench
+    'dash.workbench.title': 'Results',
+    'dash.workbench.clearBtn': 'Clear',
+    'dash.workbench.placeholder': 'Results from the operations above will appear here. Switch to each tab for details.',
+    // URL cards section
+    'dash.urlKicker': 'Browser Handoff',
+    'dash.urlH3': '🔗 URL Cards — From AI Agents',
+    'dash.urlDetailBtn': 'See Details →',
+    // Core modules
+    'dash.modules.kicker': 'Core Modules',
+    'dash.modules.h3': 'Module Status',
+    'dash.modules.statusActive': '● Active',
+    'dash.modules.statusWip': '● In Review',
+    'dash.modules.statusBeta': '● Beta',
+    'dash.mod.preflight.name': 'Preflight Checks',
+    'dash.mod.preflight.desc': 'Check READMEs and text before running',
+    'dash.mod.cli.name': 'CLI Error Check',
+    'dash.mod.cli.desc': 'Error pasting and secret masking',
+    'dash.mod.ports.name': 'Port Owners',
+    'dash.mod.ports.desc': 'Visualize port usage',
+    'dash.mod.glossary.name': 'Glossary',
+    'dash.mod.glossary.desc': 'Plain-language term explanations',
+    'dash.mod.candidates.name': 'Term Review',
+    'dash.mod.candidates.desc': 'Checking term clarity for beginners',
+    'dash.mod.feedback.name': 'Feedback',
+    'dash.mod.feedback.desc': 'Record improvement requests locally',
+    // Sidebar strengths
+    'dash.strengths.h3': 'Current Strengths',
+    'dash.strengths.1': 'URL cards that won\'t auto-open',
+    'dash.strengths.2': 'Dangerous schemes rejected by API',
+    'dash.strengths.3': 'Preserves Japanese + emoji reasons',
+    'dash.strengths.4': 'Local API for AI agents',
+    'dash.api.kicker': 'Local API',
+    'dash.api.scan': 'Folder Scan',
+    'dash.api.scanText': 'Text Scan',
+    'dash.api.urlCard': 'URL Share',
+    'dash.api.portOwners': 'Port List',
+    'dash.api.glossary': 'Glossary',
     'try.h2': 'Check README and text files in downloaded folders',
     'try.desc': 'Reads <strong>text files</strong> like README, .md, .txt, .py and explains <strong>risky parts in plain language</strong> — such as "this may affect your whole PC" or "this may contain secrets".<br>Images, videos, zip files are not scanned. Dropping a folder only reads text files inside.',
     'try.placeholder': 'e.g. /mnt/c/Users/.../Downloads/tool (folder or text file path)',
@@ -235,7 +415,35 @@ const i18n = {
     'review.h2': 'Customization Requests',
     'review.refreshBtn': 'Refresh',
     'review.desc': 'You can collect requests like "change this part of the UI".<br>Requests are recorded as tickets — <strong>use them as input when asking AI agents or vibe coding tools to fix the app</strong>.<br>The screen won\'t change automatically.<br>How to apply:<br>① Copy the request with "Copy request" below<br>② Open this project folder in <strong>Cursor, Claude Code or another vibe coding tool</strong><br>③ Paste the request and ask "fix this"',
+    'candidates.eyebrow': 'Checking whether terms are beginner-friendly',
+    'candidates.h2': '📝 Term Review — checking clarity',
+    'candidates.desc': 'Candidate glossary terms that have not yet been moved into <strong>server.py GLOSSARY / GLOSSARY_EN</strong>.<br>Terms will be implemented after their tone is adjusted to match the existing 72 terms.<br>Each candidate has a priority and category.',
+    'candidates.placeholder': '🔍 Filter candidates...',
+    'candidates.loading': 'Loading...',
+    'candidates.noMatch': 'No matching candidates found for',
+    'candidates.catProgramming': 'Programming',
+    'candidates.catGeneral': 'General IT',
+    'candidates.catError': 'Error',
+    'candidates.priHigh': '📌 High',
+    'candidates.priMid': '🔵 Mid',
+    'candidates.priLow': '⚪ Low',
+    'candidates.statusReview': 'In Review',
+    'candidates.filterAll': 'All',
+    'candidates.filterProgramming': '🐍 Programming',
+    'candidates.filterGeneral': '🖥 General IT',
+    'candidates.filterError': '⚠️ Error',
+    'candidates.priHighLegend': '📌 High',
+    'candidates.priMidLegend': '🔵 Mid',
+    'candidates.priLowLegend': '⚪ Low',
+    'candidates.notImplemented': 'Not yet implemented',
+    'candidates.catGithub': 'GitHub',
+    'candidates.catCli': 'CLI',
+    'candidates.catAi': 'AI/ML',
+    'try.apiNotice': '🤖 <strong>For AI agents:</strong> This tool can be connected via local API (<code>GET /api</code>). AI agents can automatically scan folders and check ports. <a href="/api" target="_blank">View API spec →</a>',
     'review.sectionLabel': 'Target section',
+    'review.optConfirm': 'confirm: Likely to stop here',
+    'review.optReview': 'review: Hard to understand',
+    'review.optNote': 'note: Quick improvement',
     'review.sectionPlaceholder': 'e.g. README header / decision name / WebUI',
     'review.priorityLabel': 'Priority',
     'review.reactionLabel': 'How should it change?',
@@ -377,6 +585,8 @@ function setLang(lang) {
   if (btn) btn.textContent = lang === 'ja' ? '🇺🇸 EN' : '🇯🇵 JA';
   // Re-render dynamic content that depends on language
   if (Object.keys(glossaryData).length) renderGlossary(document.getElementById('glossarySearch')?.value || '');
+  if (Object.keys(candidatesData).length) renderCandidates();
+  renderDashboardGlossary?.();
 }
 
 function applyI18n() {
@@ -618,6 +828,23 @@ const CATEGORY_LABELS = { github: 'GitHub', cli: 'CLI', programming: 'プログ�
 const PRIORITY_LABELS = { high: '📌 優先 高', mid: '🔵 中', low: '⚪ 低' };
 let candidatesFilterCat = 'all';
 
+function getCategoryLabel(cat) {
+  const map = { github: 'candidates.catGithub', cli: 'candidates.catCli', programming: 'candidates.catProgramming', ai: 'candidates.catAi', general: 'candidates.catGeneral', error: 'candidates.catError' };
+  return t(map[cat] || cat);
+}
+function getPriorityLabel(pri) {
+  const map = { high: 'candidates.priHigh', mid: 'candidates.priMid', low: 'candidates.priLow' };
+  return t(map[pri] || pri);
+}
+function getCategoryFilterLabel(cat) {
+  const map = { all: 'candidates.filterAll', github: 'candidates.catGithub', cli: 'candidates.catCli', programming: 'candidates.catProgramming', ai: 'candidates.catAi', general: 'candidates.catGeneral', error: 'candidates.catError' };
+  return t(map[cat] || cat);
+}
+function getCategoryEmoji(cat) {
+  const map = { github: '📂', cli: '💻', programming: '🐍', ai: '🤖', general: '🖥', error: '⚠️' };
+  return map[cat] || '';
+}
+
 async function loadCandidates() {
   try {
     candidatesData = await fetchJson('/api/glossary-candidates');
@@ -651,15 +878,15 @@ function renderCandidates() {
     const ja = data.ja || '';
     const en = data.en || '';
     const catIcon = CATEGORY_ICONS[cat] || '📁';
-    const catLabel = CATEGORY_LABELS[cat] || cat;
-    const priLabel = PRIORITY_LABELS[p] || '🔵 中';
+    const catLabel = getCategoryLabel(cat);
+    const priLabel = getPriorityLabel(p);
     const displayLang = currentLang === 'ja' ? ja : (en || ja);
     const secondLang = currentLang === 'ja' ? en : '';
     return `<article class="candidates-card pri-${p}">
       <div class="card-header">
         <span class="pri-badge pri-${p}">${priLabel}</span>
         <span class="card-badge">${catIcon} ${catLabel}</span>
-        <span class="card-badge pri-status">レビュー中</span>
+        <span class="card-badge pri-status">${t("candidates.statusReview")}</span>
         <h3>${escapeHtml(term)}</h3>
       </div>
       <p class="card-desc">${escapeHtml(displayLang)}</p>
@@ -672,11 +899,18 @@ async function loadDoc(id = state.currentDoc) {
   state.currentDoc = id;
   const data = await fetchJson(`/api/doc?id=${encodeURIComponent(id)}`);
   const meta = state.docs.find((d) => d.id === id) || {};
-  $('docTitle').textContent = data.path;
+  const docTitle = $('docTitle');
+  const docContent = $('docContent');
+  // These elements use data-i18n only for the initial loading placeholder.
+  // Once a real document is loaded, remove the placeholder bindings so a later
+  // language switch cannot reset the tab back to "Loading..." / "読み込み中...".
+  docTitle?.removeAttribute('data-i18n');
+  docContent?.removeAttribute('data-i18n');
+  if (docTitle) docTitle.textContent = data.path;
   const internal = meta.kind && meta.kind !== 'public';
   const note = internal ? `<div class="doc-note internal">${escapeHtml(meta.label || meta.kind)}: これは公開ユーザー向け本文ではなく、共同レビュー/保守用の文書です。将来の公開前に整理または削除候補として扱います。</div>` : `<div class="doc-note public">${escapeHtml(meta.label || '公開向け')}: ユーザーに直接見せる前提の文書です。</div>`;
   const guide = docGuide(id);
-  $('docContent').innerHTML = guide + note + simpleMarkdown(data.content || '(empty)');
+  if (docContent) docContent.innerHTML = guide + note + simpleMarkdown(data.content || '(empty)');
 }
 
 function docGuide(id) {
