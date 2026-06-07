@@ -45,7 +45,7 @@
             </div>
           </div>
 
-          <div class="dash-stats" id="dashStats">
+          <div class="dash-stats dash-zone-supplement" id="dashStats">
             <article class="dash-stat-card">
               <div class="dash-stat-icon shield">🛡️</div>
               <div class="dash-stat-body">
@@ -64,7 +64,7 @@
               <div class="dash-stat-icon">📝</div>
               <div class="dash-stat-body">
                 <div class="dash-stat-num" id="dashCandidatesCount">-</div>
-                <div class="dash-stat-label" data-i18n="dash.statCandidates">実装前の候補数</div>
+                <div class="dash-stat-label" data-i18n="dash.statCandidates">用語レビュー中</div>
               </div>
             </article>
             <article class="dash-stat-card">
@@ -76,9 +76,9 @@
             </article>
           </div>
 
-          <section id="dashAutoDiag" class="dash-auto-diag" aria-label="おまかせ診断"></section>
+          <section id="dashAutoDiag" class="dash-auto-diag dash-zone-tools" aria-label="おまかせ診断"></section>
 
-          <section class="dash-panel dash-url-cards-panel" aria-label="コマンド履歴">
+          <section class="dash-panel dash-url-cards-panel dash-zone-danger" aria-label="コマンド履歴">
             <div class="dash-panel-head">
               <div>
                 <p class="dash-mini-kicker">Command History</p>
@@ -90,7 +90,7 @@
             </div>
           </section>
 
-          <section class="dash-panel dash-command-center" aria-label="ダッシュボード操作盤">
+          <section class="dash-panel dash-command-center dash-zone-tools" aria-label="ダッシュボード操作盤">
             <div class="dash-panel-head">
               <div>
                 <p class="dash-mini-kicker">Command Center</p>
@@ -109,7 +109,7 @@
                   </div>
                 </div>
                 <form id="dashScanForm" class="dash-inline-form">
-                  <input name="target_path" id="dashTargetPathInput" value="tests/fixtures/danger" placeholder="例: tests/fixtures/danger または ダウンロードしたフォルダのパス" />
+                  <input name="target_path" id="dashTargetPathInput" value="" placeholder="ダウンロードしたフォルダのパス または READMEのある場所" />
                   <div class="dash-inline-actions">
                     <button type="button" id="dashPickFolderBtn">選ぶ</button>
                     <button type="submit" class="primary">チェック</button>
@@ -161,7 +161,7 @@
                 </div>
               </div>
 
-              <div class="dash-op-card dash-glossary-card">
+              <div class="dash-op-card dash-glossary-card dash-zone-glossary">
                 <div class="dash-op-head">
                   <span class="dash-op-icon">📚</span>
                   <div>
@@ -187,7 +187,7 @@
 
           <div class="dash-layout">
             <div class="dash-main-column">
-              <section class="dash-panel dash-url-panel">
+              <section class="dash-panel dash-url-panel dash-zone-url">
                 <div class="dash-panel-head">
                   <div>
                     <p class="dash-mini-kicker">Browser Handoff</p>
@@ -200,7 +200,7 @@
                 </div>
               </section>
 
-              <section class="dash-panel">
+              <section class="dash-panel dash-zone-supplement">
                 <div class="dash-panel-head">
                   <div>
                     <p class="dash-mini-kicker">Core Modules</p>
@@ -234,9 +234,9 @@
                   </button>
                   <button class="dash-module-card" data-tab="candidates">
                     <span class="mod-icon">📝</span>
-                    <strong>WIP Terms</strong>
-                    <small>公開前の用語候補を確認</small>
-                    <em class="status wip">● 実装前</em>
+                    <strong>用語レビュー</strong>
+                    <small>初心者にも意味が分かるか確認中</small>
+                    <em class="status wip">● レビュー中</em>
                   </button>
                   <button class="dash-module-card" data-tab="review">
                     <span class="mod-icon">🔧</span>
@@ -249,7 +249,7 @@
             </div>
 
             <aside class="dash-side-column">
-              <section class="dash-highlight-card">
+              <section class="dash-highlight-card dash-zone-supplement">
                 <div class="rocket">🚀</div>
                 <h3>いま強いところ</h3>
                 <ul>
@@ -260,7 +260,7 @@
                 </ul>
               </section>
 
-              <section class="dash-panel dash-api-card">
+              <section class="dash-panel dash-api-card dash-zone-supplement">
                 <p class="dash-mini-kicker">Local API</p>
                 <h3 data-i18n="dash.agentTitle">🤖 AIエージェント向けAPI</h3>
                 <p data-i18n-html="dash.agentDesc">このツールは <code>GET /api</code> でAIエージェントから制御できます。<br>HermesなどのAIエージェントが自動でフォルダスキャン、ポート確認、用語検索を行えます。</p>
@@ -296,7 +296,7 @@
           <div class="hero-actions">
             <form id="scanForm" class="scan-form">
               <div class="scan-form-row">
-                <input name="target_path" id="targetPathInput" value="tests/fixtures/danger" placeholder="例: /mnt/c/Users/.../Downloads/tool （フォルダかテキストファイルのパス）" data-i18n-placeholder="try.placeholder" required class="scan-input" />
+                <input name="target_path" id="targetPathInput" value="" placeholder="例: /mnt/c/Users/.../Downloads/tool （フォルダかテキストファイルのパス）" data-i18n-placeholder="try.placeholder" required class="scan-input" />
                 <button type="submit" class="primary scan-submit" data-i18n="try.submit">このフォルダを確認する</button>
               </div>
               <div class="scan-form-sub">

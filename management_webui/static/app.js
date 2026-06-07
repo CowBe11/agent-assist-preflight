@@ -129,7 +129,7 @@ const i18n = {
     'glossary.noMatch': 'に一致する用語は見つかりませんでした。別の言葉で試してください。',
     'tab.dashboard': '🏠 ダッシュボード',
     'dash.statGlossary': '用語辞典の用語数',
-    'dash.statCandidates': '実装前の候補数',
+    'dash.statCandidates': '用語レビュー中',
     'dash.statUrlCards': '未確認のURLカード',
     'dash.urlCardsEmpty': '保留中のURLカードはありません。AIエージェントがURLを送ると、ここに表示されます。',
     'dash.quickTitle': '⚡ クイック操作',
@@ -139,9 +139,9 @@ const i18n = {
     'dash.actionBegin': 'ポートを\n確認',
     'dash.agentTitle': '🤖 AIエージェント向けAPI',
     'dash.agentDesc': 'このツールは <code>GET /api</code> でAIエージェントから制御できます。<br>HermesなどのAIエージェントが自動でフォルダスキャン、ポート確認、用語検索を行えます。',
-    'tab.candidates': '📝 実装前',
-    'candidates.eyebrow': '開発者用 — 公開には含めていません',
-    'candidates.h2': '📝 用語辞典 実装前候補',
+    'tab.candidates': '📝 用語レビュー',
+    'candidates.eyebrow': '初心者にも意味が分かるか確認中です',
+    'candidates.h2': '📝 用語レビュー — 分かりやすさを確認中',
     'candidates.desc': 'まだ <strong>server.py の GLOSSARY / GLOSSARY_EN に移動していない</strong> 用語候補です。<br>温度調整（既存72語のトーンに合わせる）が済んだものから順に実装します。<br>各候補には優先度とカテゴリが付いています。',
     'candidates.placeholder': '🔍 候補を絞り込む...',
     'candidates.loading': '読み込み中...',
@@ -196,7 +196,7 @@ const i18n = {
     'tab.try': '🛡️ Preflight', 'tab.docs': '📖 Read', 'tab.glossary': '📚 Glossary',
     'tab.dashboard': '🏠 Dashboard',
     'tab.beginner': '🌱 Beginner Help', 'tab.customize': '🔧 Customize',
-    'tab.candidates': '📝 WIP',
+    'tab.candidates': '📝 Term Review',
     'try.h2': 'Check README and text files in downloaded folders',
     'try.desc': 'Reads <strong>text files</strong> like README, .md, .txt, .py and explains <strong>risky parts in plain language</strong> — such as "this may affect your whole PC" or "this may contain secrets".<br>Images, videos, zip files are not scanned. Dropping a folder only reads text files inside.',
     'try.placeholder': 'e.g. /mnt/c/Users/.../Downloads/tool (folder or text file path)',
@@ -659,7 +659,7 @@ function renderCandidates() {
       <div class="card-header">
         <span class="pri-badge pri-${p}">${priLabel}</span>
         <span class="card-badge">${catIcon} ${catLabel}</span>
-        <span class="card-badge pri-status">実装前</span>
+        <span class="card-badge pri-status">レビュー中</span>
         <h3>${escapeHtml(term)}</h3>
       </div>
       <p class="card-desc">${escapeHtml(displayLang)}</p>

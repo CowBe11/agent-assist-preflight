@@ -258,6 +258,30 @@ body {
 .dash-cmd-row-status.approved { color: #3fb950; background: rgba(63,185,80,.08); }
 .dash-cmd-row-status.denied { color: #f85149; background: rgba(248,81,73,.08); }
 
+
+/* ── Dashboard Zone Colors (subtle left-border accents) ── */
+
+.dash-zone-danger {
+  border-left: 3px solid rgba(248,81,73,.25);
+  background: linear-gradient(90deg, rgba(248,81,73,.03) 0%, transparent 40%);
+}
+.dash-zone-url {
+  border-left: 3px solid rgba(124,194,255,.25);
+  background: linear-gradient(90deg, rgba(124,194,255,.03) 0%, transparent 40%);
+}
+.dash-zone-tools {
+  border-left: 3px solid rgba(63,185,80,.25);
+  background: linear-gradient(90deg, rgba(63,185,80,.03) 0%, transparent 40%);
+}
+.dash-zone-glossary {
+  border-left: 3px solid rgba(180,140,255,.25);
+  background: linear-gradient(90deg, rgba(180,140,255,.03) 0%, transparent 40%);
+}
+.dash-zone-supplement {
+  border-left: 3px solid rgba(154,167,178,.18);
+  background: linear-gradient(90deg, rgba(154,167,178,.02) 0%, transparent 40%);
+}
+
 /* ── main / panels ── */
 #mainContent {
   max-width: 52rem;
