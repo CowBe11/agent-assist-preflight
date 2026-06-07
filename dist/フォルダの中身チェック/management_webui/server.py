@@ -1530,6 +1530,86 @@ class Handler(BaseHTTPRequestHandler):
             write_json(COMMAND_MODE_PATH, {"mode": new_mode})
             self.send_json({"ok": True, "mode": new_mode})
             return
+        if parsed.path == "/api/glossary-candidates/promote":
+            cid = str(payload.get("id", "")).strip()
+            if not cid:
+                self.send_json({"ok": False, "error": "id is required"}, status=400)
+                return
+            candidates = json.loads(CANDIDATES_PATH.read_text(encoding="utf-8"))
+            if cid not in candidates:
+                self.send_json({"ok": False, "error": f"candidate '{cid}' not found"}, status=404)
+                return
+            entry = candidates.pop(cid)
+            # Add to GLOSSARY / GLOSSARY_EN
+            ja_text = entry.get("ja", entry.get("description", ""))
+            en_text = entry.get("en", entry.get("description", ""))
+            if ja_text:
+                GLOSSARY[cid] = ja_text
+            if en_text:
+                GLOSSARY_EN[cid] = en_text
+            write_json(CANDIDATES_PATH, candidates)
+            self.send_json({"ok": True, "message": f"'{cid}' promoted to glossary"})
+            return
+
+        if parsed.path == "/api/glossary-candidates/edit":
+            cid = str(payload.get("id", "")).strip()
+            if not cid:
+                self.send_json({"ok": False, "error": "id is required"}, status=400)
+                return
+            candidates = json.loads(CANDIDATES_PATH.read_text(encoding="utf-8"))
+            if cid not in candidates:
+                self.send_json({"ok": False, "error": f"candidate '{cid}' not found"}, status=404)
+                return
+            entry = candidates[cid]
+            if "ja" in payload:
+                entry["ja"] = str(payload["ja"])
+            if "en" in payload:
+                entry["en"] = str(payload["en"])
+            if "cat" in payload:
+                entry["cat"] = str(payload["cat"])
+            if "pri" in payload:
+                entry["pri"] = str(payload["pri"])
+            # Support rename
+            if "title" in payload and str(payload["title"]).strip() and str(payload["title"]).strip() != cid:
+                new_title = str(payload["title"]).strip()
+                candidates[new_title] = candidates.pop(cid)
+            write_json(CANDIDATES_PATH, candidates)
+            self.send_json({"ok": True, "message": f"'{cid}' updated"})
+            return
+
+        if parsed.path == "/api/glossary-candidates/reject":
+            cid = str(payload.get("id", "")).strip()
+            if not cid:
+                self.send_json({"ok": False, "error": "id is required"}, status=400)
+                return
+            candidates = json.loads(CANDIDATES_PATH.read_text(encoding="utf-8"))
+            if cid not in candidates:
+                self.send_json({"ok": False, "error": f"candidate '{cid}' not found"}, status=404)
+                return
+            candidates.pop(cid)
+            write_json(CANDIDATES_PATH, candidates)
+            self.send_json({"ok": True, "message": f"'{cid}' rejected and removed"})
+            return
+
+        if parsed.path == "/api/glossary-candidates":
+            title = str(payload.get("title", "")).strip()
+            if not title:
+                self.send_json({"ok": False, "error": "title is required"}, status=400)
+                return
+            candidates = json.loads(CANDIDATES_PATH.read_text(encoding="utf-8"))
+            if title in candidates:
+                self.send_json({"ok": False, "error": f"candidate '{title}' already exists"}, status=409)
+                return
+            candidates[title] = {
+                "ja": str(payload.get("ja", payload.get("description", ""))).strip(),
+                "en": str(payload.get("en", "")).strip(),
+                "pri": str(payload.get("pri", payload.get("priority", "mid"))).strip(),
+                "cat": str(payload.get("cat", payload.get("category", "general"))).strip(),
+            }
+            write_json(CANDIDATES_PATH, candidates)
+            self.send_json({"ok": True, "message": f"'{title}' added to candidates", "candidates": candidates})
+            return
+
         self.send_json({"error": "not found"}, status=404)
 
     def serve_static(self, path: str) -> None:

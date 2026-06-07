@@ -22,6 +22,7 @@
         <button class="tab tab-beginner" data-tab="beginner" data-i18n="tab.beginner">🌱 初心者支援</button>
         <button class="tab tab-customize" data-tab="review" data-i18n="tab.customize">🔧 カスタマイズ</button>
         <button class="lang-toggle" id="langToggle" title="Switch language / 言語切替">🇺🇸 EN</button>
+        <button class="theme-toggle" id="themeToggle" title="Toggle dark/light mode / テーマ切替" style="font-size:.82rem;font-weight:600;padding:.3rem .7rem;border-radius:6px;border:1.5px solid var(--accent);background:transparent;color:var(--accent);cursor:pointer;white-space:nowrap;transition:background .15s,color .15s;">🌙</button>
       </nav>
     </header>
 
@@ -455,6 +456,7 @@
         <div class="candidates-controls">
           <input type="search" id="candidatesSearch" class="glossary-search" placeholder="🔍 候補を絞り込む..." data-i18n-placeholder="candidates.placeholder" autocomplete="off" />
           <span class="muted" id="candidatesCount"></span>
+          <button id="addCandidateBtn" class="primary" style="margin-left:auto;padding:.4rem .8rem;font-size:.85rem">＋ 新規候補</button>
         </div>
         <div class="candidates-filters" id="candidatesFilters">
           <button class="cfilter active" data-cat="all" data-i18n="candidates.filterAll">すべて</button>
@@ -597,6 +599,48 @@
         <div id="comments" class="comments"></div>
       </section>
     </main>
+
+    <!-- ── Modal for candidate edit/add ── -->
+    <div id="candidateModal" class="modal-overlay" style="display:none">
+      <div class="modal-box">
+        <div class="modal-head">
+          <h3 id="candidateModalTitle">用語候補を編集</h3>
+          <button class="modal-close" id="candidateModalClose" style="background:none;border:none;color:var(--text);font-size:1.4rem;cursor:pointer">✕</button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="candidateModalId" />
+          <label>用語 (title):</label>
+          <input type="text" id="candidateEditTitle" class="glossary-search" style="width:100%;margin-bottom:.8rem" />
+          <label>日本語解説 (ja):</label>
+          <textarea id="candidateEditJa" class="glossary-search" style="width:100%;min-height:4rem;margin-bottom:.8rem;resize:vertical"></textarea>
+          <label>英語解説 (en):</label>
+          <textarea id="candidateEditEn" class="glossary-search" style="width:100%;min-height:4rem;margin-bottom:.8rem;resize:vertical"></textarea>
+          <div style="display:flex;gap:1rem;margin-bottom:.8rem">
+            <label>カテゴリ:
+              <select id="candidateEditCat" style="padding:.3rem .5rem;border-radius:6px;border:1px solid var(--line);background:var(--panel);color:var(--text)">
+                <option value="general">一般IT</option>
+                <option value="github">GitHub</option>
+                <option value="cli">CLI</option>
+                <option value="programming">プログラミング</option>
+                <option value="ai">AI/ML</option>
+                <option value="error">エラー</option>
+              </select>
+            </label>
+            <label>優先度:
+              <select id="candidateEditPri" style="padding:.3rem .5rem;border-radius:6px;border:1px solid var(--line);background:var(--panel);color:var(--text)">
+                <option value="high">高</option>
+                <option value="mid" selected>中</option>
+                <option value="low">低</option>
+              </select>
+            </label>
+          </div>
+        </div>
+        <div class="modal-foot" style="display:flex;gap:.5rem;justify-content:flex-end;padding:.8rem 1rem;border-top:1px solid var(--line)">
+          <button id="candidateModalCancel" class="tab" style="padding:.5rem 1rem">キャンセル</button>
+          <button id="candidateModalSave" class="primary" style="padding:.5rem 1rem">保存</button>
+        </div>
+      </div>
+    </div>
 
     <script src="/app.js"></script>
   </body>

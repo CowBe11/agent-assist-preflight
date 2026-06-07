@@ -11,12 +11,6 @@
     "pri": "mid",
     "cat": "github"
   },
-  "Gist": {
-    "ja": "GitHubが提供する、小さなメモやコードを公開する機能。1ファイルだけ手軽に共有できる。",
-    "en": "A GitHub feature for sharing small code snippets or notes. One file, easy to share.",
-    "pri": "mid",
-    "cat": "github"
-  },
   "main / master": {
     "ja": "Gitリポジトリのメインの流れ（幹線）の名前。昔はmaster、今はmainが標準。",
     "en": "The main branch of a Git repo. Traditionally called master, now main is standard.",
@@ -70,5 +64,11 @@
     "en": "A program tried to access forbidden memory and crashed.",
     "pri": "low",
     "cat": "error"
+  },
+  "Gist": {
+    "ja": "GitHubが提供する、小さなメモやコードを公開する機能。1ファイルだけ手軽に共有できる。",
+    "en": "A GitHub feature for sharing small code snippets or notes. One file, easy to share.",
+    "pri": "mid",
+    "cat": "github"
   }
 }

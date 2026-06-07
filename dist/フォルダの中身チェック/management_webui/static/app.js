@@ -4,6 +4,16 @@
 
 const LANG_KEY = 'preflight-lang';
 let currentLang = localStorage.getItem(LANG_KEY) || (navigator.language.startsWith('ja') ? 'ja' : 'en');
+const THEME_KEY = 'preflight-theme';
+let currentTheme = localStorage.getItem(THEME_KEY) || (window.matchMedia('(prefers-color-scheme:dark)').matches ? 'dark' : 'light');
+function applyTheme(t) {
+  currentTheme = t;
+  document.documentElement.setAttribute('data-theme', t);
+  localStorage.setItem(THEME_KEY, t);
+  const btn = document.getElementById('themeToggle');
+  if (btn) btn.textContent = t === 'dark' ? '🌙' : '☀️';
+}
+applyTheme(currentTheme);
 
 const i18n = {
   ja: {
@@ -634,6 +644,23 @@ function escapeHtml(text) {
   return String(text).replace(/[&<>"']/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
 
+// ── Fuzzy search normalizer ──
+function normalizeText(s) {
+  return String(s)
+    .toLowerCase()
+    .replace(/[-_/\s]+/g, ' ')   // normalize hyphens, underscores, slashes, whitespace to single space
+    .trim();
+}
+function fuzzyMatch(query, target) {
+  const q = normalizeText(query);
+  const t = normalizeText(target);
+  // Exact substring match after normalization
+  if (t.includes(q)) return true;
+  // Partial match: every word of query appears somewhere in target
+  const qWords = q.split(/\s+/).filter(Boolean);
+  return qWords.every(word => t.includes(word));
+}
+
 function inlineMarkdown(text) {
   let html = escapeHtml(text);
   html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>');
@@ -869,7 +896,7 @@ function renderGlossary(filter = '') {
   const terms = Object.entries(source);
   const q = filter.trim().toLowerCase();
   const filtered = q ? terms.filter(([k, v]) =>
-    k.toLowerCase().includes(q) || v.toLowerCase().includes(q)
+    fuzzyMatch(q, k) || fuzzyMatch(q, v)
   ) : terms;
   // Sort: exact match first, then prefix match, then alphabetically
   filtered.sort((a, b) => {
@@ -934,9 +961,9 @@ function renderCandidates() {
   const filtered = entries.filter(([term, data]) => {
     if (candidatesFilterCat !== 'all' && data.cat !== candidatesFilterCat) return false;
     if (!q) return true;
-    return term.toLowerCase().includes(q)
-      || (data.ja || '').toLowerCase().includes(q)
-      || (data.en || '').toLowerCase().includes(q);
+    return fuzzyMatch(q, term)
+      || fuzzyMatch(q, data.ja || '')
+      || fuzzyMatch(q, data.en || '');
   });
   const totalCount = $('candidatesCount');
   if (totalCount) totalCount.textContent = `${filtered.length} / ${entries.length} ${currentLang === 'ja' ? '件' : 'items'}`;
@@ -963,6 +990,11 @@ function renderCandidates() {
       </div>
       <p class="card-desc">${escapeHtml(displayLang)}</p>
       ${secondLang ? `<p class="card-en">${escapeHtml(secondLang)}</p>` : ''}
+      <div class="candidate-actions" style="display:flex;gap:.4rem;margin-top:.6rem;padding-top:.6rem;border-top:1px solid var(--line)">
+        <button class="cand-promote" data-term="${escapeHtml(term)}" style="padding:.3rem .6rem;border-radius:6px;border:1px solid var(--confirm, #2da44e);background:rgba(45,164,78,.08);color:var(--confirm, #2da44e);cursor:pointer;font-size:.8rem">⬆ ${currentLang === 'ja' ? '昇格' : 'Promote'}</button>
+        <button class="cand-edit" data-term="${escapeHtml(term)}" style="padding:.3rem .6rem;border-radius:6px;border:1px solid var(--accent);background:rgba(124,194,255,.08);color:var(--accent);cursor:pointer;font-size:.8rem">✏️ ${currentLang === 'ja' ? '編集' : 'Edit'}</button>
+        <button class="cand-reject" data-term="${escapeHtml(term)}" style="padding:.3rem .6rem;border-radius:6px;border:1px solid var(--danger, #ff7b72);background:rgba(255,123,114,.08);color:var(--danger, #ff7b72);cursor:pointer;font-size:.8rem">✕ ${currentLang === 'ja' ? '却下' : 'Reject'}</button>
+      </div>
     </article>`;
   }).join('');
 }
@@ -2933,6 +2965,106 @@ $('candidatesFilters')?.addEventListener('click', (event) => {
   document.querySelectorAll('.cfilter').forEach((b) => b.classList.toggle('active', b === btn));
   candidatesFilterCat = btn.dataset.cat;
   renderCandidates();
+});
+
+// ── Candidate action delegation ──
+document.addEventListener('click', async (e) => {
+  const term = e.target?.dataset?.term;
+  if (!term) return;
+  if (e.target.classList.contains('cand-promote')) {
+    if (!confirm(currentLang === 'ja' ? `「${term}」を正式用語辞典に昇格しますか？` : `Promote "${term}" to glossary?`)) return;
+    try {
+      const res = await fetch('/api/glossary-candidates/promote', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({id:term}) });
+      const data = await res.json();
+      if (data.ok) {
+        delete candidatesData[term];
+        renderCandidates();
+        loadGlossary();
+      } else { alert('Error: ' + (data.error || 'unknown')); }
+    } catch(err) { alert('Network error: ' + err); }
+  } else if (e.target.classList.contains('cand-edit')) {
+    const data = candidatesData[term];
+    if (!data) return;
+    $('candidateModalId').value = term;
+    $('candidateEditTitle').value = term;
+    $('candidateEditJa').value = data.ja || '';
+    $('candidateEditEn').value = data.en || '';
+    $('candidateEditCat').value = data.cat || 'general';
+    $('candidateEditPri').value = data.pri || 'mid';
+    $('candidateModalTitle').textContent = currentLang === 'ja' ? `編集: ${term}` : `Edit: ${term}`;
+    $('candidateModal').dataset.mode = 'edit';
+    $('candidateModal').style.display = 'flex';
+  } else if (e.target.classList.contains('cand-reject')) {
+    if (!confirm(currentLang === 'ja' ? `「${term}」を却下して削除しますか？` : `Reject and remove "${term}"?`)) return;
+    try {
+      const res = await fetch('/api/glossary-candidates/reject', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({id:term}) });
+      const data = await res.json();
+      if (data.ok) {
+        delete candidatesData[term];
+        renderCandidates();
+      } else { alert('Error: ' + (data.error || 'unknown')); }
+    } catch(err) { alert('Network error: ' + err); }
+  }
+});
+
+// ── Add candidate button ──
+$('addCandidateBtn')?.addEventListener('click', () => {
+  $('candidateModalId').value = '';
+  $('candidateEditTitle').value = '';
+  $('candidateEditJa').value = '';
+  $('candidateEditEn').value = '';
+  $('candidateEditCat').value = 'general';
+  $('candidateEditPri').value = 'mid';
+  $('candidateModalTitle').textContent = currentLang === 'ja' ? '新規候補を追加' : 'Add New Candidate';
+  $('candidateModal').dataset.mode = 'add';
+  $('candidateModal').style.display = 'flex';
+});
+
+// ── Modal controls ──
+function closeCandidateModal() { $('candidateModal').style.display = 'none'; }
+$('candidateModalClose')?.addEventListener('click', closeCandidateModal);
+$('candidateModalCancel')?.addEventListener('click', closeCandidateModal);
+$('candidateModal')?.addEventListener('click', (e) => { if (e.target === $('candidateModal')) closeCandidateModal(); });
+
+$('candidateModalSave')?.addEventListener('click', async () => {
+  const mode = $('candidateModal').dataset.mode;
+  const id = $('candidateModalId').value;
+  const title = $('candidateEditTitle').value.trim();
+  const ja = $('candidateEditJa').value.trim();
+  const en = $('candidateEditEn').value.trim();
+  const cat = $('candidateEditCat').value;
+  const pri = $('candidateEditPri').value;
+  if (!title) { alert(currentLang === 'ja' ? '用語を入力してください' : 'Title is required'); return; }
+  try {
+    if (mode === 'add') {
+      const res = await fetch('/api/glossary-candidates', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({title, ja, en, cat, pri}) });
+      const data = await res.json();
+      if (data.ok) { candidatesData = data.candidates; renderCandidates(); closeCandidateModal(); }
+      else { alert('Error: ' + (data.error || 'unknown')); }
+    } else {
+      const res = await fetch('/api/glossary-candidates/edit', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({id, title, ja, en, cat, pri}) });
+      const data = await res.json();
+      if (data.ok) {
+        if (title !== id) {
+          delete candidatesData[id];
+        }
+        await loadCandidates();
+        closeCandidateModal();
+      } else { alert('Error: ' + (data.error || 'unknown')); }
+    }
+  } catch(err) { alert('Network error: ' + err); }
+});
+
+// ── Dark mode toggle ──
+$('themeToggle')?.addEventListener('click', () => {
+  applyTheme(currentTheme === 'dark' ? 'light' : 'dark');
+});
+
+// ── Theme from system preference ──
+window.matchMedia('(prefers-color-scheme:dark)').addEventListener('change', (e) => {
+  if (!localStorage.getItem(THEME_KEY)) {
+    applyTheme(e.matches ? 'dark' : 'light');
+  }
 });
 
 (async function boot() {

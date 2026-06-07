@@ -1,4 +1,22 @@
 :root {
+  color-scheme: light;
+  --bg: #f6f8fa;
+  --panel: #ffffff;
+  --panel-2: #eaeef2;
+  --text: #1f2328;
+  --muted: #656d76;
+  --line: #d0d7de;
+  --accent: #0969da;
+  --accent-2: #8250df;
+  --confirm: #1a7f37;
+  --review: #9a6700;
+  --note: #1a7f37;
+  --fixed: #1a7f37;
+  --parked: #656d76;
+  --danger: #cf222e;
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+[data-theme="dark"] {
   color-scheme: dark;
   --bg: #0d1117;
   --panel: #151b23;
@@ -14,7 +32,6 @@
   --fixed: #73d18c;
   --parked: #9aa7b2;
   --danger: #ff7b72;
-  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 * { box-sizing: border-box; }
 body {
@@ -2072,7 +2089,7 @@ pre,
 }
 .tool-basics-table th { background: #f4f7fb !important; color: #081a3a !important; }
 
-.muted { color: #65758e !important; }
+.muted { color: var(--muted) !important; }
 .primary,
 .scan-submit,
 .url-card-open {
@@ -2081,13 +2098,46 @@ pre,
   border-color: transparent !important;
 }
 
-/* Keep candidate card surfaces white; priority colors apply to badges only. */
+/* Keep candidate card surfaces clean; priority colors apply to badges only. */
 .candidates-card.pri-high,
 .candidates-card.pri-mid,
 .candidates-card.pri-low {
-  background: #ffffff !important;
-  color: #081a3a !important;
+  background: var(--panel) !important;
+  color: var(--text) !important;
 }
 .candidates-card .pri-high { background: #fff0f4 !important; color: #b01542 !important; border-color: #f3bfd0 !important; }
 .candidates-card .pri-mid { background: #eef5ff !important; color: #2453d6 !important; border-color: #bfd3ff !important; }
 .candidates-card .pri-low { background: #eef9f1 !important; color: #137a3a !important; border-color: #bfe6ca !important; }
+
+/* ── Modal overlay for candidate edit/add ── */
+.modal-overlay {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0,0,0,.5); backdrop-filter: blur(4px);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 1000;
+}
+.modal-box {
+  background: var(--panel, #151b23);
+  border: 1px solid var(--line, #303846);
+  border-radius: 12px;
+  max-width: 560px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0,0,0,.4);
+}
+.modal-head {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: .8rem 1rem; border-bottom: 1px solid var(--line, #303846);
+}
+.modal-head h3 { margin: 0; font-size: 1.05rem; }
+.modal-body { padding: 1rem; }
+.modal-body label { display: block; font-size: .85rem; margin-bottom: .25rem; color: var(--text, #e6edf3); }
+
+/* ── Candidate action button hover states ── */
+.cand-promote:hover { background: rgba(45,164,78,.2) !important; }
+.cand-edit:hover { background: rgba(124,194,255,.2) !important; }
+.cand-reject:hover { background: rgba(255,123,114,.2) !important; }
+
+/* ── Theme toggle button ── */
+.theme-toggle:hover { background: var(--accent); color: #fff; }
