@@ -45,7 +45,9 @@
             </div>
           </div>
 
-          <div class="dash-stats dash-zone-supplement" id="dashStats">
+          <details class="dash-fold dash-zone-supplement" id="dashStatsWrap" open>
+            <summary class="dash-fold-summary dash-fold-summary-mini">📊 統計</summary>
+            <div class="dash-stats dash-fold-body" id="dashStats">
             <article class="dash-stat-card">
               <div class="dash-stat-icon shield">🛡️</div>
               <div class="dash-stat-body">
@@ -75,29 +77,36 @@
               </div>
             </article>
           </div>
+</div>
+          </details>
 
           <section id="dashAutoDiag" class="dash-auto-diag dash-zone-tools" aria-label="おまかせ診断"></section>
 
-          <section class="dash-panel dash-url-cards-panel dash-zone-danger" aria-label="コマンド履歴">
-            <div class="dash-panel-head">
-              <div>
-                <p class="dash-mini-kicker">Command History</p>
-                <h3>📋 コマンド確認履歴</h3>
+          <details class="dash-fold dash-zone-danger" open aria-label="コマンド履歴">
+            <summary class="dash-fold-summary">
+              <div class="dash-panel-head">
+                <div>
+                  <p class="dash-mini-kicker">Command History</p>
+                  <h3>📋 コマンド確認履歴</h3>
+                </div>
               </div>
-            </div>
-            <div id="dashCmdCardList">
+            </summary>
+            <div id="dashCmdCardList" class="dash-fold-body">
               <p class="muted" style="padding:1.5rem;text-align:center">まだコマンド履歴はありません。エージェントが作業を始めるとここに表示されます。</p>
             </div>
-          </section>
+          </details>
 
-          <section class="dash-panel dash-command-center dash-zone-tools" aria-label="ダッシュボード操作盤">
-            <div class="dash-panel-head">
-              <div>
-                <p class="dash-mini-kicker">Command Center</p>
-                <h3>ここから主要機能を実行</h3>
+          <details class="dash-fold dash-zone-tools" open aria-label="ダッシュボード操作盤">
+            <summary class="dash-fold-summary">
+              <div class="dash-panel-head">
+                <div>
+                  <p class="dash-mini-kicker">Command Center</p>
+                  <h3>ここから主要機能を実行</h3>
+                </div>
+                <span class="dash-readonly-badge">read-only / local only</span>
               </div>
-              <span class="dash-readonly-badge">read-only / local only</span>
-            </div>
+            </summary>
+            <div class="dash-fold-body">
 
             <div class="dash-ops-grid">
               <div class="dash-op-card dash-op-primary">
@@ -187,26 +196,31 @@
 
           <div class="dash-layout">
             <div class="dash-main-column">
-              <section class="dash-panel dash-url-panel dash-zone-url">
-                <div class="dash-panel-head">
-                  <div>
-                    <p class="dash-mini-kicker">Browser Handoff</p>
-                    <h3>🔗 URLカード — エージェントからの共有</h3>
+              <details class="dash-fold dash-zone-url" open aria-label="URLカード">
+                <summary class="dash-fold-summary">
+                  <div class="dash-panel-head">
+                    <div>
+                      <p class="dash-mini-kicker">Browser Handoff</p>
+                      <h3>🔗 URLカード — エージェントからの共有</h3>
+                    </div>
+                    <button class="dash-ghost-btn" data-tab="try" onclick="event.stopPropagation()">詳しく見る →</button>
                   </div>
-                  <button class="dash-ghost-btn" data-tab="try">詳しく見る →</button>
-                </div>
-                <div id="dashUrlCardList">
+                </summary>
+                <div id="dashUrlCardList" class="dash-fold-body">
                   <p class="muted dash-empty" data-i18n="dash.urlCardsEmpty">保留中のURLカードはありません。AIエージェントがURLを送ると、ここに表示されます。</p>
                 </div>
-              </section>
+              </details>
 
-              <section class="dash-panel dash-zone-supplement">
-                <div class="dash-panel-head">
-                  <div>
-                    <p class="dash-mini-kicker">Core Modules</p>
-                    <h3>主要モジュール（現在のステータス）</h3>
+              <details class="dash-fold dash-zone-supplement" open aria-label="主要モジュール">
+                <summary class="dash-fold-summary">
+                  <div class="dash-panel-head">
+                    <div>
+                      <p class="dash-mini-kicker">Core Modules</p>
+                      <h3>主要モジュール（現在のステータス）</h3>
+                    </div>
                   </div>
-                </div>
+                </summary>
+                <div class="dash-fold-body">
                 <div class="dash-module-grid">
                   <button class="dash-module-card" data-tab="try">
                     <span class="mod-icon">🔍</span>
@@ -271,7 +285,8 @@
                   <code>GET /api/port-owners</code><span>ポート一覧</span>
                   <code>GET /api/glossary</code><span>用語辞典</span>
                 </div>
-              </section>
+</div>
+              </details>
             </aside>
           </div>
         </div>

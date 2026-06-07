@@ -259,6 +259,62 @@ body {
 .dash-cmd-row-status.denied { color: #f85149; background: rgba(248,81,73,.08); }
 
 
+
+/* ── Dashboard Collapsible Sections ── */
+
+.dash-fold {
+  margin-bottom: 1rem;
+  border-radius: 10px;
+  overflow: hidden;
+}
+.dash-fold[open] { }
+.dash-fold-summary {
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+  padding: 0;
+}
+.dash-fold-summary::-webkit-details-marker { display: none; }
+.dash-fold-summary::marker { display: none; content: none; }
+.dash-fold-summary .dash-panel-head {
+  transition: background .15s;
+}
+.dash-fold-summary:hover .dash-panel-head {
+  background: rgba(255,255,255,.02);
+}
+/* Collapse indicator arrow */
+.dash-fold-summary::before {
+  content: '▸';
+  display: inline-block;
+  position: absolute;
+  right: .75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: .75rem;
+  color: var(--muted);
+  transition: transform .15s;
+  z-index: 1;
+}
+.dash-fold[open] > .dash-fold-summary::before {
+  transform: translateY(-50%) rotate(90deg);
+}
+.dash-fold-summary {
+  position: relative;
+}
+/* Override for sections without panel-head (stats, side cards) */
+.dash-fold-summary-mini {
+  padding: .5rem .75rem;
+  font-weight: 600; font-size: .82rem; color: var(--muted);
+  background: rgba(255,255,255,.02);
+  border-bottom: 1px solid var(--line);
+}
+.dash-fold-summary-mini::before {
+  right: .5rem; top: 50%;
+}
+.dash-fold-body {
+  /* inherits zone colors from parent details */
+}
+
 /* ── Dashboard Zone Colors (subtle left-border accents) ── */
 
 .dash-zone-danger {
