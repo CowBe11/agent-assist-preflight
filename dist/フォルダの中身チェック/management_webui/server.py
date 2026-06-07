@@ -598,7 +598,7 @@ _TOOL_SPECS = [
         "label": "PowerShell",
         "commands": ["powershell.exe", "pwsh", "powershell"],
         "windows_commands": ["powershell", "pwsh"],
-        "version_args": ["--version"],
+        "version_args": ["-Command", "$PSVersionTable.PSVersion.ToString()"],
         "beginner": "PowerShellはWindowsの命令画面です。Windows側のポートやアプリ確認に使うことがあります。",
         "agent": "WSLからWindows側を調べる時はpowershell.exeが入口になります。設定変更や停止コマンドは確認なしで実行しないでください。",
     },
@@ -629,10 +629,20 @@ def _short_output(text: str, limit: int = 160) -> str:
 
 def _run_version(command: str, args: list[str]) -> str:
     try:
-        proc = subprocess.run([command, *args], check=False, text=True, encoding="utf-8", errors="replace", capture_output=True, timeout=5)
+        proc = subprocess.run([command, *args], check=False, capture_output=True, timeout=5)
     except Exception:
         return ""
-    return _short_output(proc.stdout or proc.stderr)
+    raw = proc.stdout or proc.stderr
+    # Try common encodings — Windows tools often output cp932 on Japanese systems
+    for enc in ("utf-8", "utf-16", "cp932", "shift_jis"):
+        try:
+            decoded = raw.decode(enc)
+            if "\ufffd" not in decoded:
+                return _short_output(decoded)
+        except (UnicodeDecodeError, LookupError):
+            continue
+    # Last resort: replace undecodable bytes
+    return _short_output(raw.decode("utf-8", errors="replace"))
 
 
 def _find_local_command(commands: list[str]) -> dict:
