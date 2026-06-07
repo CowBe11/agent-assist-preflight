@@ -1719,15 +1719,19 @@ function renderAutoDiagnostic(data) {
     toolClass = 'info';
   }
   const toolLine = isJa
-    ? `${toolIcon} 基本道具: ${toolOk}/${toolTotal} がエージェント側で使えます`
-    : `${toolIcon} Basic tools: ${toolOk}/${toolTotal} available on agent side`;
+    ? (toolMissing.length > 0
+        ? `🛠️ 基本道具は ${toolOk}/${toolTotal} 揃っています。残り${toolMissing.length}つは必要に応じて確認すると安心です`
+        : `🛠️ 基本道具は ${toolOk}/${toolTotal} すべて揃っています`)
+    : (toolMissing.length > 0
+        ? `🛠️ ${toolOk}/${toolTotal} basic tools available. Check the remaining ${toolMissing.length} if your agent needs them`
+        : `🛠️ All ${toolOk}/${toolTotal} basic tools available`);
 
   // Build port status line
-  let portIcon = portExternal > 0 ? '⚠️' : '✅';
+  let portIcon = portExternal > 0 ? '🔌' : '✅';
   let portClass = portExternal > 0 ? 'warn' : 'ok';
   const portLine = isJa
-    ? `${portIcon} ポート: ${portCount}個がLISTEN中（うち${portExternal}個が外から見える可能性）`
-    : `${portIcon} Ports: ${portCount} listening (${portExternal} may be externally visible)`;
+    ? `${portIcon} ポートが開いています。AIエージェントが通信に使うことがあるので、必要に応じて確認してください`
+    : `${portIcon} Some ports are open. Your AI agent may use them for communication — review if needed`;
 
   // Build detail lines
   const detailLines = [];
@@ -1773,17 +1777,17 @@ function renderAutoDiagnostic(data) {
               const statusLabel = t.agent_can_use
                 ? (isJa ? '使えます' : 'Available')
                 : t.present
-                  ? (isJa ? '注意あり' : 'Caution')
-                  : (isJa ? '未検出' : 'Not found');
-              const agentNote = t.agent_can_use
-                ? (isJa ? 'AIエージェントが利用できる状態です' : 'Available for AI agent use')
+                  ? (isJa ? '要確認' : 'Check')
+                  : (isJa ? '未検出' : 'Missing');
+              const tooltip = t.agent_can_use
+                ? (isJa ? 'AIエージェントが利用できます' : 'Available for AI agent')
                 : t.present
-                  ? (isJa ? 'Windows側にはあります。WSLのエージェントからは使えないかもしれません' : 'On Windows side. May not be usable from WSL agent')
-                  : (isJa ? '見つかりませんでした。必要ならユーザーに確認してください' : 'Not found. Ask the user if needed');
+                  ? (isJa ? 'Windows側のみ。WSLエージェントからは使えないかも' : 'Windows only. May not work from WSL')
+                  : (isJa ? '見つかりません。必要ならインストールを検討' : 'Not found. Consider installing if needed');
               const version = t.version || '-';
               return `<div class="dash-auto-tool-row">
                 <span><strong>${escapeHtml(t.label)}</strong><br><small>${escapeHtml(t.beginner || '')}</small></span>
-                <span>${icon} ${statusLabel}<br><small>${agentNote}</small></span>
+                <span title="${escapeHtml(tooltip)}">${icon} ${statusLabel}</span>
                 <span><code>${escapeHtml(version)}</code></span>
               </div>`;
             }).join('')}
