@@ -1382,6 +1382,8 @@ function renderUrlCards(cards) {
   }).join('');
 }
 
+let _lastUrlCardCount = 0;
+
 async function fetchUrlCards() {
   try {
     const res = await fetch('/api/url-cards');
@@ -1390,13 +1392,15 @@ async function fetchUrlCards() {
       renderUrlCards(data.cards);
       renderDashboardUrlCards(data.cards);
     }
-    // Auto-scroll to URL cards when they arrive (only on dashboard tab)
-    if (data.ok && data.cards && data.cards.length > 0 && state.activeTab === 'dashboard') {
+    const newCount = (data.ok && data.cards) ? data.cards.length : 0;
+    // Auto-scroll to URL cards only when new cards arrive (not on every poll)
+    if (newCount > _lastUrlCardCount && state.activeTab === 'dashboard') {
       const target = document.getElementById('dashUrlCardList');
       if (target) {
         setTimeout(() => target.scrollIntoView({behavior: 'smooth', block: 'start'}), 200);
       }
     }
+    _lastUrlCardCount = newCount;
     // Toggle info text: show when no cards, hide when cards exist
     const info = document.getElementById('urlCardInfo');
     if (info) {
