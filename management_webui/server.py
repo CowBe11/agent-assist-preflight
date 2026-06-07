@@ -883,6 +883,8 @@ def scan_auto_diagnostic(lang: str = "ja") -> dict:
             "present": t["present"],
             "agent_can_use": t["agent_can_use"],
             "beginner": t["beginner_explanation"],
+            "version": t.get("current_side", {}).get("version", ""),
+            "run_command": t.get("run_command", ""),
         })
 
     # Simplify ports for dashboard display

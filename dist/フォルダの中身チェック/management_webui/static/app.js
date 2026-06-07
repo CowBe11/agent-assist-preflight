@@ -1761,6 +1761,27 @@ function renderAutoDiagnostic(data) {
         ${runningSide === 'wsl' ? `<div class="dash-auto-side">${isJa ? 'ℹ️ WSL環境で動作中 — Windows側とWSL側で道具が違うことがあります' : 'ℹ️ Running in WSL — tools may differ between sides'}</div>` : ''}
         <details class="dash-auto-summary-wrap">
           <summary class="dash-auto-summary-toggle">${isJa ? '詳しく見る' : 'Details'}</summary>
+          <div class="dash-auto-tools-table">
+            <div class="dash-auto-tools-header">
+              <span>${isJa ? '道具' : 'Tool'}</span>
+              <span>${isJa ? '状態' : 'Status'}</span>
+              <span>${isJa ? 'バージョン' : 'Version'}</span>
+            </div>
+            ${tools.map(t => {
+              const icon = t.agent_can_use ? '✅' : t.present ? '💡' : '❌';
+              const statusLabel = t.agent_can_use
+                ? (isJa ? 'エージェント側OK' : 'OK on agent')
+                : t.present
+                  ? (isJa ? 'Windows側のみ' : 'Windows only')
+                  : (isJa ? '未検出' : 'Not found');
+              const version = t.version || '-';
+              return `<div class="dash-auto-tool-row">
+                <span><strong>${escapeHtml(t.label)}</strong><br><small>${escapeHtml(t.beginner || '')}</small></span>
+                <span>${icon} ${statusLabel}</span>
+                <span><code>${escapeHtml(version)}</code></span>
+              </div>`;
+            }).join('')}
+          </div>
           <pre class="dash-auto-summary-text">${escapeHtml(summary)}</pre>
         </details>
       </div>
@@ -1780,8 +1801,6 @@ function refreshDashboard() {
     if (el) el.textContent = Object.keys(data).length;
   }).catch(() => {});
 
-  fetchAutoDiagnostic().catch(() => {});
-  fetchCheckCommands().catch(() => {});
   fetch('/api/url-cards').then(r => r.json()).then(data => {
     const el = document.getElementById('dashUrlCardsCount');
     if (el && data.ok) {
@@ -2541,4 +2560,7 @@ $('candidatesFilters')?.addEventListener('click', (event) => {
   setLang(currentLang);
   // Load pending URL cards
   fetchUrlCards();
+  // One-time auto-diagnostic on boot (not on every poll)
+  fetchAutoDiagnostic().catch(() => {});
+  fetchCheckCommands().catch(() => {});
 })();

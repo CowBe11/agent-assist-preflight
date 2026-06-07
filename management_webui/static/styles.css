@@ -181,6 +181,20 @@ body {
   line-height: 1.5; white-space: pre-wrap; background: rgba(0,0,0,.15);
   padding: .5rem; border-radius: 6px;
 }
+.dash-auto-tools-table { margin-bottom: .5rem; }
+.dash-auto-tools-header {
+  display: grid; grid-template-columns: 1fr 140px 100px; gap: .5rem;
+  padding: .3rem .5rem; font-size: .7rem; color: var(--muted);
+  font-weight: 600; text-transform: uppercase; letter-spacing: .05em;
+  border-bottom: 1px solid var(--line);
+}
+.dash-auto-tool-row {
+  display: grid; grid-template-columns: 1fr 140px 100px; gap: .5rem;
+  padding: .4rem .5rem; font-size: .78rem; border-bottom: 1px solid rgba(255,255,255,.03);
+  align-items: center;
+}
+.dash-auto-tool-row:last-child { border-bottom: none; }
+.dash-auto-tool-row small { font-size: .68rem; color: var(--muted); }
 .dash-auto-foot {
   padding: .5rem 1rem; font-size: .72rem;
   border-top: 1px solid var(--line, #303846); text-align: center;
