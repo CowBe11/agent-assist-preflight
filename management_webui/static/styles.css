@@ -128,6 +128,67 @@ body {
 .url-card-dismiss { color: #6b7280; }
 .url-card-dismiss:hover { background: #f3f4f6; }
 
+/* ── Auto Diagnostic (dashboard auto-load card) ── */
+
+.dash-auto-diag { margin-bottom: 1.5rem; }
+.dash-auto-card {
+  background: var(--panel, #151b23);
+  border: 1px solid var(--line, #303846);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.dash-auto-card.warn { border-left: 3px solid #f0a040; }
+.dash-auto-card.info { border-left: 3px solid var(--accent-2, #b48cff); }
+.dash-auto-card.ok { border-left: 3px solid #3fb950; }
+.dash-auto-head {
+  display: flex; align-items: center; gap: .5rem;
+  padding: .75rem 1rem;
+  background: rgba(255,255,255,.03);
+  border-bottom: 1px solid var(--line, #303846);
+}
+.dash-auto-title { font-weight: 700; font-size: .95rem; flex: 1; }
+.dash-auto-badge {
+  font-size: .7rem; padding: 2px 8px; border-radius: 999px;
+  background: rgba(255,255,255,.06); color: var(--muted);
+}
+.dash-auto-refresh {
+  background: none; border: none; color: var(--muted); cursor: pointer;
+  font-size: .9rem; padding: 2px 6px; border-radius: 6px;
+}
+.dash-auto-refresh:hover { background: rgba(255,255,255,.06); }
+.dash-auto-body { padding: .75rem 1rem; }
+.dash-auto-line { padding: .35rem 0; font-size: .875rem; font-weight: 600; }
+.dash-auto-line.ok { color: #3fb950; }
+.dash-auto-line.warn { color: #f0a040; }
+.dash-auto-line.info { color: var(--accent-2, #b48cff); }
+.dash-auto-detail {
+  display: flex; flex-wrap: wrap; gap: .5rem;
+  margin-top: .5rem; font-size: .8rem; color: var(--muted);
+}
+.dash-auto-detail span {
+  background: rgba(255,255,255,.04); border-radius: 6px; padding: 2px 8px;
+}
+.dash-auto-side {
+  margin-top: .5rem; font-size: .78rem; color: var(--muted);
+  padding: .35rem .5rem; background: rgba(255,255,255,.02); border-radius: 6px;
+}
+.dash-auto-summary-wrap { margin-top: .5rem; }
+.dash-auto-summary-toggle {
+  font-size: .78rem; color: var(--accent, #7cc2ff); cursor: pointer;
+}
+.dash-auto-summary-text {
+  margin-top: .4rem; font-size: .75rem; color: var(--muted);
+  line-height: 1.5; white-space: pre-wrap; background: rgba(0,0,0,.15);
+  padding: .5rem; border-radius: 6px;
+}
+.dash-auto-foot {
+  padding: .5rem 1rem; font-size: .72rem;
+  border-top: 1px solid var(--line, #303846); text-align: center;
+}
+.dash-auto-loading {
+  text-align: center; padding: 1rem; color: var(--muted); font-size: .85rem;
+}
+
 /* ── main / panels ── */
 #mainContent {
   max-width: 52rem;

@@ -235,6 +235,11 @@ The agent asks. The user reviews. The user decides.
 - Secret sending prevention
   - stronger detection for `.env`, API keys, SSH keys, OAuth tokens, billing, and payment references
 
+**Future exploration:**
+
+- Command confirmation card (`POST /api/check-command`)
+  - Same mechanism as URL cards: the agent notifies "I'm about to run this command." The user can tap "What does this mean?" for inline glossary lookup, then allow or deny. Phase 1: in-WebUI explanation, Phase 2: copy-paste question generation, Phase 3: agent callback (requires ecosystem support).
+
 **Additional planned improvements:**
 
 - more CLI error patterns: pip, cargo, docker, systemctl

@@ -700,6 +700,106 @@ def scan_port_owners() -> dict:
     }
 
 
+# ---------------------------------------------------------------------------
+# Auto Diagnostic — one-touch environment scan for the dashboard
+# ---------------------------------------------------------------------------
+
+def scan_auto_diagnostic(lang: str = "ja") -> dict:
+    """Run tools + ports checks in one call. Designed for dashboard auto-load."""
+    tools_result = scan_basic_tools()
+    ports_result = scan_port_owners()
+
+    # Simplify tools for dashboard display
+    tools_compact = []
+    for t in tools_result.get("tools", []):
+        tools_compact.append({
+            "label": t["label"],
+            "id": t["id"],
+            "status": t["status"],
+            "present": t["present"],
+            "agent_can_use": t["agent_can_use"],
+            "beginner": t["beginner_explanation"],
+        })
+
+    # Simplify ports for dashboard display
+    ports_compact = []
+    for p in ports_result.get("ports", []):
+        ports_compact.append({
+            "port": p["port"],
+            "process": p["process_name"],
+            "visibility": p["visibility"],
+            "is_known": p["is_known"],
+            "is_self": p["is_self"],
+            "description": p["description"],
+        })
+
+    # Build a beginner-friendly summary
+    running_side = tools_result.get("running_side", "current")
+    tool_ok = sum(1 for t in tools_compact if t["agent_can_use"])
+    tool_total = len(tools_compact)
+    tool_missing = [t["label"] for t in tools_compact if not t["agent_can_use"]]
+    tool_win_only = [t["label"] for t in tools_compact if t["status"] == "windows_only"]
+
+    port_count = ports_result.get("total", 0)
+    port_external = ports_result.get("external_count", 0)
+    port_unknown = sum(1 for p in ports_compact if not p["is_known"] and not p["is_self"])
+
+    summary_ja_lines = []
+    summary_en_lines = []
+
+    # Title
+    summary_ja_lines.append("起動時おまかせ診断を読み取り専用で実行しました。")
+    summary_en_lines.append("Startup auto-diagnostic completed in read-only mode.")
+
+    # Tools
+    if tool_missing:
+        summary_ja_lines.append(f"⚠️ エージェント側で見つからない道具: {', '.join(tool_missing)}")
+        summary_en_lines.append(f"⚠️ Tools not found on agent side: {', '.join(tool_missing)}")
+    if tool_win_only:
+        summary_ja_lines.append(f"💡 Windows側だけにある道具（WSLエージェントから使えないかも）: {', '.join(tool_win_only)}")
+        summary_en_lines.append(f"💡 Tools on Windows only (may not be usable from WSL agent): {', '.join(tool_win_only)}")
+    if tool_ok == tool_total:
+        summary_ja_lines.append("✅ 基本道具はすべてエージェント側で使えます。")
+        summary_en_lines.append("✅ All basic tools are available on the agent side.")
+
+    # Ports
+    if port_external > 0:
+        summary_ja_lines.append(f"⚠️ {port_external}個のポートが外から見える状態です。")
+        summary_en_lines.append(f"⚠️ {port_external} ports may be externally visible.")
+    else:
+        summary_ja_lines.append("✅ 外から見えるポートはありません。")
+        summary_en_lines.append("✅ No externally visible ports found.")
+
+    if port_unknown > 0:
+        summary_ja_lines.append(f"🔍 用途不明のポートが{port_unknown}個あります。")
+        summary_en_lines.append(f"🔍 {port_unknown} unidentified ports are listening.")
+
+    # Running side
+    if running_side == "wsl":
+        summary_ja_lines.append("ℹ️ WSL環境で動作しています。Windows側とWSL側で道具が違うことがあります。")
+        summary_en_lines.append("ℹ️ Running in WSL. Tools may differ between Windows and WSL sides.")
+
+    summary_ja_lines.append("不足があっても、この画面はインストールや設定変更を行いません。")
+    summary_en_lines.append("Even if tools are missing, this tool does not install or change settings.")
+
+    return {
+        "ok": True,
+        "running_side": running_side,
+        "tools": tools_compact,
+        "ports": ports_compact,
+        "tool_ok": tool_ok,
+        "tool_total": tool_total,
+        "tool_missing": tool_missing,
+        "tool_win_only": tool_win_only,
+        "port_count": port_count,
+        "port_external": port_external,
+        "port_unknown": port_unknown,
+        "summary": "\n".join(summary_ja_lines if lang == "ja" else summary_en_lines),
+        "summary_ja": "\n".join(summary_ja_lines),
+        "summary_en": "\n".join(summary_en_lines),
+    }
+
+
 class Handler(BaseHTTPRequestHandler):
     server_version = "AgentAssistManagementWebUI/0.1"
 
@@ -762,6 +862,7 @@ class Handler(BaseHTTPRequestHandler):
                 "POST /api/url-card": {"description": "Send a URL to the user as a browser handoff card. The user sees the URL with a reason and can choose to open, copy, or dismiss. Never auto-opens.", "body": {"url": "http/https URL to share", "reason": "why the agent wants the user to open this (shown to user)"}, "agent_hint": "Use this instead of trying to open a browser directly. Safer and works across WSL/Windows. Blocked: javascript:, data:, file:."},
                 "GET /api/url-cards": {"description": "List pending URL handoff cards (not yet opened/dismissed by user)."},
                 "POST /api/url-card/<id>": {"description": "Update URL card status.", "body": {"status": "opened|copied|dismissed"}},
+                "GET /api/auto-diagnostic": {"description": "One-touch environment scan (tools + ports). Runs on dashboard load — no user action needed.", "params": {"lang": "ja (default) or en"}, "agent_hint": "Run this on first contact to understand the machine state."},
             },
             "agent_workflow": {
                 "recommended_first_steps": [
@@ -877,6 +978,10 @@ class Handler(BaseHTTPRequestHandler):
                         s = s.replace(ja, en)
                     result["summary"] = s
             self.send_json(result)
+            return
+        if parsed.path == "/api/auto-diagnostic":
+            lang = self._get_lang(parsed)
+            self.send_json(scan_auto_diagnostic(lang))
             return
         if parsed.path == "/api/url-cards":
             cards = read_url_cards()

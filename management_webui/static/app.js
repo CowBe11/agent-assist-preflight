@@ -1638,6 +1638,97 @@ function bindDashboardControls() {
   renderDashboardGlossary();
 }
 
+
+// ── Auto Diagnostic (loads on dashboard open, no user action needed) ──
+
+async function fetchAutoDiagnostic() {
+  const el = document.getElementById('dashAutoDiag');
+  if (!el) return;
+  el.innerHTML = `<div class="dash-auto-loading">🔍 ${currentLang === 'ja' ? '環境を診断中...' : 'Checking your environment...'}</div>`;
+  try {
+    const data = await fetchJson('/api/auto-diagnostic');
+    renderAutoDiagnostic(data);
+  } catch (err) {
+    el.innerHTML = `<div class="dash-auto-card warn"><strong>${currentLang === 'ja' ? '診断に失敗しました' : 'Diagnostic failed'}</strong><p class="muted">${escapeHtml(err.message || String(err))}</p></div>`;
+  }
+}
+
+function renderAutoDiagnostic(data) {
+  const el = document.getElementById('dashAutoDiag');
+  if (!el) return;
+
+  const isJa = currentLang === 'ja';
+  const tools = data.tools || [];
+  const toolOk = data.tool_ok || 0;
+  const toolTotal = data.tool_total || 0;
+  const toolMissing = data.tool_missing || [];
+  const toolWinOnly = data.tool_win_only || [];
+  const portCount = data.port_count || 0;
+  const portExternal = data.port_external || 0;
+  const portUnknown = data.port_unknown || 0;
+  const runningSide = data.running_side || 'current';
+  const summary = data.summary || '';
+
+  // Build tool status line
+  let toolIcon = '✅';
+  let toolClass = 'ok';
+  if (toolMissing.length > 0 && toolOk < toolTotal - 1) {
+    toolIcon = '⚠️';
+    toolClass = 'warn';
+  } else if (toolMissing.length > 0) {
+    toolIcon = '💡';
+    toolClass = 'info';
+  }
+  const toolLine = isJa
+    ? `${toolIcon} 基本道具: ${toolOk}/${toolTotal} がエージェント側で使えます`
+    : `${toolIcon} Basic tools: ${toolOk}/${toolTotal} available on agent side`;
+
+  // Build port status line
+  let portIcon = portExternal > 0 ? '⚠️' : '✅';
+  let portClass = portExternal > 0 ? 'warn' : 'ok';
+  const portLine = isJa
+    ? `${portIcon} ポート: ${portCount}個がLISTEN中（うち${portExternal}個が外から見える可能性）`
+    : `${portIcon} Ports: ${portCount} listening (${portExternal} may be externally visible)`;
+
+  // Build detail lines
+  const detailLines = [];
+  if (toolMissing.length > 0) {
+    detailLines.push(isJa
+      ? `エージェント側にない道具: ${toolMissing.join(', ')}`
+      : `Not on agent side: ${toolMissing.join(', ')}`);
+  }
+  if (toolWinOnly.length > 0) {
+    detailLines.push(isJa
+      ? `Windows側だけ: ${toolWinOnly.join(', ')}`
+      : `Windows only: ${toolWinOnly.join(', ')}`);
+  }
+  if (portUnknown > 0) {
+    detailLines.push(isJa
+      ? `用途不明のポートが${portUnknown}個`
+      : `${portUnknown} unidentified ports`);
+  }
+
+  el.innerHTML = `
+    <div class="dash-auto-card ${toolClass}">
+      <div class="dash-auto-head">
+        <span class="dash-auto-title">${isJa ? '🧰 おまかせ診断' : '🧰 Auto Diagnostic'}</span>
+        <span class="dash-auto-badge">${isJa ? '起動時に自動実行' : 'auto-run on load'}</span>
+        <button type="button" class="dash-auto-refresh" onclick="fetchAutoDiagnostic()" title="${isJa ? '再診断' : 'Re-check'}">🔄</button>
+      </div>
+      <div class="dash-auto-body">
+        <div class="dash-auto-line ${toolClass}">${toolLine}</div>
+        <div class="dash-auto-line ${portClass}">${portLine}</div>
+        ${detailLines.length ? `<div class="dash-auto-detail">${detailLines.map(l => `<span>${escapeHtml(l)}</span>`).join('')}</div>` : ''}
+        ${runningSide === 'wsl' ? `<div class="dash-auto-side">${isJa ? 'ℹ️ WSL環境で動作中 — Windows側とWSL側で道具が違うことがあります' : 'ℹ️ Running in WSL — tools may differ between sides'}</div>` : ''}
+        <details class="dash-auto-summary-wrap">
+          <summary class="dash-auto-summary-toggle">${isJa ? '詳しく見る' : 'Details'}</summary>
+          <pre class="dash-auto-summary-text">${escapeHtml(summary)}</pre>
+        </details>
+      </div>
+      <div class="dash-auto-foot muted">${isJa ? '読み取り専用・インストールや設定変更は行いません' : 'Read-only — does not install or change settings'}</div>
+    </div>`;
+}
+
 function refreshDashboard() {
   // Update stats
   fetch('/api/glossary').then(r => r.json()).then(data => {
@@ -1650,6 +1741,7 @@ function refreshDashboard() {
     if (el) el.textContent = Object.keys(data).length;
   }).catch(() => {});
 
+  fetchAutoDiagnostic().catch(() => {});
   fetch('/api/url-cards').then(r => r.json()).then(data => {
     const el = document.getElementById('dashUrlCardsCount');
     if (el && data.ok) {

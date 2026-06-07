@@ -242,6 +242,11 @@ POST /api/url-card { url, reason }
 - Secret sending prevention
   - `.env`、API keys、SSH keys、OAuth tokens、billing / payment references の検出強化
 
+**将来的な検討:**
+
+- コマンド確認カード（`POST /api/check-command`）
+  - URLカードと同じ仕組みで、エージェントが「これからこのコマンドを実行します」と通知。ユーザーは「どういう意味？」ボタンでその場で用語解説を見てから許可/拒否を選べる。段階1: WebUI内説明、段階2: コピペ用質問文生成、段階3: エージェントコールバック（エコシステム対応待ち）。
+
 **その他の予定:**
 
 - pip・cargo・docker・systemctl のCLIエラーパターン追加
