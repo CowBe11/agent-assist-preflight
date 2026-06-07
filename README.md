@@ -53,6 +53,8 @@ The WebUI shows a URL card. You read the reason, then choose:
 - **Copy URL**
 - **Ignore**
 
+![URL card — the agent asks, you decide](docs/assets/url-card-preview.png)
+
 ```text
 Agent → local API → URL card → you decide → browser opens only if you approve
 ```
