@@ -1390,6 +1390,13 @@ async function fetchUrlCards() {
       renderUrlCards(data.cards);
       renderDashboardUrlCards(data.cards);
     }
+    // Auto-scroll to URL cards when they arrive (only on dashboard tab)
+    if (data.ok && data.cards && data.cards.length > 0 && state.activeTab === 'dashboard') {
+      const target = document.getElementById('dashUrlCardList');
+      if (target) {
+        setTimeout(() => target.scrollIntoView({behavior: 'smooth', block: 'start'}), 200);
+      }
+    }
     // Toggle info text: show when no cards, hide when cards exist
     const info = document.getElementById('urlCardInfo');
     if (info) {
