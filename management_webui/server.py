@@ -26,6 +26,7 @@ STATIC_ROOT = WEB_ROOT / "static"
 DATA_ROOT = WEB_ROOT / "data"
 COMMENTS_PATH = DATA_ROOT / "review_comments.json"
 URL_CARDS_PATH = DATA_ROOT / "url_cards.json"
+COMMAND_CARDS_PATH = DATA_ROOT / "command_cards.json"
 CANDIDATES_PATH = DATA_ROOT / "glossary_candidates.json"
 
 GLOSSARY = {
@@ -254,6 +255,169 @@ def next_url_card_id(cards: list[dict]) -> str:
         if cid.startswith("u") and cid[1:].isdigit():
             nums.append(int(cid[1:]))
     return f"u{(max(nums) if nums else 0) + 1:04d}"
+
+# ── Command Confirmation Cards ──
+
+_MAX_COMMAND_CARDS = 20
+
+def read_command_cards() -> list[dict]:
+    if not COMMAND_CARDS_PATH.exists():
+        write_json(COMMAND_CARDS_PATH, [])
+    try:
+        data = json.loads(COMMAND_CARDS_PATH.read_text(encoding="utf-8"))
+    except json.JSONDecodeError:
+        data = []
+    return data if isinstance(data, list) else []
+
+def next_command_card_id(cards: list[dict]) -> str:
+    nums = []
+    for item in cards:
+        cid = str(item.get("id", ""))
+        if cid.startswith("cmd") and cid[1:].isdigit():
+            nums.append(int(cid[1:]))
+    return f"cmd{(max(nums) if nums else 0) + 1:04d}"
+
+# ── Risk assessment for command confirmation ──
+
+# Low-risk patterns: read-only, informational commands
+_LOW_RISK_PATTERNS = [
+    r'^git\s+(status|log|diff|branch|stash\s+list|remote\s+-v|config\s+--list)$',
+    r'^(python|python3)\s+--version$',
+    r'^(node|npm)\s+(-v|--version)$',
+    r'^pip\s+(show|list|freeze)',
+    r'^(ls|dir)\b',
+    r'^pwd$', r'^cd\b', r'^echo\b',
+    r'^(whoami|hostname|date|which|where|type)\b',
+    r'^(cat|head|tail)\s+(?!.*\.env|.*secret|.*token|.*credential|.*password|.*key\b)',
+    r'^(wc|du|df)\b',
+]
+
+# High-risk patterns: destructive, privilege escalation, remote execution
+_HIGH_RISK_PATTERNS = [
+    r'\brm\s+.*-r[^a-z]*f',    # rm -rf
+    r'\bdel\s+/[sq]',           # Windows destructive
+    r'Remove-Item\s+.*-Recurse',  # PowerShell destructive
+    r'\bsudo\b',
+    r'\bcurl\b.*\|\s*(ba)?sh',    # curl | sh
+    r'\bwget\b.*\|\s*(ba)?sh',    # wget | sh
+    r'\bchmod\s+.*777\b',
+    r'\bchmod\s+-R\b',
+    r'\bgit\s+reset\s+--hard\b',
+    r'\bgit\s+clean\s+-fd\b',
+    r'\bgit\s+push\s+.*--force\b',
+    r'\b(\$HOME|~/\.ssh|~/\.env|/etc/)\b',
+    r'\bdocker\s+rm\b',
+    r'\bdocker\s+system\s+prune\b',
+    r'\bnpm\s+(unpublish|deprecate)\b',
+    r'\bDROP\s+(TABLE|DATABASE)\b',
+    r'\bDELETE\s+FROM\b',
+]
+
+def _matches_any(cmd: str, patterns: list[str]) -> bool:
+    import re as _re
+    for p in patterns:
+        if _re.search(p, cmd, _re.IGNORECASE):
+            return True
+    return False
+
+def assess_command_risk(command: str, reason: str = "", lang: str = "ja") -> dict:
+    """Assess command risk and return structured guidance. Read-only — no execution."""
+    cmd = command.strip()
+
+    # Check high-risk first
+    if _matches_any(cmd, _HIGH_RISK_PATTERNS):
+        risk = "high"
+        summary_ja = "⚠️ 危険な操作です。削除・権限変更・リモート実行の可能性があります。続ける前に必ず確認してください。"
+        summary_en = "⚠️ Dangerous operation. May delete files, change permissions, or execute remote code. Must be reviewed before continuing."
+        ok_to_continue = False
+        user_attention = "required"
+    elif _matches_any(cmd, _LOW_RISK_PATTERNS):
+        risk = "low"
+        summary_ja = "読み取り専用または情報確認のコマンドです。安全です。"
+        summary_en = "Read-only or informational command. Safe."
+        ok_to_continue = True
+        user_attention = "none"
+    else:
+        risk = "medium"
+        summary_ja = "ファイルやパッケージを変更する可能性があるコマンドです。一度確認することをおすすめします。"
+        summary_en = "May modify files or packages. Review recommended."
+        ok_to_continue = True
+        user_attention = "optional"
+
+    # More detailed summaries for specific command types
+    if "pip install" in cmd.lower():
+        summary_ja = "Pythonのパッケージをインターネットからダウンロードしてインストールします。"
+        summary_en = "Downloads and installs a Python package from the internet."
+    elif "npm install" in cmd.lower() or "npm i " in cmd.lower():
+        summary_ja = "Node.jsのパッケージをインストールします。package.jsonに依存関係が追加されます。"
+        summary_en = "Installs Node.js packages. Dependencies are added to package.json."
+    elif "git pull" in cmd.lower():
+        summary_ja = "リモートリポジトリから最新の変更を取得してマージします。"
+        summary_en = "Fetches and merges the latest changes from the remote repository."
+    elif "git push" in cmd.lower():
+        summary_ja = "ローカルのコミットをリモートリポジトリに送信します。"
+        summary_en = "Pushes local commits to the remote repository."
+    elif "python" in cmd.lower() and cmd.lower().endswith(".py"):
+        summary_ja = "Pythonスクリプトを実行します。スクリプトの内容によってはファイル作成やネットワーク通信が発生します。"
+        summary_en = "Runs a Python script. May create files or access network depending on content."
+    elif "git status" in cmd.lower():
+        risk = "low"; summary_ja = "現在の変更状態を表示するだけの安全なコマンドです。"; summary_en = "Shows current change status only. Safe."
+        ok_to_continue = True; user_attention = "none"
+    elif "npm run dev" in cmd.lower() or "npm start" in cmd.lower():
+        risk = "medium"
+        summary_ja = "開発サーバーを起動します。ローカルポートを使用し、ネットワークアクセスが発生することがあります。"
+        summary_en = "Starts a development server. Will use local ports and may access the network."
+
+    return {
+        "risk": risk,
+        "summary": summary_ja if lang == "ja" else summary_en,
+        "summary_ja": summary_ja,
+        "summary_en": summary_en,
+        "ok_to_continue": ok_to_continue,
+        "user_attention": user_attention,
+    }
+
+def explain_command(command: str, lang: str = "ja") -> str:
+    """Return a beginner-friendly explanation using glossary-like keyword parsing."""
+    cmd_lower = command.lower().strip()
+    parts = []
+    for keyword, (ja_desc, en_desc) in [
+        ("pip", ("pipはPythonのパッケージ管理ツールです。インターネットからPythonの部品をダウンロードしてインストールします。", "pip is Python's package manager. It downloads and installs Python components from the internet.")),
+        ("install", ("install（インストール）は、新しいソフトウェアや部品をあなたのPCに追加することです。", "install means adding new software or components to your PC.")),
+        ("npm", ("npmはNode.js用のパッケージ管理ツールです。npm installで部品を追加します。", "npm is Node.js's package manager. npm install adds components.")),
+        ("sudo", ("sudoは管理者権限でコマンドを実行します。システム全体に影響する可能性があるので注意が必要です。", "sudo runs commands with administrator privileges. It can affect the entire system, so be careful.")),
+        ("curl", ("curlはインターネットからデータをダウンロードするコマンドです。curl | sh のようにパイプで実行する形は特に注意が必要です。", "curl downloads data from the internet. Be especially careful with curl | sh patterns.")),
+        ("git", ("gitはファイルの変更履歴を管理するツールです。cloneでコピー、pullで更新、commitで保存します。", "git manages file change history. clone copies, pull updates, commit saves.")),
+        ("docker", ("dockerはアプリを小さな箱（コンテナ）の中で動かすツールです。ポート公開やフォルダ共有に注意。", "docker runs apps in small containers. Watch for port exposure and folder sharing.")),
+        ("chmod", ("chmodはファイルの権限を変更するコマンドです。+xで実行可能にします。", "chmod changes file permissions. +x makes a file executable.")),
+        ("rm", ("rmはファイルやフォルダを削除するコマンドです。-rfをつけると強制的に削除します。取り消せません。", "rm deletes files and folders. -rf forces deletion. This cannot be undone.")),
+        ("wget", ("wgetはcurlと同じく、インターネットからファイルをダウンロードするコマンドです。", "wget, like curl, downloads files from the internet.")),
+    ]:
+        if keyword in cmd_lower:
+            parts.append(ja_desc if lang == "ja" else en_desc)
+    if not parts:
+        return (
+            "このコマンドについてはまだ詳しい説明がありません。実行前に、何をするコマンドか調べてみてください。"
+            if lang == "ja" else
+            "We don't have a detailed explanation for this command yet. Please look up what it does before running it."
+        )
+    return "\n\n".join(parts)
+
+# ── Command card mode config ──
+
+COMMAND_MODE_PATH = DATA_ROOT / "command_card_mode.json"
+_DEFAULT_MODE = "smart"
+_VALID_MODES = ("silent", "smart", "strict", "off")
+
+def read_command_mode() -> str:
+    if COMMAND_MODE_PATH.exists():
+        try:
+            data = json.loads(COMMAND_MODE_PATH.read_text(encoding="utf-8"))
+            mode = str(data.get("mode", _DEFAULT_MODE))
+            return mode if mode in _VALID_MODES else _DEFAULT_MODE
+        except (json.JSONDecodeError, KeyError):
+            pass
+    return _DEFAULT_MODE
 
 def next_comment_id(comments: list[dict]) -> str:
     nums = []
@@ -863,6 +1027,7 @@ class Handler(BaseHTTPRequestHandler):
                 "GET /api/url-cards": {"description": "List pending URL handoff cards (not yet opened/dismissed by user)."},
                 "POST /api/url-card/<id>": {"description": "Update URL card status.", "body": {"status": "opened|copied|dismissed"}},
                 "GET /api/auto-diagnostic": {"description": "One-touch environment scan (tools + ports). Runs on dashboard load — no user action needed.", "params": {"lang": "ja (default) or en"}, "agent_hint": "Run this on first contact to understand the machine state."},
+                "POST /api/check-command": {"description": "Ask the user to confirm a command before running. Returns risk level, summary, and whether WebUI review is required. Low-risk commands pass through; high-risk commands require user approval in WebUI.", "body": {"command": "the shell command to run", "reason": "why the agent wants to run this"}, "agent_hint": "Call this before running any command with side effects. Check ok_to_continue — if false, wait for user to approve via the card_url before executing. If true, you may proceed (but the user can still review later)."},                "GET /api/check-commands": {"description": "List all command confirmation cards sorted by risk (high first, then newest)."},                "GET /api/check-commands/pending": {"description": "List only high-risk pending command cards that require user attention."},                "GET /api/command-card-mode": {"description": "Get current command card mode (silent/smart/strict/off)."},                "POST /api/command-card-mode": {"description": "Set command card mode.", "body": {"mode": "silent|smart|strict|off"}},
             },
             "agent_workflow": {
                 "recommended_first_steps": [
@@ -989,6 +1154,39 @@ class Handler(BaseHTTPRequestHandler):
             pending = [c for c in cards if c.get("status") == "pending"]
             self.send_json({"ok": True, "cards": pending})
             return
+        if parsed.path == "/api/check-commands":
+            cards = read_command_cards()
+            # Sort: high-risk first, then by recency
+            risk_order = {"high": 0, "medium": 1, "low": 2}
+            sorted_cards = sorted(cards, key=lambda c: (risk_order.get(c.get("risk", "low"), 99), c.get("created_at", ""),), reverse=False)
+            # First sort by risk priority, then within same risk by newest first
+            # Simpler: high first, rest by time
+            high = [c for c in cards if c.get("risk") == "high"]
+            rest = [c for c in cards if c.get("risk") != "high"]
+            # Sort each group by newest first
+            high.sort(key=lambda c: c.get("created_at", ""), reverse=True)
+            rest.sort(key=lambda c: c.get("created_at", ""), reverse=True)
+            self.send_json({"ok": True, "cards": high + rest, "high_risk_count": len(high), "total": len(cards)})
+            return
+        if parsed.path == "/api/check-commands/pending":
+            cards = read_command_cards()
+            pending_high = [c for c in cards if c.get("risk") == "high" and c.get("status") == "pending"]
+            self.send_json({"ok": True, "cards": pending_high, "count": len(pending_high)})
+            return
+        if parsed.path == "/api/command-card-mode":
+            self.send_json({"ok": True, "mode": read_command_mode(), "valid_modes": list(_VALID_MODES)})
+            return
+        if parsed.path.startswith("/api/check-command-explain/"):
+            cid = parsed.path.rsplit("/", 1)[-1]
+            cards = read_command_cards()
+            lang = self._get_lang(parsed)
+            for card in cards:
+                if card.get("id") == cid:
+                    explanation = explain_command(card.get("command", ""), lang)
+                    self.send_json({"ok": True, "id": cid, "explanation": explanation})
+                    return
+            self.send_json({"error": "card not found"}, status=404)
+            return
         self.serve_static(parsed.path)
 
     def do_POST(self) -> None:  # noqa: N802
@@ -1092,6 +1290,89 @@ class Handler(BaseHTTPRequestHandler):
                     self.send_json({"ok": True, "card": card})
                     return
             self.send_json({"error": "card not found"}, status=404)
+            return
+        if parsed.path == "/api/check-command":
+            command = str(payload.get("command", "")).strip()
+            reason = str(payload.get("reason", "")).strip()
+            if not command:
+                self.send_json({"ok": False, "error": "command is required"}, status=400)
+                return
+            lang = self._get_lang(parsed)
+            mode = read_command_mode()
+            if mode == "off":
+                self.send_json({"ok": True, "card_id": None, "risk": "off", "summary": "", "ok_to_continue": True, "user_attention": "none", "card_url": None})
+                return
+            assessment = assess_command_risk(command, reason, lang)
+            cards = read_command_cards()
+            now = utc_now()
+            cid = next_command_card_id(cards)
+            card = {
+                "id": cid,
+                "command": command,
+                "reason": reason,
+                "risk": assessment["risk"],
+                "summary": assessment["summary"],
+                "user_attention": assessment["user_attention"],
+                "status": "pending",
+                "created_at": now,
+            }
+            cards.insert(0, card)
+            if len(cards) > _MAX_COMMAND_CARDS:
+                cards = cards[:_MAX_COMMAND_CARDS]
+            write_json(COMMAND_CARDS_PATH, cards)
+            # Build URL for WebUI card
+            card_url = f"http://127.0.0.1:8765/#cmd-{cid}" if assessment["user_attention"] == "required" else None
+            if mode == "silent":
+                card_url = None
+                assessment["user_attention"] = "none"
+            elif mode == "strict":
+                assessment["user_attention"] = "required"
+                card_url = f"http://127.0.0.1:8765/#cmd-{cid}"
+                assessment["ok_to_continue"] = False
+            resp = {
+                "ok": True,
+                "card_id": cid,
+                "risk": assessment["risk"],
+                "summary": assessment["summary"],
+                "ok_to_continue": assessment["ok_to_continue"],
+                "user_attention": assessment["user_attention"],
+                "card_url": card_url,
+            }
+            self.send_json(resp, status=201)
+            return
+        if parsed.path.startswith("/api/check-command/") and not parsed.path.startswith("/api/check-command-explain/"):
+            cid = parsed.path.rsplit("/", 1)[-1]
+            cards = read_command_cards()
+            for card in cards:
+                if card.get("id") == cid:
+                    new_status = str(payload.get("status", "")).strip()
+                    if new_status in ("approved", "denied"):
+                        card["status"] = new_status
+                        card["updated_at"] = utc_now()
+                        write_json(COMMAND_CARDS_PATH, cards)
+                        resp = {"ok": True, "card": card}
+                        if new_status == "denied":
+                            resp["hint"] = (
+                                "このコマンドはユーザーに拒否されました。説明が足りないかもしれません。"
+                                "何のために必要か、何が起きるかをもう少し詳しく書いて、もう一度送ってみてください。"
+                            )
+                            resp["hint_en"] = (
+                                "This command was denied by the user. The explanation may need more detail. "
+                                "Please add more context about why it is needed and what will happen, then try again."
+                            )
+                        self.send_json(resp)
+                        return
+                    self.send_json({"ok": False, "error": f"invalid status: {new_status}"}, status=400)
+                    return
+            self.send_json({"error": "card not found"}, status=404)
+            return
+        if parsed.path == "/api/command-card-mode":
+            new_mode = str(payload.get("mode", "")).strip()
+            if new_mode not in _VALID_MODES:
+                self.send_json({"ok": False, "error": f"invalid mode. valid: {_VALID_MODES}"}, status=400)
+                return
+            write_json(COMMAND_MODE_PATH, {"mode": new_mode})
+            self.send_json({"ok": True, "mode": new_mode})
             return
         self.send_json({"error": "not found"}, status=404)
 

@@ -69,6 +69,20 @@ const i18n = {
     'urlcard.opened': '開きました',
     'urlcard.copied': 'コピーしました',
     'urlcard.none': '現在保留中のURLカードはありません。',
+    // Command confirmation cards
+    // Command history panel
+    'cmdHistory.title': '📋 コマンド確認履歴',
+    'cmdHistory.none': 'まだコマンド履歴はありません。エージェントが作業を始めるとここに表示されます。',
+    'cmdHistory.highAlert': '🛑 確認が必要なコマンドがあります',
+    'cmdHistory.approve': '許可',
+    'cmdHistory.deny': '拒否',
+    'cmdHistory.explain': '解説',
+    'cmdHistory.explaining': '読み込み中...',
+    'cmdHistory.approved': '許可済み',
+    'cmdHistory.denied': '拒否済み',
+    'cmdHistory.riskHigh': '高リスク',
+    'cmdHistory.riskMedium': '中リスク',
+    'cmdHistory.riskLow': '低リスク',
     'urlcard.infoAgentTitle': 'AIエージェント連携機能',
     'urlcard.infoDesc': 'AIエージェント（Hermesなど）が「このページを開いてほしい」とURLと理由だけを送ってくると、ここにカードが表示されます。「ブラウザで開く」「URLをコピー」「無視する」を選べます。エージェントが勝手にブラウザを開くことはなく、あなたが理由を確認してから判断します。',
     // Dynamic-rendering keys only
@@ -239,6 +253,20 @@ const i18n = {
     'urlcard.opened': 'Opened',
     'urlcard.copied': 'Copied',
     'urlcard.none': 'No pending URL cards.',
+    // Command confirmation cards
+    // Command history panel
+    'cmdHistory.title': '📋 Command History',
+    'cmdHistory.none': 'No command history yet. It will appear here when agents start working.',
+    'cmdHistory.highAlert': '🛑 Commands need your review',
+    'cmdHistory.approve': 'Approve',
+    'cmdHistory.deny': 'Deny',
+    'cmdHistory.explain': 'Explain',
+    'cmdHistory.explaining': 'Loading...',
+    'cmdHistory.approved': 'Approved',
+    'cmdHistory.denied': 'Denied',
+    'cmdHistory.riskHigh': 'High risk',
+    'cmdHistory.riskMedium': 'Medium risk',
+    'cmdHistory.riskLow': 'Low risk',
     'urlcard.infoAgentTitle': 'AI Agent Integration',
     'urlcard.infoDesc': 'When an AI agent (e.g. Hermes) sends only a URL and reason, a card appears here. You can Open in browser, Copy URL, or Ignore. The agent never opens your browser directly — you review the reason and stay in control.',
     // Dynamic-rendering keys
@@ -1742,6 +1770,7 @@ function refreshDashboard() {
   }).catch(() => {});
 
   fetchAutoDiagnostic().catch(() => {});
+  fetchCheckCommands().catch(() => {});
   fetch('/api/url-cards').then(r => r.json()).then(data => {
     const el = document.getElementById('dashUrlCardsCount');
     if (el && data.ok) {
@@ -1771,6 +1800,123 @@ function renderDashboardUrlCards(cards) {
     </div>`;
   }).join('');
 }
+
+// ── Command Confirmation Cards ──
+
+async function fetchCheckCommands() {
+  try {
+    const data = await fetchJson('/api/check-commands');
+    if (data.ok && data.cards) renderDashboardCheckCommands(data.cards);
+  } catch (err) {
+    console.error('fetchCheckCommands:', err);
+  }
+}
+
+function renderDashboardCheckCommands(cards) {
+  const list = document.getElementById('dashCmdCardList');
+  if (!list) return;
+
+  const highCount = cards ? cards.filter(c => c.risk === 'high' && c.status === 'pending').length : 0;
+  const counter = document.getElementById('dashCmdCardsCount');
+  if (counter) counter.textContent = cards ? cards.length : 0;
+
+  if (!cards || cards.length === 0) {
+    list.innerHTML = `<p class="muted" style="padding:1.5rem;text-align:center">${t('cmdHistory.none')}</p>`;
+    return;
+  }
+
+  // High-risk alert banner
+  let alertHtml = '';
+  if (highCount > 0) {
+    alertHtml = `<div class="dash-cmd-alert">${t('cmdHistory.highAlert')} (${highCount})</div>`;
+  }
+
+  // Build rows: newest first
+  const rows = cards.map(c => {
+    const cmd = escapeHtml(c.command || '');
+    const summary = escapeHtml(c.summary || '');
+    const reason = escapeHtml(c.reason || '');
+    const cardId = escapeHtml(c.id || '');
+    const status = c.status || 'pending';
+    const risk = c.risk || 'low';
+    const riskLabel = t(`cmdHistory.risk${risk.charAt(0).toUpperCase() + risk.slice(1)}`) || risk;
+    
+    let icon = '✅';
+    let rowClass = 'low';
+    if (risk === 'high') { icon = '🛑'; rowClass = 'high'; }
+    else if (risk === 'medium') { icon = '⚠️'; rowClass = 'medium'; }
+
+    const isResolved = status === 'approved' || status === 'denied';
+    const statusLabel = status === 'approved' ? t('cmdHistory.approved') : status === 'denied' ? t('cmdHistory.denied') : '';
+
+    const actionsHtml = !isResolved
+      ? `<div class="dash-cmd-row-actions">
+          ${risk === 'high' ? `<button class="dash-cmd-mini dash-cmd-mini-approve" data-cmd-id="${cardId}" data-action="approved">${t('cmdHistory.approve')}</button>` : ''}
+          <button class="dash-cmd-mini dash-cmd-mini-explain" data-cmd-id="${cardId}" data-action="explain">${t('cmdHistory.explain')}</button>
+          ${risk === 'high' ? `<button class="dash-cmd-mini dash-cmd-mini-deny" data-cmd-id="${cardId}" data-action="denied">${t('cmdHistory.deny')}</button>` : ''}
+        </div>`
+      : `<span class="dash-cmd-row-status ${status}">${statusLabel}</span>`;
+
+    return `<div class="dash-cmd-row ${rowClass}" id="cmdcard-${cardId}">
+      <span class="dash-cmd-row-icon">${icon}</span>
+      <div class="dash-cmd-row-body">
+        <code class="dash-cmd-row-command">${cmd}</code>
+        <span class="dash-cmd-row-summary">${summary}</span>
+        ${reason ? `<span class="dash-cmd-row-reason">${t('urlcard.reason')} ${reason}</span>` : ''}
+        <span class="dash-cmd-row-risk">${riskLabel}</span>
+        <div class="dash-cmd-row-explain" id="explain-${cardId}" style="display:none"></div>
+      </div>
+      ${actionsHtml}
+    </div>`;
+  }).join('');
+
+  list.innerHTML = alertHtml + rows;
+
+  // Bind handlers
+  list.querySelectorAll('.dash-cmd-mini').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      const el = e.target.closest('.dash-cmd-mini');
+      if (!el) return;
+      const cardId = el.dataset.cmdId;
+      const action = el.dataset.action;
+      if (action === 'explain') {
+        await showCommandExplanation(cardId);
+      } else {
+        await updateCommandCardStatus(cardId, action);
+      }
+    });
+  });
+}
+
+async function showCommandExplanation(cardId) {
+  const explainEl = document.getElementById(`explain-${cardId}`);
+  if (!explainEl) return;
+  explainEl.style.display = 'block';
+  explainEl.innerHTML = `<span class="muted">${t('cmdHistory.explaining')}</span>`;
+  try {
+    const data = await fetchJson(`/api/check-command-explain/${cardId}`);
+    if (data.ok) {
+      explainEl.innerHTML = `<div class="dash-cmd-explain-text">${escapeHtml(data.explanation).replace(/\n\n/g, '<br><br>')}</div>`;
+    }
+  } catch (err) { /* silent */ }
+}
+
+async function updateCommandCardStatus(cardId, status) {
+  try {
+    const data = await fetchJson(`/api/check-command/${cardId}`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({status})
+    });
+    if (data.ok) {
+      // Refresh the history
+      fetchCheckCommands();
+    }
+  } catch (err) {
+    console.error('updateCommandCardStatus:', err);
+  }
+}
+
 
 // Quick navigation buttons in dashboard
 function handleDashboardNavigationClick(event) {
