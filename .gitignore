@@ -25,6 +25,8 @@ reports/
 .playwright-mcp/
 management_webui/data/review_comments.json
 management_webui/data/url_cards.json
+management_webui/data/command_cards.json
+management_webui/data/command_card_mode.json
 hermes/
 
 # OS/editor
