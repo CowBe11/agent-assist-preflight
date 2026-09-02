@@ -1,0 +1,73 @@
+name: Add one-clone README path
+
+on:
+  push:
+    branches: ["docs/one-clone-path"]
+    paths: [".github/workflows/one-clone-readme.yml"]
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: docs/one-clone-path
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: Add 60-second clone path and fix API boundary wording
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          pairs = [
+              (Path("README.md"), Path("dist/フォルダの中身チェック/README.md")),
+              (Path("README.ja.md"), Path("dist/フォルダの中身チェック/README.ja.md")),
+          ]
+
+          en = pairs[0][0]
+          text = en.read_text(encoding="utf-8")
+          anchor = "## Start here\n"
+          insert = '''## Try it in 60 seconds\n\nNo installer and no account are required. Clone it, then start the local WebUI:\n\n```bash\ngit clone https://github.com/CowBe11/agent-assist-preflight.git\ncd agent-assist-preflight\n```\n\n**Windows:** double-click `起動する.bat`.\n\n**WSL / macOS / Linux:**\n\n```bash\npython3 management_webui/server.py\n```\n\nThen open `http://127.0.0.1:8765/`. The first useful test is to point Folder / README Preflight at a repo you were about to set up.\n\n'''
+          if insert not in text:
+              if text.count(anchor) != 1:
+                  raise SystemExit("English Start here anchor mismatch")
+              text = text.replace(anchor, insert + anchor, 1)
+          text = text.replace(
+              "Ground rules: **local-only · read-only · no automatic external fetching · no command execution**.",
+              "Ground rules: **local-only · read-only toward inspected projects · fixed read-only diagnostics only · no automatic external fetching**.",
+          )
+          en.write_text(text, encoding="utf-8")
+          pairs[0][1].write_text(text, encoding="utf-8")
+
+          ja = pairs[1][0]
+          text = ja.read_text(encoding="utf-8")
+          anchor = "## まず見るところ\n"
+          insert = '''## 60秒で試す\n\nインストーラーもアカウントも不要です。まずクローンします。\n\n```bash\ngit clone https://github.com/CowBe11/agent-assist-preflight.git\ncd agent-assist-preflight\n```\n\n**Windows:** `起動する.bat` をダブルクリック。\n\n**WSL / macOS / Linux:**\n\n```bash\npython3 management_webui/server.py\n```\n\nその後 `http://127.0.0.1:8765/` を開きます。最初は「これからセットアップしようとしていたリポジトリ」をフォルダ / README プリフライトにかけるのが一番分かりやすい試し方です。\n\n'''
+          if insert not in text:
+              if text.count(anchor) != 1:
+                  raise SystemExit("Japanese start anchor mismatch")
+              text = text.replace(anchor, insert + anchor, 1)
+          text = text.replace(
+              "基本方針: **ローカル専用・read-only・外部への自動fetchなし・コマンド実行なし**。",
+              "基本方針: **ローカル専用・確認対象プロジェクトにはread-only・固定の読み取り診断のみ・外部への自動fetchなし**。",
+          )
+          ja.write_text(text, encoding="utf-8")
+          pairs[1][1].write_text(text, encoding="utf-8")
+          PY
+      - name: Verify README links and tests
+        run: |
+          python -m pip install -r requirements-dev.txt
+          python -m pytest -q
+          grep -q "git clone https://github.com/CowBe11/agent-assist-preflight.git" README.md
+          grep -q "git clone https://github.com/CowBe11/agent-assist-preflight.git" README.ja.md
+      - name: Commit docs improvement
+        run: |
+          git config user.name "Agent Assist Preflight"
+          git config user.email "actions@users.noreply.github.com"
+          git add README.md README.ja.md "dist/フォルダの中身チェック/README.md" "dist/フォルダの中身チェック/README.ja.md"
+          git commit -m "docs: add 60-second clone quickstart"
+          git push origin HEAD:docs/one-clone-path
