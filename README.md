@@ -30,6 +30,25 @@ Readable review card
 You decide: open, copy, ignore, paste, or stop
 ```
 
+## Try it in 60 seconds
+
+No installer and no account are required. Clone it, then start the local WebUI:
+
+```bash
+git clone https://github.com/CowBe11/agent-assist-preflight.git
+cd agent-assist-preflight
+```
+
+**Windows:** double-click `起動する.bat`.
+
+**WSL / macOS / Linux:**
+
+```bash
+python3 management_webui/server.py
+```
+
+Then open `http://127.0.0.1:8765/`. The first useful test is to point Folder / README Preflight at a repo you were about to set up.
+
 ## Start here
 
 | If you want to... | Use this |
@@ -208,7 +227,7 @@ Once the WebUI is running, a local API is available at:
 http://127.0.0.1:8765/api
 ```
 
-Ground rules: **local-only · read-only · no automatic external fetching · no command execution**.
+Ground rules: **local-only · read-only toward inspected projects · fixed read-only diagnostics only · no automatic external fetching**.
 
 The URL card feature is available through the local API. The intended flow is:
 

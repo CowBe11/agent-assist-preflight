@@ -34,6 +34,25 @@ AIエージェント / README / ターミナルエラー
 あなたが判断: 開く / コピー / 無視 / 貼る / 止まる
 ```
 
+## 60秒で試す
+
+インストーラーもアカウントも不要です。まずクローンします。
+
+```bash
+git clone https://github.com/CowBe11/agent-assist-preflight.git
+cd agent-assist-preflight
+```
+
+**Windows:** `起動する.bat` をダブルクリック。
+
+**WSL / macOS / Linux:**
+
+```bash
+python3 management_webui/server.py
+```
+
+その後 `http://127.0.0.1:8765/` を開きます。最初は「これからセットアップしようとしていたリポジトリ」をフォルダ / README プリフライトにかけるのが一番分かりやすい試し方です。
+
 ## まず見るところ
 
 | やりたいこと | 使う機能 |
@@ -214,7 +233,7 @@ WebUI 起動後、ローカルAPIが使えます。
 http://127.0.0.1:8765/api
 ```
 
-基本方針: **ローカル専用・read-only・外部への自動fetchなし・コマンド実行なし**。
+基本方針: **ローカル専用・確認対象プロジェクトにはread-only・固定の読み取り診断のみ・外部への自動fetchなし**。
 
 URLカード機能はこのAPIから呼び出せます。想定する流れは次の通りです。
 
