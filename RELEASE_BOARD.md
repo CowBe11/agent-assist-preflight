@@ -1,61 +1,42 @@
 # Agent Assist Preflight — Release Board
 
-## Development snapshot — 2026-09-02
+## v0.2.3 "Revival" — 2026-09-02
 
-The repository has moved beyond the old `v0.1.2 (current)` board. Version labels are currently **not synchronized**, so do not cut a release until they are reconciled:
+The maintenance audit has been converted into a tested revival release candidate.
 
-- `pyproject.toml` / CLI `VERSION`: `0.1.2`
-- README banner: `v0.2.0 "Control Deck"`
-- latest feature commit: `v0.2.2` candidate work
+### Fixed in Revival
 
-The latest implementation includes the bilingual Control Deck, a 144+ term glossary, candidate review workflow, fuzzy search, dark mode, URL cards, command-confirmation cards, environment diagnostics, and pytest smoke tests.
+- [x] Package, CLI, management API, README, and compatibility-launcher versions aligned to `0.2.3`.
+- [x] Command-card IDs correctly parse the `cmdNNNN` suffix instead of reusing `cmd0001`.
+- [x] Promoted glossary candidates persist in local `glossary_overrides.json` and survive WebUI restarts.
+- [x] Local JSON POST bodies are capped at 1.25 MB; oversized requests return HTTP 413.
+- [x] Browser POSTs with a non-local Origin are rejected while CLI/agent clients without Origin remain supported.
+- [x] Shell redirection, pipelines, command chaining, command substitution, and similar control operators cannot inherit a low-risk rating from a safe-looking prefix.
+- [x] The old duplicated `standalone.py` server is replaced by a thin compatibility launcher for the maintained WebUI.
+- [x] Root and checked-in `dist/` WebUI server copies remain synchronized.
+- [x] Regression tests cover the audit findings.
+- [x] CI runs core checks on Python 3.9/3.12 plus the full pytest suite.
 
-## Completed since the old v0.1.2 board
+### Current boundary
 
-- [x] CLI error paste / secret redaction flow
-- [x] Bilingual EN / JA dashboard
-- [x] Glossary expansion to 144+ terms
-- [x] Glossary candidate add / edit / reject / promote UI
-- [x] URL handoff cards with blocked dangerous schemes
-- [x] Command confirmation cards with risk assessment and modes
-- [x] Tool / port diagnostics
-- [x] Fuzzy glossary search
-- [x] Dark mode
-- [x] Pytest smoke-test suite
-- [x] GitHub Actions CI for core tests
-- [x] GitHub Actions job that actually runs the pytest suite (audit hardening branch)
+The scanner never executes commands found in an inspected project. The local management WebUI may run fixed read-only environment diagnostics and writes only its own local state. It does not auto-install dependencies, auto-send content to external services, or silently control the browser.
 
-## Before the next release — priority: high
+## Next — quality and maintainability
 
-- [ ] Synchronize the package, CLI, API, README, and release version labels.
-- [ ] Fix command-card ID generation (`cmdNNNN` parsing can currently reuse `cmd0001`).
-- [ ] Make glossary candidate promotion persist across a WebUI restart; the current implementation updates in-memory glossary dictionaries and removes the candidate from disk.
-- [ ] Add a request-size limit to the local JSON API.
-- [ ] Reject browser-originated cross-site requests to `/api/*` while preserving CLI / agent clients that do not send browser Origin headers.
-- [ ] Ensure shell redirection / control operators cannot be classified as low-risk merely because a command starts with `echo`, `cat`, or another read-only-looking prefix.
-- [ ] Decide and document the supported Python range for the WebUI separately from the core CLI if necessary.
-
-## Priority: medium
-
-- [ ] Split `management_webui/server.py` into smaller responsibilities before another large feature wave.
-- [ ] Reduce duplicated source-of-truth risk between `management_webui/` and the checked-in `dist/` copy.
-- [ ] Add regression tests for candidate promotion persistence and command-card ID rollover / history trimming.
-- [ ] Add regression tests for hostile browser Origin / Referer requests to the localhost API.
-- [ ] Expand secret patterns (AWS, Azure, GCP, Slack, Discord, etc.).
-- [ ] Improve mobile layout.
-- [ ] Add traceback line highlighting and step-by-step common-error guidance.
+- [ ] Split `management_webui/server.py` by responsibility before the next large feature wave.
+- [ ] Generate `dist/` from source instead of keeping a manually synchronized duplicate.
+- [ ] Expand secret patterns for major cloud/chat providers.
+- [ ] Improve mobile layout and accessibility.
+- [ ] Add traceback highlighting and step-by-step common-error guidance.
+- [ ] Add a small contributor guide and release checklist.
 
 ## Long term
 
-- [ ] Local-AI assistance only behind an explicit user action, masked text, confirmation UI, read-only tools, and no automatic external send.
+- [ ] Local-AI assistance only behind explicit user action, masked text, confirmation UI, read-only tools, and no automatic external send.
 - [ ] Stronger agent / MCP permission boundaries.
-- [ ] Custom review patterns with a clear beginner-facing explanation for every rule.
+- [ ] Custom review patterns with a beginner-facing explanation for every rule.
 
-## Scope boundary
-
-The core scanner reads project text and does not execute commands discovered in the inspected project. The management WebUI may run fixed read-only diagnostic commands and may write its own local state. See `SECURITY.md` for the current boundary.
-
-Out of scope unless the project is deliberately re-scoped:
+## Out of scope
 
 - Full security auditing or malware detection
 - Real-time threat intelligence

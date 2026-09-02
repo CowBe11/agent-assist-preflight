@@ -28,6 +28,9 @@ COMMENTS_PATH = DATA_ROOT / "review_comments.json"
 URL_CARDS_PATH = DATA_ROOT / "url_cards.json"
 COMMAND_CARDS_PATH = DATA_ROOT / "command_cards.json"
 CANDIDATES_PATH = DATA_ROOT / "glossary_candidates.json"
+GLOSSARY_OVERRIDES_PATH = DATA_ROOT / "glossary_overrides.json"
+APP_VERSION = "0.2.3"
+_MAX_REQUEST_BYTES = 1_250_000
 
 GLOSSARY = {
     "sudo": "パソコンの管理者権限で命令を実行すること。ふだんは安全のため制限されている操作も、sudoをつけると実行できてしまうので注意。",
@@ -337,7 +340,7 @@ DOCS = {
 
 
 def utc_now() -> str:
-    return _dt.datetime.now(_dt.UTC).replace(microsecond=0).isoformat().replace("+00:00", "Z")
+    return _dt.datetime.now(_dt.timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
 
 
 def read_text(path: Path) -> str:
@@ -347,6 +350,46 @@ def read_text(path: Path) -> str:
 def write_json(path: Path, payload: object) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+
+
+def read_glossary_overrides(path: Path = GLOSSARY_OVERRIDES_PATH) -> dict:
+    """Read locally promoted glossary entries. Invalid files fail closed to an empty override set."""
+    if not path.exists():
+        return {}
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return {}
+    return data if isinstance(data, dict) else {}
+
+
+def apply_glossary_overrides(path: Path = GLOSSARY_OVERRIDES_PATH) -> dict:
+    """Apply persisted local glossary promotions to the in-memory dictionaries."""
+    overrides = read_glossary_overrides(path)
+    for term, entry in overrides.items():
+        if not isinstance(entry, dict):
+            continue
+        ja_text = str(entry.get("ja", "")).strip()
+        en_text = str(entry.get("en", "")).strip()
+        if ja_text:
+            GLOSSARY[str(term)] = ja_text
+        if en_text:
+            GLOSSARY_EN[str(term)] = en_text
+    return overrides
+
+
+def persist_glossary_entry(term: str, ja_text: str, en_text: str, path: Path = GLOSSARY_OVERRIDES_PATH) -> None:
+    """Persist one promoted term before removing it from the candidate queue."""
+    overrides = read_glossary_overrides(path)
+    overrides[term] = {"ja": ja_text, "en": en_text}
+    write_json(path, overrides)
+    if ja_text:
+        GLOSSARY[term] = ja_text
+    if en_text:
+        GLOSSARY_EN[term] = en_text
+
+
+apply_glossary_overrides()
 
 
 def read_comments() -> list[dict]:
@@ -417,8 +460,8 @@ def next_command_card_id(cards: list[dict]) -> str:
     nums = []
     for item in cards:
         cid = str(item.get("id", ""))
-        if cid.startswith("cmd") and cid[1:].isdigit():
-            nums.append(int(cid[1:]))
+        if cid.startswith("cmd") and cid[3:].isdigit():
+            nums.append(int(cid[3:]))
     return f"cmd{(max(nums) if nums else 0) + 1:04d}"
 
 # ── Risk assessment for command confirmation ──
@@ -457,6 +500,8 @@ _HIGH_RISK_PATTERNS = [
     r'\bDELETE\s+FROM\b',
 ]
 
+_SHELL_CONTROL_PATTERN = re.compile(r"(?:>>?|<|&&|\|\||;|`|\$\()")
+
 def _matches_any(cmd: str, patterns: list[str]) -> bool:
     import re as _re
     for p in patterns:
@@ -475,6 +520,12 @@ def assess_command_risk(command: str, reason: str = "", lang: str = "ja") -> dic
         summary_en = "⚠️ Dangerous operation. May delete files, change permissions, or execute remote code. Must be reviewed before continuing."
         ok_to_continue = False
         user_attention = "required"
+    elif _SHELL_CONTROL_PATTERN.search(cmd):
+        risk = "medium"
+        summary_ja = "リダイレクト・パイプ・連結などのシェル制御記号を含みます。見た目が安全なコマンドでも副作用が増えるため確認してください。"
+        summary_en = "Contains shell redirection, piping, or command chaining. Review it because these operators can add side effects to an otherwise safe-looking command."
+        ok_to_continue = True
+        user_attention = "optional"
     elif _matches_any(cmd, _LOW_RISK_PATTERNS):
         risk = "low"
         summary_ja = "読み取り専用または情報確認のコマンドです。安全です。"
@@ -504,7 +555,7 @@ def assess_command_risk(command: str, reason: str = "", lang: str = "ja") -> dic
     elif "python" in cmd.lower() and cmd.lower().endswith(".py"):
         summary_ja = "Pythonスクリプトを実行します。スクリプトの内容によってはファイル作成やネットワーク通信が発生します。"
         summary_en = "Runs a Python script. May create files or access network depending on content."
-    elif "git status" in cmd.lower():
+    elif cmd.lower() == "git status":
         risk = "low"; summary_ja = "現在の変更状態を表示するだけの安全なコマンドです。"; summary_en = "Shows current change status only. Safe."
         ok_to_continue = True; user_attention = "none"
     elif "npm run dev" in cmd.lower() or "npm start" in cmd.lower():
@@ -1120,8 +1171,29 @@ def scan_auto_diagnostic(lang: str = "ja") -> dict:
     }
 
 
+def _origin_is_local(origin: str, server_port: int) -> bool:
+    """Allow CLI/agent clients without Origin and same-localhost browser requests only."""
+    origin = (origin or "").strip()
+    if not origin:
+        return True
+    try:
+        parsed = urlparse(origin)
+        if parsed.scheme not in {"http", "https"}:
+            return False
+        if parsed.hostname not in {"127.0.0.1", "localhost", "::1"}:
+            return False
+        port = parsed.port if parsed.port is not None else (443 if parsed.scheme == "https" else 80)
+    except ValueError:
+        return False
+    return port == server_port
+
+
+class RequestBodyTooLarge(ValueError):
+    pass
+
+
 class Handler(BaseHTTPRequestHandler):
-    server_version = "AgentAssistManagementWebUI/0.1"
+    server_version = f"AgentAssistManagementWebUI/{APP_VERSION}"
 
     def log_message(self, fmt: str, *args: object) -> None:
         print(f"[{utc_now()}] {self.address_string()} {fmt % args}")
@@ -1135,9 +1207,14 @@ class Handler(BaseHTTPRequestHandler):
         self.wfile.write(body)
 
     def read_body_json(self) -> dict:
-        length = int(self.headers.get("Content-Length", "0") or "0")
+        try:
+            length = int(self.headers.get("Content-Length", "0") or "0")
+        except ValueError as exc:
+            raise ValueError("invalid Content-Length") from exc
         if length <= 0:
             return {}
+        if length > _MAX_REQUEST_BYTES:
+            raise RequestBodyTooLarge(f"request body too large (max {_MAX_REQUEST_BYTES} bytes)")
         raw_bytes = self.rfile.read(length)
         # Try UTF-8 first (modern tools, Hermes, curl)
         # Fall back to cp932/shift_jis for Windows PowerShell etc.
@@ -1164,7 +1241,7 @@ class Handler(BaseHTTPRequestHandler):
     def _send_api_index(self) -> None:
         self.send_json({
             "name": "Agent Assist Preflight",
-            "version": "0.1.0",
+            "version": APP_VERSION,
             "description": "Read-only preflight assistant for beginners and AI agents. Scans local folders/text and produces plain-language review notes.",
             "description_ja": "初心者とAIエージェント向けの読み取り専用プリフライトアシスタント。ローカルフォルダ/テキストをスキャンして平易なレビューノートを生成します。",
             "endpoints": {
@@ -1313,10 +1390,7 @@ class Handler(BaseHTTPRequestHandler):
         if parsed.path == "/api/check-commands":
             cards = read_command_cards()
             # Sort: high-risk first, then by recency
-            risk_order = {"high": 0, "medium": 1, "low": 2}
-            sorted_cards = sorted(cards, key=lambda c: (risk_order.get(c.get("risk", "low"), 99), c.get("created_at", ""),), reverse=False)
-            # First sort by risk priority, then within same risk by newest first
-            # Simpler: high first, rest by time
+            # High-risk cards first, then the remaining cards by recency.
             high = [c for c in cards if c.get("risk") == "high"]
             rest = [c for c in cards if c.get("risk") != "high"]
             # Sort each group by newest first
@@ -1347,8 +1421,15 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_POST(self) -> None:  # noqa: N802
         parsed = urlparse(self.path)
+        origin = self.headers.get("Origin", "")
+        if not _origin_is_local(origin, self.server.server_port):
+            self.send_json({"ok": False, "error": "cross-site browser request rejected"}, status=403)
+            return
         try:
             payload = self.read_body_json()
+        except RequestBodyTooLarge as exc:
+            self.send_json({"ok": False, "error": str(exc)}, status=413)
+            return
         except Exception as exc:  # noqa: BLE001
             self.send_json({"error": str(exc)}, status=400)
             return
@@ -1539,14 +1620,15 @@ class Handler(BaseHTTPRequestHandler):
             if cid not in candidates:
                 self.send_json({"ok": False, "error": f"candidate '{cid}' not found"}, status=404)
                 return
-            entry = candidates.pop(cid)
-            # Add to GLOSSARY / GLOSSARY_EN
-            ja_text = entry.get("ja", entry.get("description", ""))
-            en_text = entry.get("en", entry.get("description", ""))
-            if ja_text:
-                GLOSSARY[cid] = ja_text
-            if en_text:
-                GLOSSARY_EN[cid] = en_text
+            entry = candidates[cid]
+            ja_text = str(entry.get("ja", entry.get("description", ""))).strip()
+            en_text = str(entry.get("en", entry.get("description", ""))).strip()
+            if not ja_text and not en_text:
+                self.send_json({"ok": False, "error": "candidate has no glossary text"}, status=400)
+                return
+            # Persist first so a failed write never destroys the only copy of the candidate.
+            persist_glossary_entry(cid, ja_text, en_text)
+            candidates.pop(cid)
             write_json(CANDIDATES_PATH, candidates)
             self.send_json({"ok": True, "message": f"'{cid}' promoted to glossary"})
             return

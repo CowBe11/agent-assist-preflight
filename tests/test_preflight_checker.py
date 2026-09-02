@@ -112,14 +112,14 @@ class PreflightCheckerTests(unittest.TestCase):
     def test_version_metadata_matches_release(self):
         pyproject = (ROOT / "pyproject.toml").read_text(encoding="utf-8")
 
-        self.assertEqual(preflight_checker.VERSION, "0.1.2")
-        self.assertIn('version = "0.1.2"', pyproject)
+        self.assertEqual(preflight_checker.VERSION, "0.2.3")
+        self.assertIn('version = "0.2.3"', pyproject)
 
     def test_cli_version_flag_does_not_require_paths(self):
         result = run_checker("--version")
 
         self.assertEqual(result.returncode, 0, result.stderr)
-        self.assertEqual(result.stdout.strip(), "agent-assist-preflight 0.1.2")
+        self.assertEqual(result.stdout.strip(), "agent-assist-preflight 0.2.3")
 
     def test_standalone_version_flag_exits_without_starting_server(self):
         result = subprocess.run(
@@ -131,7 +131,7 @@ class PreflightCheckerTests(unittest.TestCase):
         )
 
         self.assertEqual(result.returncode, 0, result.stderr)
-        self.assertEqual(result.stdout.strip(), "agent-assist-preflight-standalone 0.1.2")
+        self.assertEqual(result.stdout.strip(), "agent-assist-preflight-standalone 0.2.3")
 
 
 if __name__ == "__main__":

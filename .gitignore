@@ -27,6 +27,7 @@ management_webui/data/review_comments.json
 management_webui/data/url_cards.json
 management_webui/data/command_cards.json
 management_webui/data/command_card_mode.json
+management_webui/data/glossary_overrides.json
 hermes/
 
 # OS/editor
