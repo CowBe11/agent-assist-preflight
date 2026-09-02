@@ -1,57 +1,63 @@
 # Agent Assist Preflight — Release Board
 
-## v0.1.2 (current)
+## Development snapshot — 2026-09-02
 
-CLIエラー貼り付けチェック機能の追加。
+The repository has moved beyond the old `v0.1.2 (current)` board. Version labels are currently **not synchronized**, so do not cut a release until they are reconciled:
 
-- ターミナル/PowerShellのエラーを貼り付けて原因候補を確認
-- APIキーやトークンらしき文字列を伏せ字に
-- ログ内の危ない誘導文や危険コマンドに注意喚起
-- 貼り付けHTML/スクリプトが実行されないよう表示処理を強化
-- 50,000文字上限、try/catch例外処理
+- `pyproject.toml` / CLI `VERSION`: `0.1.2`
+- README banner: `v0.2.0 "Control Deck"`
+- latest feature commit: `v0.2.2` candidate work
 
----
+The latest implementation includes the bilingual Control Deck, a 144+ term glossary, candidate review workflow, fuzzy search, dark mode, URL cards, command-confirmation cards, environment diagnostics, and pytest smoke tests.
 
-## v0.1.3 以降 — TODO
+## Completed since the old v0.1.2 board
 
-### 優先度: 高
+- [x] CLI error paste / secret redaction flow
+- [x] Bilingual EN / JA dashboard
+- [x] Glossary expansion to 144+ terms
+- [x] Glossary candidate add / edit / reject / promote UI
+- [x] URL handoff cards with blocked dangerous schemes
+- [x] Command confirmation cards with risk assessment and modes
+- [x] Tool / port diagnostics
+- [x] Fuzzy glossary search
+- [x] Dark mode
+- [x] Pytest smoke-test suite
+- [x] GitHub Actions CI for core tests
+- [x] GitHub Actions job that actually runs the pytest suite (audit hardening branch)
 
-- [ ] CLI検出パターンの追加 (pip, cargo, docker, systemctl 等)
-- [ ] 秘密情報パターンの拡張 (AWS, Azure, GCP, Slack, Discord 等)
-- [ ] 多言語対応の品質向上 (韓語/中国語のターミナルエラー)
-- [ ] モバイル表示の最適化
+## Before the next release — priority: high
 
-### 優先度: 中
+- [ ] Synchronize the package, CLI, API, README, and release version labels.
+- [ ] Fix command-card ID generation (`cmdNNNN` parsing can currently reuse `cmd0001`).
+- [ ] Make glossary candidate promotion persist across a WebUI restart; the current implementation updates in-memory glossary dictionaries and removes the candidate from disk.
+- [ ] Add a request-size limit to the local JSON API.
+- [ ] Reject browser-originated cross-site requests to `/api/*` while preserving CLI / agent clients that do not send browser Origin headers.
+- [ ] Ensure shell redirection / control operators cannot be classified as low-risk merely because a command starts with `echo`, `cat`, or another read-only-looking prefix.
+- [ ] Decide and document the supported Python range for the WebUI separately from the core CLI if necessary.
 
-- [ ] エラーの深掘り機能 (Tracebackの行番号をハイライト)
-- [ ] よくあるエラーの解決手順をステップバイステップで表示
-- [ ] 診断結果の履歴保存 (localStorage)
-- [ ] カスタムパターンの追加機能
+## Priority: medium
 
-### 優先度: 低 (長期)
+- [ ] Split `management_webui/server.py` into smaller responsibilities before another large feature wave.
+- [ ] Reduce duplicated source-of-truth risk between `management_webui/` and the checked-in `dist/` copy.
+- [ ] Add regression tests for candidate promotion persistence and command-card ID rollover / history trimming.
+- [ ] Add regression tests for hostile browser Origin / Referer requests to the localhost API.
+- [ ] Expand secret patterns (AWS, Azure, GCP, Slack, Discord, etc.).
+- [ ] Improve mobile layout.
+- [ ] Add traceback line highlighting and step-by-step common-error guidance.
 
-- [ ] ローカルAI連携 (明示ボタン・マスク済みログ・確認画面・read-only必須)
-  - 条件: ユーザーの明示アクション、マスク済みテキストのみ送信、
-    外部API自動送信なし、実行権限なし
-- [ ] エージェント接続時の安全境界の強化
-- [ ] MCP/Hermes連携時のtool権限制御
+## Long term
 
-### スコープ外 (現時点)
+- [ ] Local-AI assistance only behind an explicit user action, masked text, confirmation UI, read-only tools, and no automatic external send.
+- [ ] Stronger agent / MCP permission boundaries.
+- [ ] Custom review patterns with a clear beginner-facing explanation for every rule.
 
-- [ ] 完全なセキュリティ审计機能
-- [ ] リアルタイムの脅威インテリジェンス連携
-- [ ] ネットワーク経由の自動診断
-- [ ] コマンドの自動修復・自動実行
+## Scope boundary
 
----
+The core scanner reads project text and does not execute commands discovered in the inspected project. The management WebUI may run fixed read-only diagnostic commands and may write its own local state. See `SECURITY.md` for the current boundary.
 
-## 方針
+Out of scope unless the project is deliberately re-scoped:
 
-- CLIエラー貼り付けチェックは完全にブラウザ内の文字列解析のみ
-- 貼り付け内容を外部API/LLM/MCPへ自動送信しない
-- ログ内URLを自動fetchしない
-- ログ内コマンドを実行しない
-- 表示パイプライン: raw → redactSecrets → escHtml → render
-- innerHTML使用箇所はescHtml済み文字列のみ
-- 将来ローカルAI連携を入れる場合の必須条件:
-  明示ボタン / マスク済みログ / 確認画面 / read-only / ツール権限なし
+- Full security auditing or malware detection
+- Real-time threat intelligence
+- Automatic remote diagnosis
+- Automatic command repair / execution

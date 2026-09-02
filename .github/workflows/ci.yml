@@ -4,8 +4,11 @@ on:
   push:
   pull_request:
 
+permissions:
+  contents: read
+
 jobs:
-  test:
+  core:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -15,10 +18,24 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python-version }}
-      - name: Run unit tests
+      - name: Install development test dependencies
+        run: python -m pip install -r requirements-dev.txt
+      - name: Run core unittest suite
         run: python -m unittest discover -s tests -v
       - name: Verify confirm fixture gates correctly
         run: |
           python preflight_checker.py tests/fixtures/danger --format json --fail-on confirm && exit 1 || test $? -eq 2
       - name: Generate self preflight report
         run: python preflight_checker.py . --format markdown --output self-preflight.md
+
+  pytest-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: Install development test dependencies
+        run: python -m pip install -r requirements-dev.txt
+      - name: Run full pytest suite
+        run: python -m pytest -q
