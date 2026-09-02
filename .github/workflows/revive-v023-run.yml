@@ -5,6 +5,7 @@ on:
     branches: ["revive/v0.2.3"]
     paths:
       - "tools/revive_v023.py"
+      - "tools/fix_revival_test.py"
       - ".github/workflows/revive-v023-run.yml"
 
 permissions:
@@ -22,6 +23,8 @@ jobs:
           python-version: "3.12"
       - name: Apply deterministic revival patch
         run: python tools/revive_v023.py
+      - name: Adjust generated HTTP regression harness
+        run: python tools/fix_revival_test.py
       - name: Install test dependencies
         run: python -m pip install -r requirements-dev.txt
       - name: Run full test suite before committing
