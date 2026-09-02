@@ -17,7 +17,7 @@ from dataclasses import dataclass, asdict
 from pathlib import Path
 from typing import Iterable, Optional
 
-VERSION = "0.1.2"
+VERSION = "0.2.3"
 DEFAULT_EXTENSIONS = {
     ".md", ".txt", ".json", ".jsonl", ".yaml", ".yml", ".toml",
     ".ini", ".env.example", ".sh", ".bash", ".ps1", ".py", ".js", ".ts",

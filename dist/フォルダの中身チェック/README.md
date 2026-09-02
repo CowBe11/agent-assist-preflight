@@ -1,12 +1,14 @@
 # Agent Assist Preflight / AIエージェント初心者支援ツール
 
-[日本語 README](README.ja.md) | `v0.1.2` | Free · Open Source · Local Only
+[![CI](https://github.com/CowBe11/agent-assist-preflight/actions/workflows/ci.yml/badge.svg)](https://github.com/CowBe11/agent-assist-preflight/actions/workflows/ci.yml)
+
+[日本語 README](README.ja.md) | `v0.2.3` | Free · Open Source · Local Only
 
 ---
 
 > **Your eyes between the agent and your machine.**
 >
-> A local, read-only safety layer for people using Claude Code, Cursor, Codex, OpenCode, ChatGPT, Hermes, or other AI agents on real projects.
+> A local preflight and review layer for people using Claude Code, Cursor, Codex, OpenCode, ChatGPT, Hermes, or other AI agents on real projects.
 
 Agent Assist Preflight gives you one calm review screen before an AI agent, README, or terminal error pushes you into doing something risky or confusing. The Japanese name is shown in the title because this tool is meant to stay approachable for Japanese beginners too.
 
@@ -97,9 +99,9 @@ Agent Assist Preflight is intentionally modest. It is **not a security scanner**
 
 It is designed to be:
 
-- **read-only**
-- **local-only**
-- **no command execution**
+- **read-only toward inspected projects** — commands found in a target repo are never executed
+- **local-only** — the WebUI binds to localhost
+- **fixed diagnostics only** — the WebUI may run predefined read-only environment checks
 - **no dependency installation**
 - **no automatic external sending**
 - **no silent browser control**

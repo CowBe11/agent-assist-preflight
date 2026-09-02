@@ -1,14 +1,16 @@
 # Agent Assist Preflight / AIエージェント初心者支援ツール
 
+[![CI](https://github.com/CowBe11/agent-assist-preflight/actions/workflows/ci.yml/badge.svg)](https://github.com/CowBe11/agent-assist-preflight/actions/workflows/ci.yml)
+
 ## AIエージェントに任せる前の初心者支援ツール
 
-[English README](README.md) | `v0.2.0 "Control Deck"` / コントロールデッキ | 無料・オープンソース・ローカル専用
+[English README](README.md) | `v0.2.3 "Revival"` / リバイバル | 無料・オープンソース・ローカル専用
 
 ---
 
 > **AIエージェントに任せる前の、人間の目。**
 >
-> Claude Code・Cursor・Codex・OpenCode・ChatGPT・Hermes などのAIエージェントとつなげて使える、ローカル専用・読み取り専用の初心者支援ツールです。
+> Claude Code・Cursor・Codex・OpenCode・ChatGPT・Hermes などのAIエージェントとつなげて使える、ローカル専用の実行前レビュー・初心者支援ツールです。
 
 Agent Assist Preflight は、AIエージェント、README、ターミナルエラーに押されて「よく分からないまま実行する」前に、いったん読める画面へ変えるツールです。旧来の「フォルダの中身チェック」だけではなく、AIエージェントからのURL確認、エラー相談前の秘密情報マスク、READMEの実行前確認までまとめて扱います。
 
@@ -103,9 +105,9 @@ WebUIにURLカードが表示されます。あなたは理由を読んでから
 
 基本方針は次の通りです。
 
-- **read-only / 読み取り専用**
-- **local-only / ローカル専用**
-- **コマンド実行なし**
+- **確認対象のプロジェクトには read-only** — README等で見つけたコマンドを勝手に実行しません
+- **local-only / ローカル専用** — WebUIはlocalhostだけで待ち受けます
+- **固定の読み取り診断のみ** — WebUI自身の環境確認では、あらかじめ決めた読み取り系コマンドだけを使います
 - **依存関係のインストールなし**
 - **外部への自動送信なし**
 - **勝手なブラウザ操作なし**
